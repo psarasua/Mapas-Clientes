@@ -1,0 +1,279 @@
+import React, { useEffect, useState, useMemo } from "react";
+import { supabase } from "../supabaseClient";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  flexRender,
+} from "@tanstack/react-table";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+
+export default function ClientesTable() {
+  const [clientes, setClientes] = useState([]);
+  const [filter, setFilter] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [mapCoords, setMapCoords] = useState({ lat: null, lng: null });
+
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 20,
+  });
+
+  useEffect(() => {
+    fetchClientes();
+  }, []);
+
+  async function fetchClientes() {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("clientes")
+      .select("*")
+      .eq("activo", true)
+      .order("nombre", { ascending: true });
+    if (error) {
+      console.error("Error al cargar clientes:", error.message);
+    } else {
+      setClientes(data);
+    }
+    setLoading(false);
+  }
+
+  const columns = useMemo(
+    () => [
+      { accessorKey: "id", header: "ID" },
+      { accessorKey: "codigo_alternativo", header: "Código Alternativo" },
+      { accessorKey: "nombre", header: "Nombre" },
+      { accessorKey: "razon", header: "Razón" },
+      { accessorKey: "direccion", header: "Dirección" },
+      { accessorKey: "telefono", header: "Teléfono" },
+      { accessorKey: "rut", header: "RUT" },
+      { accessorKey: "activo", header: "Activo" },
+      {
+        header: "Ver Mapa",
+        cell: ({ row }) => {
+          const lat = row.original.y;
+          const lng = row.original.x;
+          const tieneCoords =
+            lat !== null &&
+            lat !== undefined &&
+            lng !== null &&
+            lng !== undefined &&
+            lat !== 0 &&
+            lng !== 0;
+          return tieneCoords ? (
+            <button
+              className="btn btn-link p-0"
+              title="Ver Mapa"
+              onClick={() => {
+                setMapCoords({ lat: Number(lat), lng: Number(lng) });
+                setShowModal(true);
+              }}
+            >
+              <i
+                className="bi bi-flag-fill"
+                style={{ color: "green", fontSize: "1.5rem" }}
+              ></i>
+            </button>
+          ) : (
+            <span title="No GeoReferenciado">
+              <i
+                className="bi bi-flag-fill"
+                style={{ color: "red", fontSize: "1.5rem" }}
+              ></i>
+            </span>
+          );
+        },
+      },
+    ],
+    []
+  );
+
+  const table = useReactTable({
+    data: clientes,
+    columns,
+    state: {
+      globalFilter: filter,
+      pagination,
+    },
+    onGlobalFilterChange: setFilter,
+    onPaginationChange: setPagination,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
+
+  return (
+    <div
+      className="vw-100 vh-100 d-flex flex-column"
+      style={{ minHeight: "100vh", minWidth: "100vw", padding: 0, margin: 0 }}
+    >
+      <div className="flex-grow-1 d-flex flex-column">
+        <h2 className="text-center mb-4 mt-3">Clientes</h2>
+
+        <div className="px-3 mb-3">
+          <input
+            value={filter ?? ""}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Buscar clientes..."
+            className="form-control"
+          />
+        </div>
+
+        <div className="flex-grow-1 d-flex flex-column px-3">
+          {loading ? (
+            <div className="text-center py-4 flex-grow-1 d-flex align-items-center justify-content-center">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="table-responsive flex-grow-1">
+                <table className="table table-striped table-hover align-middle w-100">
+                  <thead className="table-dark">
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <tr key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => (
+                          <th key={header.id} scope="col">
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                          </th>
+                        ))}
+                      </tr>
+                    ))}
+                  </thead>
+                  <tbody>
+                    {table.getRowModel().rows.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={columns.length}
+                          className="text-center py-4"
+                        >
+                          No se encontraron resultados
+                        </td>
+                      </tr>
+                    ) : (
+                      table.getRowModel().rows.map((row) => (
+                        <tr key={row.id}>
+                          {row.getVisibleCells().map((cell) => (
+                            <td key={cell.id}>
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )}
+                            </td>
+                          ))}
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Controles de paginación */}
+              <div className="d-flex justify-content-between align-items-center mt-3">
+                <div>
+                  Página{" "}
+                  <strong>
+                    {table.getState().pagination.pageIndex + 1} de{" "}
+                    {table.getPageCount()}
+                  </strong>
+                </div>
+                <div>
+                  <button
+                    className="btn btn-outline-primary btn-sm me-2"
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
+                  >
+                    {"<"}
+                  </button>
+                  <button
+                    className="btn btn-outline-primary btn-sm"
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
+                  >
+                    {">"}
+                  </button>
+                </div>
+                <select
+                  className="form-select form-select-sm w-auto"
+                  value={table.getState().pagination.pageSize}
+                  onChange={(e) => {
+                    table.setPageSize(Number(e.target.value));
+                  }}
+                >
+                  {[20, 50, 100].map((pageSize) => (
+                    <option key={pageSize} value={pageSize}>
+                      Mostrar {pageSize}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Modal para mostrar el mapa con Leaflet */}
+      {showModal && (
+        <div
+          className="modal fade show"
+          style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+          tabIndex="-1"
+          role="dialog"
+        >
+          <div
+            className="modal-dialog modal-lg modal-dialog-centered"
+            role="document"
+          >
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Ubicación en el Mapa</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  aria-label="Close"
+                  onClick={() => setShowModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body" style={{ height: "400px" }}>
+                {mapCoords.lat && mapCoords.lng ? (
+                  <MapContainer
+                    center={[mapCoords.lat, mapCoords.lng]}
+                    zoom={16}
+                    style={{ height: "100%", width: "100%" }}
+                  >
+                    <TileLayer
+                      attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    <Marker position={[mapCoords.lat, mapCoords.lng]}>
+                      <Popup>Ubicación del cliente</Popup>
+                    </Marker>
+                  </MapContainer>
+                ) : (
+                  <div className="text-center text-danger">
+                    No GeoReferenciado
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Fondo del modal para cerrar al hacer click fuera */}
+      {showModal && (
+        <div
+          className="modal-backdrop fade show"
+          style={{ zIndex: 1040 }}
+          onClick={() => setShowModal(false)}
+        ></div>
+      )}
+    </div>
+  );
+}
