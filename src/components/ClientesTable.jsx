@@ -318,7 +318,10 @@ export default function ClientesTable() {
           tabIndex="-1"
           role="dialog"
         >
-          <div className="modal-dialog modal-lg modal-dialog-centered" role="document">
+          <div
+            className="modal-dialog modal-lg modal-dialog-centered"
+            role="document"
+          >
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Editar Cliente</h5>
@@ -353,7 +356,10 @@ export default function ClientesTable() {
                         className="form-control"
                         value={clienteEdit.codigo_alternativo || ""}
                         onChange={(e) =>
-                          setClienteEdit({ ...clienteEdit, codigo_alternativo: e.target.value })
+                          setClienteEdit({
+                            ...clienteEdit,
+                            codigo_alternativo: e.target.value,
+                          })
                         }
                       />
                     </div>
@@ -366,7 +372,10 @@ export default function ClientesTable() {
                         className="form-control"
                         value={clienteEdit.nombre || ""}
                         onChange={(e) =>
-                          setClienteEdit({ ...clienteEdit, nombre: e.target.value })
+                          setClienteEdit({
+                            ...clienteEdit,
+                            nombre: e.target.value,
+                          })
                         }
                       />
                     </div>
@@ -379,7 +388,10 @@ export default function ClientesTable() {
                         className="form-control"
                         value={clienteEdit.razon || ""}
                         onChange={(e) =>
-                          setClienteEdit({ ...clienteEdit, razon: e.target.value })
+                          setClienteEdit({
+                            ...clienteEdit,
+                            razon: e.target.value,
+                          })
                         }
                       />
                     </div>
@@ -392,7 +404,10 @@ export default function ClientesTable() {
                         className="form-control"
                         value={clienteEdit.direccion || ""}
                         onChange={(e) =>
-                          setClienteEdit({ ...clienteEdit, direccion: e.target.value })
+                          setClienteEdit({
+                            ...clienteEdit,
+                            direccion: e.target.value,
+                          })
                         }
                       />
                     </div>
@@ -405,7 +420,10 @@ export default function ClientesTable() {
                         className="form-control"
                         value={clienteEdit.telefono || ""}
                         onChange={(e) =>
-                          setClienteEdit({ ...clienteEdit, telefono: e.target.value })
+                          setClienteEdit({
+                            ...clienteEdit,
+                            telefono: e.target.value,
+                          })
                         }
                       />
                     </div>
@@ -418,7 +436,10 @@ export default function ClientesTable() {
                         className="form-control"
                         value={clienteEdit.rut || ""}
                         onChange={(e) =>
-                          setClienteEdit({ ...clienteEdit, rut: e.target.value })
+                          setClienteEdit({
+                            ...clienteEdit,
+                            rut: e.target.value,
+                          })
                         }
                       />
                     </div>
@@ -431,7 +452,10 @@ export default function ClientesTable() {
                         className="form-select"
                         value={clienteEdit.activo ? "true" : "false"}
                         onChange={(e) =>
-                          setClienteEdit({ ...clienteEdit, activo: e.target.value === "true" })
+                          setClienteEdit({
+                            ...clienteEdit,
+                            activo: e.target.value === "true",
+                          })
                         }
                       >
                         <option value="true">Sí</option>
