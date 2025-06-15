@@ -7,6 +7,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showReset, setShowReset] = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
@@ -74,6 +75,11 @@ export default function Login() {
             {loading ? "Ingresando..." : "Ingresar"}
           </button>
         </form>
+        <p className="mt-2 text-center">
+          <a href="#" onClick={() => setShowReset(true)}>
+            ¿Olvidaste tu contraseña?
+          </a>
+        </p>
       </div>
     </div>
   );
