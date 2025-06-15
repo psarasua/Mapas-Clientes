@@ -21,13 +21,21 @@ export default function Menu() {
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav">
-            
+            <li className="nav-item">
+              <Link className="nav-link" to="/">
+                Inicio
+              </Link>
+            </li>
             <li className="nav-item">
               <Link className="nav-link" to="/clientes">
                 Clientes
               </Link>
             </li>
-            {/* Agrega más enlaces aquí si es necesario */}
+            <li className="nav-item">
+              <Link className="nav-link" to="/camiones">
+                Camiones
+              </Link>
+            </li>
           </ul>
         </div>
       </div>

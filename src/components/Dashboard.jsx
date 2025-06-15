@@ -61,7 +61,6 @@ export default function Dashboard() {
 
   return (
     <div className="container-fluid mt-4">
-      <h1 className="mb-4">Dashboard</h1>
       {loading ? (
         <div>Cargando...</div>
       ) : (
