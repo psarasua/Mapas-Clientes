@@ -1,4 +1,4 @@
-import ClientesTable from "./components/ClientesTable";
+import ClientesTable from "./components/clientesTable.jsx";
 
 function App() {
   return (
