@@ -36,6 +36,11 @@ export default function Menu() {
                 Camiones
               </Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/dias_entrega">
+                Dias_Entrega
+              </Link>
+            </li>
           </ul>
         </div>
       </div>
