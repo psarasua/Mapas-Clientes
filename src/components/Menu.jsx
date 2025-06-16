@@ -1,27 +1,11 @@
-import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../AuthContext";
-import { supabase } from "../supabaseClient";
+import  supabase  from "../supabaseClient";
 
 export default function Menu() {
-  const { user } = useAuth();
-  const [nombreUsuario, setNombreUsuario] = useState("");
+  
   const navigate = useNavigate();
 
-  useEffect(() => {
-    async function fetchNombreUsuario() {
-      if (user?.email) {
-        const { data, error } = await supabase
-          .from("usuarios")
-          .select("usuario")
-          .eq("email", user.email)
-          .single();
-        if (data && data.usuario) setNombreUsuario(data.usuario);
-        else setNombreUsuario(user.email); // fallback
-      }
-    }
-    fetchNombreUsuario();
-  }, [user]);
+ 
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -67,21 +51,13 @@ export default function Menu() {
                 Días de Entrega
               </Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/camion-dias-entrega">
+               Repartos
+              </Link>
+            </li>
           </ul>
-          {user && (
-            <div className="d-flex align-items-center">
-              <span className="text-light me-3">
-                <i className="bi bi-person-circle me-1"></i>
-                {nombreUsuario}
-              </span>
-              <button
-                className="btn btn-outline-light btn-sm"
-                onClick={handleLogout}
-              >
-                Cerrar sesión
-              </button>
-            </div>
-          )}
+         
         </div>
       </div>
     </nav>
