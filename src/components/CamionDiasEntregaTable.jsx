@@ -25,7 +25,7 @@ function CamionDiasEntregaTable() {
     const { data: registrosData } = await supabase
       .from("camion_dias_entrega")
       .select(
-        "id, cliente_id, camion_id, dia_id, clientes(nombre), camiones(nombre), dias_entrega(nombre)"
+        "id, cliente_id, camion_id, dia_id, clientes(nombre), camiones(descripcion), dias_entrega(descripcion)"
       );
     setRegistros(registrosData || []);
 
@@ -96,11 +96,23 @@ function CamionDiasEntregaTable() {
     setTimeout(closeModal, 1000);
   };
 
+  const handleDelete = async (id) => {
+    if (window.confirm("¿Seguro que deseas eliminar este registro?")) {
+      const { error } = await supabase
+        .from("camion_dias_entrega")
+        .delete()
+        .eq("id", id);
+      if (!error) {
+        fetchAll();
+      }
+    }
+  };
+
   return (
     <div>
       <h2>Camión - Días de Entrega</h2>
       <button className="btn btn-success mb-3" onClick={() => openModal()}>
-        Agregar registro
+        Agregar
       </button>
       <table className="table table-striped table-hover align-middle w-100">
         <thead className="table-dark">
@@ -115,14 +127,22 @@ function CamionDiasEntregaTable() {
           {registros.map((r) => (
             <tr key={r.id}>
               <td>{r.clientes?.nombre || r.cliente_id}</td>
-              <td>{r.camiones?.nombre || r.camion_id}</td>
-              <td>{r.dias_entrega?.nombre || r.dia_id}</td>
+              <td>{r.camiones?.descripcion || r.camion_id}</td>
+              <td>{r.dias_entrega?.descripcion || r.dia_id}</td>
               <td>
                 <button
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-outline-primary btn-sm me-2"
                   onClick={() => openModal(r)}
+                  title="Editar"
                 >
-                  Editar
+                  <i className="bi bi-pencil"></i>
+                </button>
+                <button
+                  className="btn btn-outline-danger btn-sm"
+                  onClick={() => handleDelete(r.id)}
+                  title="Eliminar"
+                >
+                  <i className="bi bi-trash"></i>
                 </button>
               </td>
             </tr>
