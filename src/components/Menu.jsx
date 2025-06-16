@@ -1,16 +1,7 @@
-import { Link, useNavigate } from "react-router-dom";
-import  supabase  from "../supabaseClient";
-
+import { Link } from "react-router-dom";
 export default function Menu() {
   
-  const navigate = useNavigate();
-
  
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/login");
-  };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
@@ -52,7 +43,7 @@ export default function Menu() {
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/camion-dias-entrega">
+              <Link className="nav-link" to="/camion-dias">
                Repartos
               </Link>
             </li>

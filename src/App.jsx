@@ -4,7 +4,7 @@ import Dashboard from "./components/Dashboard";
 import ClientesTable from "./components/ClientesTable";
 import CamionesTable from "./components/CamionesTable";
 import Dias_EntregaTable from "./components/Dias_EntregaTable";
-import CamionDiasEntregaTable from "./components/CamionDiasEntregaTable"; 
+import Camion_DiasTable from "./components/Camion_DiasTable"; 
 
 function App() {
   return (
@@ -15,7 +15,7 @@ function App() {
         <Route path="/clientes" element={<ClientesTable />} />
         <Route path="/camiones" element={<CamionesTable />} />
         <Route path="/dias-entrega" element={<Dias_EntregaTable />} />
-        <Route path="/camion-dias-entrega" element={<CamionDiasEntregaTable />} />
+        <Route path="/camion-dias" element={<Camion_DiasTable />} />
       </Routes>
     </>
   );
