@@ -15,8 +15,7 @@ function CamionDiaDetalle() {
           id,
           cliente_id,
           clientes(nombre),
-          camion_dia,          
-          camiones_dias(
+          camion_dia(
             id,
             camion_id,
             dia_id,
@@ -25,7 +24,7 @@ function CamionDiaDetalle() {
           )
         `)
         .eq("id", id)
-        .single();
+        .maybeSingle();
       setDetalle(data);
       setLoading(false);
     };
@@ -41,9 +40,20 @@ function CamionDiaDetalle() {
         <h4>Detalle de Asignación</h4>
       </div>
       <div className="card-body">
-        <p><strong>Cliente:</strong> {detalle.clientes?.nombre || detalle.cliente_id}</p>
-        <p><strong>Camión:</strong> {detalle.camiones_dias?.camiones?.descripcion || detalle.camiones_dias?.camion_id}</p>
-        <p><strong>Día de Entrega:</strong> {detalle.camiones_dias?.dias_entrega?.descripcion || detalle.camiones_dias?.dia_id}</p>
+        <p>
+          <strong>Cliente:</strong>{" "}
+          {detalle.clientes?.nombre || detalle.cliente_id}
+        </p>
+        <p>
+          <strong>Camión:</strong>{" "}
+          {detalle.camion_dia?.camiones?.descripcion ||
+            detalle.camion_dia?.camion_id}
+        </p>
+        <p>
+          <strong>Día de Entrega:</strong>{" "}
+          {detalle.camion_dia?.dias_entrega?.descripcion ||
+            detalle.camion_dia?.dia_id}
+        </p>
       </div>
     </div>
   );
