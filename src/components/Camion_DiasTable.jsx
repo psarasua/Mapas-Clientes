@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import supabase from "../supabaseClient";
+import MapaClientes from "./MapaClientes";
 
 function CamionesDiasCards() {
   const [registros, setRegistros] = useState([]);
@@ -13,7 +14,8 @@ function CamionesDiasCards() {
     dia_id: "",
   });
   const [mensaje, setMensaje] = useState("");
-  const navigate = useNavigate();
+  const [mostrarMapa, setMostrarMapa] = useState(false);
+  const [clientesMapa, setClientesMapa] = useState([]);
 
   useEffect(() => {
     fetchAll();
@@ -22,7 +24,18 @@ function CamionesDiasCards() {
   const fetchAll = async () => {
     const { data: registrosData } = await supabase
       .from("camiones_dias")
-      .select("id, camion_id, dia_id, camiones(descripcion), dias_entrega(descripcion)");
+      .select(`
+        id,
+        camion_id,
+        dia_id,
+        camiones(descripcion),
+        dias_entrega(descripcion),
+        clientesAsignados:camion_dias_entrega (
+          id,
+          cliente_id,
+          clientes(nombre, x, y)
+        )
+      `);
     setRegistros(registrosData || []);
 
     const { data: diasData } = await supabase.from("dias_entrega").select("*");
@@ -31,6 +44,12 @@ function CamionesDiasCards() {
     const { data: camionesData } = await supabase.from("camiones").select("*");
     setCamiones(camionesData || []);
   };
+
+  // Agrupa los registros por día y luego por id
+  const agrupadosPorDia = dias.map((dia) => ({
+    ...dia,
+    registros: registros.filter((r) => r.dia_id === dia.id)
+  }));
 
   const openModal = (registro = null) => {
     if (registro) {
@@ -94,11 +113,19 @@ function CamionesDiasCards() {
     }
   };
 
-  // Agrupa los registros por dia_id
-  const registrosPorDia = dias.reduce((acc, dia) => {
-    acc[dia.id] = registros.filter((r) => r.dia_id === dia.id);
-    return acc;
-  }, {});
+  const handleVerMapa = (cd) => {
+    // Transforma cada cliente asignado al formato esperado
+    const clientes = (cd.clientesAsignados || [])
+      .filter(ca => ca.clientes && ca.clientes.x && ca.clientes.y)
+      .map(ca => ({
+        id: ca.id,
+        nombre: ca.clientes.nombre,
+        x: ca.clientes.x,
+        y: ca.clientes.y
+      }));
+    setClientesMapa(clientes);
+    setMostrarMapa(true);
+  };
 
   return (
     <div>
@@ -106,52 +133,55 @@ function CamionesDiasCards() {
       <button className="btn btn-success mb-3" onClick={() => openModal()}>
         Agregar registro
       </button>
-      <div className="row">
-        {dias.map((dia) => (
-          <div className="col" key={dia.id}>
-            <h5 className="text-center">{dia.descripcion}</h5>
-            {registrosPorDia[dia.id] && registrosPorDia[dia.id].length > 0 ? (
-              registrosPorDia[dia.id].map((r) => (
-                <div
-                  className="card mb-3"
-                  key={r.id}
-                  style={{ cursor: "pointer" }}
-                  onClick={() => navigate(`/camion-dia/${r.id}`)}
-                >
+
+      {/* Agrupados por día */}
+      {agrupadosPorDia.map((dia) => (
+        <div key={dia.id} className="mb-4">
+          <h4>{dia.descripcion}</h4>
+          <div className="row">
+            {dia.registros.map((cd) => (
+              <div className="col-md-4 mb-3" key={cd.id}>
+                <div className="card">
                   <div className="card-body">
-                    <h6 className="card-title">
-                      {r.camiones?.descripcion}
-                     
-                    </h6>
-                  </div>
-                  <div
-                    className="card-footer d-flex justify-content-end"
-                    onClick={e => e.stopPropagation()}
-                  >
+                    <h5 className="card-title">
+                      {cd.camiones?.descripcion || cd.camion_id}
+                    </h5>
+                    <p className="card-text">
+                      <strong>Día:</strong> {cd.dias_entrega?.descripcion || cd.dia_id}
+                    </p>
+                    <p className="card-text">
+                      <strong>Total de clientes:</strong> {cd.clientesAsignados?.length || 0}
+                    </p>
                     <button
-                      className="btn btn-primary btn-sm me-2"
-                      onClick={() => openModal(r)}
-                      title="Editar"
+                      className="btn btn-info me-2"
+                      onClick={() => handleVerMapa(cd)}
                     >
-                      <i className="bi bi-pencil"></i>
+                      Ver Mapa
                     </button>
                     <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleDelete(r.id)}
-                      title="Eliminar"
+                      className="btn btn-warning me-2"
+                      onClick={() => openModal(cd)}
                     >
-                      <i className="bi bi-trash"></i>
+                      Editar
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => handleDelete(cd.id)}
+                    >
+                      Eliminar
                     </button>
                   </div>
                 </div>
-              ))
-            ) : (
-              <div className="text-center text-muted">Sin camiones</div>
+              </div>
+            ))}
+            {dia.registros.length === 0 && (
+              <div className="col-12 text-muted">Sin camiones para este día.</div>
             )}
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
 
+      {/* Modal de agregar/editar */}
       {modalOpen && (
         <div
           className="modal show d-block"
@@ -223,6 +253,23 @@ function CamionesDiasCards() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal del mapa */}
+      {mostrarMapa && (
+        <div className="modal show d-block" tabIndex="-1" style={{ background: "rgba(0,0,0,0.3)" }}>
+          <div className="modal-dialog modal-xl">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Mapa de Clientes</h5>
+                <button type="button" className="btn-close" onClick={() => setMostrarMapa(false)}></button>
+              </div>
+              <div className="modal-body" style={{ height: 500 }}>
+                <MapaClientes clientes={clientesMapa} />
+              </div>
             </div>
           </div>
         </div>
