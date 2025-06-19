@@ -13,7 +13,7 @@ function SelectorCoordenadas({ value, onChange }) {
     if (value && value.x && value.y) {
       setMarker({ lat: Number(value.y), lng: Number(value.x) });
     }
-  }, [value.x, value.y]);
+  }, [value, value.x, value.y]);
 
   function MapClicker() {
     useMapEvents({
