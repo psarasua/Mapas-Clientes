@@ -6,6 +6,7 @@ import App from "./App.jsx";
 import "leaflet/dist/leaflet.css";
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import { BrowserRouter } from "react-router-dom";
+import "bootswatch/dist/flatly/bootstrap.min.css";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
         <BrowserRouter>

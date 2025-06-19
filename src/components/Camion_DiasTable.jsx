@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import supabase from "../supabaseClient";
 import MapaClientes from "./MapaClientes";
 
@@ -9,13 +8,13 @@ function CamionesDiasCards() {
   const [camiones, setCamiones] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [form, setForm] = useState({
-    camion_id: "",
-    dia_id: "",
-  });
+  const [form, setForm] = useState({ camion_id: "", dia_id: "" });
   const [mensaje, setMensaje] = useState("");
   const [mostrarMapa, setMostrarMapa] = useState(false);
   const [clientesMapa, setClientesMapa] = useState([]);
+  const [clientesAsignados, setClientesAsignados] = useState([]);
+  const [todosClientes, setTodosClientes] = useState([]);
+  const [busqueda, setBusqueda] = useState("");
 
   useEffect(() => {
     fetchAll();
@@ -45,25 +44,38 @@ function CamionesDiasCards() {
     setCamiones(camionesData || []);
   };
 
-  // Agrupa los registros por día y luego por id
-  const agrupadosPorDia = dias.map((dia) => ({
-    ...dia,
-    registros: registros.filter((r) => r.dia_id === dia.id)
-  }));
-
-  const openModal = (registro = null) => {
+  const openModal = async (registro = null) => {
     if (registro) {
       setEditId(registro.id);
       setForm({
         camion_id: registro.camion_id,
         dia_id: registro.dia_id,
       });
+      // Carga clientes asignados
+      setClientesAsignados(
+        (registro.clientesAsignados || []).map(ca => ({
+          id: ca.id,
+          nombre: ca.clientes.nombre,
+          x: ca.clientes.x,
+          y: ca.clientes.y
+        }))
+      );
     } else {
       setEditId(null);
       setForm({ camion_id: "", dia_id: "" });
+      setClientesAsignados([]);
     }
     setMensaje("");
     setModalOpen(true);
+
+    // Carga todos los clientes (solo una vez)
+    if (todosClientes.length === 0) {
+      const { data } = await supabase
+        .from("clientes")
+        .select("id, nombre, razon, codigo_alternativo, x, y")
+        .eq("activo", true);
+      setTodosClientes(data || []);
+    }
   };
 
   const closeModal = () => {
@@ -98,7 +110,7 @@ function CamionesDiasCards() {
       setMensaje("Registro agregado.");
     }
     fetchAll();
-    setTimeout(closeModal, 1000);
+    setTimeout(closeModal, 1000); // Solo aquí se cierra el modal
   };
 
   const handleDelete = async (id) => {
@@ -114,7 +126,6 @@ function CamionesDiasCards() {
   };
 
   const handleVerMapa = (cd) => {
-    // Transforma cada cliente asignado al formato esperado
     const clientes = (cd.clientesAsignados || [])
       .filter(ca => ca.clientes && ca.clientes.x && ca.clientes.y)
       .map(ca => ({
@@ -127,45 +138,77 @@ function CamionesDiasCards() {
     setMostrarMapa(true);
   };
 
+  const agregarCliente = async (cliente) => {
+    if (!editId) return;
+    await supabase.from("camion_dias_entrega").insert([
+      { camion_dia: editId, cliente_id: cliente.id }
+    ]);
+    // Actualiza la lista local (sin cerrar el modal)
+    setClientesAsignados([...clientesAsignados, cliente]);
+  };
+
+  const eliminarCliente = async (clienteId) => {
+    if (!editId) return;
+    await supabase
+      .from("camion_dias_entrega")
+      .delete()
+      .eq("camion_dia", editId)
+      .eq("cliente_id", clienteId);
+    setClientesAsignados(clientesAsignados.filter(c => c.id !== clienteId));
+  };
+
+  // Agrupa los registros por día y los ordena por id dentro de cada día
+  const columnasPorDia = dias.map((dia) => {
+    const registrosDelDia = registros
+      .filter((r) => r.dia_id === dia.id)
+      .sort((a, b) => a.id - b.id);
+    return { ...dia, registros: registrosDelDia };
+  });
+
+  const busquedaLimpia = busqueda.trim().toLowerCase();
+
+  const clientesFiltrados = todosClientes.filter(
+    c =>
+      c &&
+      (
+        (c.nombre && c.nombre.toLowerCase().includes(busquedaLimpia)) ||
+        (c.razon && c.razon.toLowerCase().includes(busquedaLimpia)) ||
+        (c.codigo_alternativo &&
+          c.codigo_alternativo.toString().toLowerCase().includes(busquedaLimpia))
+      )
+  );
+
+
   return (
     <div>
-      <h2>Camiones agrupados por día</h2>
+      <h2>Camiones agrupados por día (columnas)</h2>
       <button className="btn btn-success mb-3" onClick={() => openModal()}>
         Agregar registro
       </button>
 
-      {/* Agrupados por día */}
-      {agrupadosPorDia.map((dia) => (
-        <div key={dia.id} className="mb-4">
-          <h4>{dia.descripcion}</h4>
-          <div className="row">
+      {/* Columnas por día */}
+      <div className="row">
+        {columnasPorDia.map((dia) => (
+          <div className="col" key={dia.id}>
+            <h5 className="text-center">{dia.descripcion}</h5>
             {dia.registros.map((cd) => (
-              <div className="col-md-4 mb-3" key={cd.id}>
-                <div className="card">
-                  <div className="card-body">
-                    <h5 className="card-title">
-                      {cd.camiones?.descripcion || cd.camion_id}
-                    </h5>
-                    <p className="card-text">
-                      <strong>Día:</strong> {cd.dias_entrega?.descripcion || cd.dia_id}
-                    </p>
-                    <p className="card-text">
-                      <strong>Total de clientes:</strong> {cd.clientesAsignados?.length || 0}
-                    </p>
-                    <button
-                      className="btn btn-info me-2"
-                      onClick={() => handleVerMapa(cd)}
-                    >
+              <div className="card mb-3" key={cd.id}>
+                <div className="card-body">
+                  <h6 className="card-title">
+                    {cd.camiones?.descripcion || cd.camion_id}
+                  </h6>
+                  <p className="card-text">
+                    <strong>Total de clientes:</strong> {cd.clientesAsignados?.length || 0}
+                  </p>
+                  <div className="d-flex gap-2 mt-2">
+                    <button className="btn btn-info btn-sm" onClick={() => handleVerMapa(cd)}>
                       Ver Mapa
                     </button>
-                    <button
-                      className="btn btn-warning me-2"
-                      onClick={() => openModal(cd)}
-                    >
+                    <button className="btn btn-warning btn-sm" onClick={() => openModal(cd)}>
                       Editar
                     </button>
                     <button
-                      className="btn btn-danger"
+                      className="btn btn-danger btn-sm"
                       onClick={() => handleDelete(cd.id)}
                     >
                       Eliminar
@@ -175,11 +218,11 @@ function CamionesDiasCards() {
               </div>
             ))}
             {dia.registros.length === 0 && (
-              <div className="col-12 text-muted">Sin camiones para este día.</div>
+              <div className="text-muted text-center">Sin camiones</div>
             )}
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
 
       {/* Modal de agregar/editar */}
       {modalOpen && (
@@ -210,6 +253,7 @@ function CamionesDiasCards() {
                       value={form.camion_id}
                       onChange={handleChange}
                       required
+                      disabled={!!editId}
                     >
                       <option value="">Seleccione</option>
                       {camiones.map((c) => (
@@ -227,6 +271,7 @@ function CamionesDiasCards() {
                       value={form.dia_id}
                       onChange={handleChange}
                       required
+                      disabled={!!editId}
                     >
                       <option value="">Seleccione</option>
                       {dias.map((d) => (
@@ -235,6 +280,60 @@ function CamionesDiasCards() {
                         </option>
                       ))}
                     </select>
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Clientes asignados:</label>
+                    <ul className="list-group mb-2">
+                      {clientesAsignados.map((c) => (
+                        <li key={c.id} className="list-group-item d-flex justify-content-between align-items-center">
+                          {c.nombre}
+                          <button className="btn btn-sm btn-danger" onClick={() => eliminarCliente(c.id)}>
+                            Eliminar
+                          </button>
+                        </li>
+                      ))}
+                      {clientesAsignados.length === 0 && (
+                        <li className="list-group-item text-muted">Sin clientes asignados</li>
+                      )}
+                    </ul>
+                    <input
+                      type="text"
+                      className="form-control mb-2"
+                      placeholder="Buscar cliente por nombre o razón..."
+                      value={busqueda}
+                      onChange={e => setBusqueda(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") e.preventDefault(); }}
+                    />
+
+                    {busquedaLimpia.length > 0 && (
+                      <ul className="list-group">
+                        {clientesFiltrados.length > 0 ? (
+                          clientesFiltrados.map(c => {
+                            const yaAsignado = clientesAsignados.some(a => a.id === c.id);
+                            return (
+                              <li key={c.id} className="list-group-item d-flex justify-content-between align-items-center">
+                                {c.nombre} {c.razon && <span className="text-muted">({c.razon})</span>}
+                                {yaAsignado ? (
+                                  <button className="btn btn-sm btn-secondary" disabled>
+                                    Ya asignado
+                                  </button>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm btn-success"
+                                    onClick={() => agregarCliente(c)}
+                                  >
+                                    Agregar
+                                  </button>
+                                )}
+                              </li>
+                            );
+                          })
+                        ) : (
+                          <li className="list-group-item text-muted">Sin resultados</li>
+                        )}
+                      </ul>
+                    )}
                   </div>
                   {mensaje && (
                     <div className="alert alert-info">{mensaje}</div>
