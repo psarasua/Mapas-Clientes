@@ -7,8 +7,65 @@ import {
   getPaginationRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+
+// Componente auxiliar para seleccionar coordenadas en el mapa
+function SelectorCoordenadas({ value, onChange }) {
+  // value: { x, y }
+  const [marker, setMarker] = useState(
+    value && value.x && value.y ? { lat: Number(value.y), lng: Number(value.x) } : null
+  );
+
+  // Actualiza el marcador si cambian las coordenadas desde fuera
+  React.useEffect(() => {
+    if (value && value.x && value.y) {
+      setMarker({ lat: Number(value.y), lng: Number(value.x) });
+    }
+  }, [value.x, value.y]);
+
+  function MapClicker() {
+    useMapEvents({
+      click(e) {
+        setMarker(e.latlng);
+        onChange({ x: e.latlng.lng, y: e.latlng.lat });
+      },
+    });
+    return null;
+  }
+
+  return (
+    <div style={{ height: 300, width: "100%" }}>
+      <MapContainer
+        center={
+          marker
+            ? [marker.lat, marker.lng]
+            : [-34.9, -56.2] // Montevideo por defecto
+        }
+        zoom={marker ? 16 : 12}
+        style={{ height: "100%", width: "100%" }}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <MapClicker />
+        {marker && (
+          <Marker position={[marker.lat, marker.lng]}>
+            <Popup>
+              Coordenadas seleccionadas:<br />
+              Lat: {marker.lat.toFixed(6)}<br />
+              Lng: {marker.lng.toFixed(6)}
+            </Popup>
+          </Marker>
+        )}
+      </MapContainer>
+      <div className="form-text">
+        Haga clic en el mapa para seleccionar la ubicación del cliente.
+      </div>
+    </div>
+  );
+}
 
 export default function ClientesTable() {
   const [clientes, setClientes] = useState([]);
@@ -461,6 +518,58 @@ export default function ClientesTable() {
                         <option value="true">Sí</option>
                         <option value="false">No</option>
                       </select>
+                    </div>
+                    <div className="mb-3 col-md-6">
+                      <label className="form-label d-flex align-items-center">
+                        <i className="bi bi-geo me-2"></i>
+                        Coordenada X (Longitud)
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        className="form-control"
+                        value={clienteEdit.x || ""}
+                        onChange={e =>
+                          setClienteEdit({
+                            ...clienteEdit,
+                            x: e.target.value
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="mb-3 col-md-6">
+                      <label className="form-label d-flex align-items-center">
+                        <i className="bi bi-geo me-2"></i>
+                        Coordenada Y (Latitud)
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        className="form-control"
+                        value={clienteEdit.y || ""}
+                        onChange={e =>
+                          setClienteEdit({
+                            ...clienteEdit,
+                            y: e.target.value
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="mb-3 col-12">
+                      <label className="form-label d-flex align-items-center">
+                        <i className="bi bi-map me-2"></i>
+                        Seleccionar ubicación en el mapa
+                      </label>
+                      <SelectorCoordenadas
+                        value={{ x: clienteEdit.x, y: clienteEdit.y }}
+                        onChange={({ x, y }) =>
+                          setClienteEdit({
+                            ...clienteEdit,
+                            x,
+                            y,
+                          })
+                        }
+                      />
                     </div>
                     {/* Agrega más campos aquí si tu tabla tiene más */}
                   </div>
