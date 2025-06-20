@@ -3,19 +3,28 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-// Genera un color HSL único para cada cliente
-function generarColores(n) {
-  return Array.from({ length: n }, (_, i) => `hsl(${(i * 360) / n}, 90%, 45%)`);
-}
-
-// Crea un icono de color personalizado usando divIcon
-function getColorIcon(color) {
+// Crea un icono con número usando divIcon
+function getNumeroIcon(numero) {
   return L.divIcon({
-    className: "custom-marker",
-    html: `<div style="background:${color};width:22px;height:22px;border-radius:50%;border:2px solid #333"></div>`,
-    iconSize: [26, 26],
-    iconAnchor: [13, 26],
-    popupAnchor: [0, -26]
+    className: "numero-marker",
+    html: `<div style="
+      background:#fff;
+      border:1.5px solid #888;
+      border-radius:50%;
+      width:24px;
+      height:24px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:400;
+      font-size:14px;
+      color:#222;
+      ">
+      ${numero}
+    </div>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 24],
+    popupAnchor: [0, -24]
   });
 }
 
@@ -35,7 +44,6 @@ function MapaClientes({ clientes }) {
   );
   if (!clientesConUbicacion.length) return <div>No hay clientes con ubicación.</div>;
   const center = [clientesConUbicacion[0].y, clientesConUbicacion[0].x];
-  const colores = generarColores(clientesConUbicacion.length);
 
   return (
     <div>
@@ -93,14 +101,21 @@ function MapaClientes({ clientes }) {
                 <span
                   style={{
                     display: "inline-block",
-                    width: 18,
-                    height: 18,
-                    background: colores[idx],
+                    width: 24,
+                    height: 24,
                     borderRadius: "50%",
-                    border: "2px solid #333",
-                    marginRight: 10
+                    border: "1.5px solid #888",
+                    background: "#fff",
+                    color: "#222",
+                    fontWeight: 400,
+                    fontSize: 14,
+                    marginRight: 10,
+                    textAlign: "center",
+                    lineHeight: "24px"
                   }}
-                ></span>
+                >
+                  {idx + 1}
+                </span>
                 {c.nombre}
               </li>
             ))}
@@ -115,9 +130,11 @@ function MapaClientes({ clientes }) {
               <Marker
                 key={c.id || idx}
                 position={[c.y, c.x]}
-                icon={getColorIcon(colores[idx])}
+                icon={getNumeroIcon(idx + 1)}
               >
-                <Popup>{c.nombre}</Popup>
+                <Popup>
+                  <strong>{idx + 1}. {c.nombre}</strong>
+                </Popup>
               </Marker>
             ))}
           </MapContainer>
