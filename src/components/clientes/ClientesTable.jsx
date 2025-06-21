@@ -3,7 +3,6 @@ import supabase from "../../supabaseClient";
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
 } from "@tanstack/react-table";
 import LoadingBar from "../ui/LoadingBar";
 import ClientesTableContent from "./ClientesTableContent";
@@ -12,6 +11,7 @@ import ClientesTableModalEditar from "./ClientesTableModalEditar";
 
 const ClientesTable = React.memo(function ClientesTable() {
   const [clientes, setClientes] = useState([]);
+  const [total, setTotal] = useState(0);
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -24,38 +24,47 @@ const ClientesTable = React.memo(function ClientesTable() {
     pageSize: 20,
   });
 
+  // Calcula el número total de páginas
+  const pageCount = useMemo(
+    () => Math.ceil(total / pagination.pageSize) || 1,
+    [total, pagination.pageSize]
+  );
+
+  // Trae solo la página actual de clientes
   const fetchClientes = useCallback(async () => {
     setLoading(true);
     setProgress(10);
-    const { data, error } = await supabase
+
+    const from = pagination.pageIndex * pagination.pageSize;
+    const to = from + pagination.pageSize - 1;
+
+    let query = supabase
       .from("clientes")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("activo", true)
-      .order("nombre", { ascending: true });
+      .order("nombre", { ascending: true })
+      .range(from, to);
+
+    // Filtro simple por nombre (puedes mejorarlo)
+    if (filter) {
+      query = query.ilike("nombre", `%${filter}%`);
+    }
+
+    const { data, error, count } = await query;
+
     setProgress(70);
-    if (!error) setClientes(data);
+    if (!error) {
+      setClientes(data);
+      setTotal(count || 0);
+    }
     setProgress(100);
     setTimeout(() => setLoading(false), 300);
     setTimeout(() => setProgress(0), 600);
-  }, []);
+  }, [pagination, filter]);
 
   useEffect(() => {
     fetchClientes();
   }, [fetchClientes]);
-
-  useEffect(() => {
-    setPagination({
-      pageIndex: 0,
-      pageSize: 20,
-    });
-  }, []);
-
-  useEffect(() => {
-    setPagination((prev) => ({
-      ...prev,
-      pageIndex: 0,
-    }));
-  }, [clientes.length]);
 
   const handleEdit = useCallback((cliente) => {
     setClienteEdit(cliente);
@@ -146,15 +155,17 @@ const ClientesTable = React.memo(function ClientesTable() {
     [handleEdit, handleDelete]
   );
 
+  // Configuración de react-table en modo paginación manual
   const table = useReactTable({
     data: clientes,
     columns,
+    pageCount,
     state: {
       pagination,
     },
     onPaginationChange: setPagination,
+    manualPagination: true,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   });
 
   const paginationControls = useMemo(() => (
@@ -162,8 +173,7 @@ const ClientesTable = React.memo(function ClientesTable() {
       <div>
         Página{" "}
         <strong>
-          {table.getState().pagination.pageIndex + 1} de{" "}
-          {table.getPageCount()}
+          {table.getState().pagination.pageIndex + 1} de {pageCount}
         </strong>
       </div>
       <div>
@@ -196,7 +206,7 @@ const ClientesTable = React.memo(function ClientesTable() {
         ))}
       </select>
     </div>
-  ), [table]);
+  ), [table, pageCount]);
 
   return (
     <div className="vw-100 vh-100 d-flex flex-column" style={{ minHeight: "100vh", minWidth: "100vw", padding: 0, margin: 0 }}>
@@ -205,7 +215,10 @@ const ClientesTable = React.memo(function ClientesTable() {
         <div className="px-3 mb-3">
           <input
             value={filter ?? ""}
-            onChange={(e) => setFilter(e.target.value)}
+            onChange={(e) => {
+              setFilter(e.target.value);
+              setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+            }}
             placeholder="Buscar clientes..."
             className="form-control"
           />
