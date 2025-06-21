@@ -1,48 +1,50 @@
-import React, { useEffect, useState, useMemo } from "react"; // Importa hooks principales de React
-import supabase from "../../supabaseClient"; // Cliente de Supabase para la base de datos
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import supabase from "../../supabaseClient";
 import {
   useReactTable,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   flexRender,
-} from "@tanstack/react-table"; // Utilidades de react-table para tablas avanzadas
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet"; // Componentes de Leaflet para mapas
-import "leaflet/dist/leaflet.css"; // Estilos de Leaflet
+} from "@tanstack/react-table";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 
 // Componente auxiliar para seleccionar coordenadas en el mapa
-function SelectorCoordenadas({ value, onChange }) {
-  // value: { x, y }
+const SelectorCoordenadas = React.memo(function SelectorCoordenadas({ value, onChange }) {
   const [marker, setMarker] = useState(
     value && value.x && value.y ? { lat: Number(value.y), lng: Number(value.x) } : null
   );
 
-  // Actualiza el marcador si cambian las coordenadas desde fuera
-  React.useEffect(() => {
+  useEffect(() => {
     if (value && value.x && value.y) {
       setMarker({ lat: Number(value.y), lng: Number(value.x) });
     }
   }, [value.x, value.y]);
 
-  // Permite seleccionar una ubicación haciendo click en el mapa
+  // Memoiza el handler de click en el mapa
+  const handleMapClick = useCallback(
+    (e) => {
+      setMarker(e.latlng);
+      onChange({ x: e.latlng.lng, y: e.latlng.lat });
+    },
+    [onChange]
+  );
+
   function MapClicker() {
     useMapEvents({
-      click(e) {
-        setMarker(e.latlng);
-        onChange({ x: e.latlng.lng, y: e.latlng.lat }); // Actualiza coordenadas en el padre
-      },
+      click: handleMapClick,
     });
     return null;
   }
 
-  // Renderiza el mapa y el marcador seleccionado
   return (
     <div style={{ height: 300, width: "100%" }}>
       <MapContainer
         center={
           marker
             ? [marker.lat, marker.lng]
-            : [-34.9, -56.2] // Montevideo por defecto
+            : [-34.9, -56.2]
         }
         zoom={marker ? 16 : 12}
         style={{ height: "100%", width: "100%" }}
@@ -67,37 +69,45 @@ function SelectorCoordenadas({ value, onChange }) {
       </div>
     </div>
   );
-}
+});
 
-export default function ClientesTable() {
-  // Estado para la lista de clientes
+const ClientesTable = React.memo(function ClientesTable() {
   const [clientes, setClientes] = useState([]);
-  // Estado para el filtro global de búsqueda
   const [filter, setFilter] = useState("");
-  // Estado para mostrar spinner de carga
   const [loading, setLoading] = useState(true);
-  // Estado para mostrar el modal de mapa
   const [showModal, setShowModal] = useState(false);
-  // Estado para coordenadas del mapa modal
   const [mapCoords, setMapCoords] = useState({ lat: null, lng: null });
-  // Estado para cliente en edición
   const [clienteEdit, setClienteEdit] = useState(null);
-  // Estado para mostrar modal de edición
   const [showEditModal, setShowEditModal] = useState(false);
-  // Estado para la paginación de la tabla
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 20,
   });
 
-  // Maneja la edición de un cliente
-  const handleEdit = (cliente) => {
+  // Memoiza la función para cargar clientes
+  const fetchClientes = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("clientes")
+      .select("*")
+      .eq("activo", true)
+      .order("nombre", { ascending: true });
+    if (!error) setClientes(data);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchClientes();
+  }, [fetchClientes]);
+
+  // Memoiza el handler de edición
+  const handleEdit = useCallback((cliente) => {
     setClienteEdit(cliente);
     setShowEditModal(true);
-  };
+  }, []);
 
-  // Maneja la eliminación de un cliente (soft delete)
-  const handleDelete = async (clienteId) => {
+  // Memoiza el handler de eliminación
+  const handleDelete = useCallback(async (clienteId) => {
     if (window.confirm("¿Seguro que deseas eliminar este cliente?")) {
       const { error } = await supabase
         .from("clientes")
@@ -105,30 +115,9 @@ export default function ClientesTable() {
         .eq("id", clienteId);
       if (!error) fetchClientes();
     }
-  };
+  }, [fetchClientes]);
 
-  // Carga los clientes al montar el componente
-  useEffect(() => {
-    fetchClientes();
-  }, []);
-
-  // Función para obtener clientes activos de la base de datos
-  async function fetchClientes() {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("clientes")
-      .select("*")
-      .eq("activo", true)
-      .order("nombre", { ascending: true });
-    if (error) {
-      console.error("Error al cargar clientes:", error.message);
-    } else {
-      setClientes(data);
-    }
-    setLoading(false);
-  }
-
-  // Definición de columnas para react-table (memorizada)
+  // Memoiza las columnas de la tabla
   const columns = useMemo(
     () => [
       { accessorKey: "id", header: "ID" },
@@ -142,7 +131,6 @@ export default function ClientesTable() {
       {
         header: "Ver Mapa",
         cell: ({ row }) => {
-          // Extrae coordenadas del cliente
           const lat = row.original.y;
           const lng = row.original.x;
           const tieneCoords =
@@ -152,7 +140,6 @@ export default function ClientesTable() {
             lng !== undefined &&
             lat !== 0 &&
             lng !== 0;
-          // Botón para ver el mapa si tiene coordenadas
           return tieneCoords ? (
             <button
               className="btn btn-link p-0"
@@ -202,7 +189,7 @@ export default function ClientesTable() {
         },
       },
     ],
-    []
+    [handleEdit, handleDelete]
   );
 
   // Configuración de la tabla con react-table
@@ -220,6 +207,91 @@ export default function ClientesTable() {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
+  // Memoiza el renderizado de la tabla y la paginación
+  const tableContent = useMemo(() => (
+    <div className="table-responsive flex-grow-1">
+      <table className="table table-striped table-hover align-middle w-100">
+        <thead className="table-dark">
+          {table.getHeaderGroups().map((headerGroup) => (
+            <tr key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <th key={header.id} scope="col">
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody>
+          {table.getRowModel().rows.length === 0 ? (
+            <tr>
+              <td colSpan={columns.length} className="text-center py-4">
+                No se encontraron resultados
+              </td>
+            </tr>
+          ) : (
+            table.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id}>
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext()
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  ), [table, columns]);
+
+  const paginationControls = useMemo(() => (
+    <div className="d-flex justify-content-between align-items-center mt-3">
+      <div>
+        Página{" "}
+        <strong>
+          {table.getState().pagination.pageIndex + 1} de{" "}
+          {table.getPageCount()}
+        </strong>
+      </div>
+      <div>
+        <button
+          className="btn btn-outline-primary btn-sm me-2"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          {"<"}
+        </button>
+        <button
+          className="btn btn-outline-primary btn-sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          {">"}
+        </button>
+      </div>
+      <select
+        className="form-select form-select-sm w-auto"
+        value={table.getState().pagination.pageSize}
+        onChange={(e) => {
+          table.setPageSize(Number(e.target.value));
+        }}
+      >
+        {[20, 50, 100].map((pageSize) => (
+          <option key={pageSize} value={pageSize}>
+            Mostrar {pageSize}
+          </option>
+        ))}
+      </select>
+    </div>
+  ), [table]);
+
   // Render principal del componente
   return (
     <div
@@ -228,7 +300,6 @@ export default function ClientesTable() {
     >
       <div className="flex-grow-1 d-flex flex-column">
         <h2 className="text-center mb-4 mt-3">Clientes</h2>
-
         {/* Filtro de búsqueda */}
         <div className="px-3 mb-3">
           <input
@@ -238,11 +309,9 @@ export default function ClientesTable() {
             className="form-control"
           />
         </div>
-
         {/* Tabla de clientes */}
         <div className="flex-grow-1 d-flex flex-column px-3">
           {loading ? (
-            // Spinner de carga
             <div className="text-center py-4 flex-grow-1 d-flex align-items-center justify-content-center">
               <div className="spinner-border text-primary" role="status">
                 <span className="visually-hidden">Cargando...</span>
@@ -250,94 +319,12 @@ export default function ClientesTable() {
             </div>
           ) : (
             <>
-              <div className="table-responsive flex-grow-1">
-                <table className="table table-striped table-hover align-middle w-100">
-                  <thead className="table-dark">
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <tr key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => (
-                          <th key={header.id} scope="col">
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                          </th>
-                        ))}
-                      </tr>
-                    ))}
-                  </thead>
-                  <tbody>
-                    {table.getRowModel().rows.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={columns.length}
-                          className="text-center py-4"
-                        >
-                          No se encontraron resultados
-                        </td>
-                      </tr>
-                    ) : (
-                      table.getRowModel().rows.map((row) => (
-                        <tr key={row.id}>
-                          {row.getVisibleCells().map((cell) => (
-                            <td key={cell.id}>
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )}
-                            </td>
-                          ))}
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Controles de paginación */}
-              <div className="d-flex justify-content-between align-items-center mt-3">
-                <div>
-                  Página{" "}
-                  <strong>
-                    {table.getState().pagination.pageIndex + 1} de{" "}
-                    {table.getPageCount()}
-                  </strong>
-                </div>
-                <div>
-                  <button
-                    className="btn btn-outline-primary btn-sm me-2"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                  >
-                    {"<"}
-                  </button>
-                  <button
-                    className="btn btn-outline-primary btn-sm"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                  >
-                    {">"}
-                  </button>
-                </div>
-                <select
-                  className="form-select form-select-sm w-auto"
-                  value={table.getState().pagination.pageSize}
-                  onChange={(e) => {
-                    table.setPageSize(Number(e.target.value));
-                  }}
-                >
-                  {[20, 50, 100].map((pageSize) => (
-                    <option key={pageSize} value={pageSize}>
-                      Mostrar {pageSize}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {tableContent}
+              {paginationControls}
             </>
           )}
         </div>
       </div>
-
       {/* Modal para mostrar el mapa con Leaflet */}
       {showModal && (
         <div
@@ -385,7 +372,6 @@ export default function ClientesTable() {
           </div>
         </div>
       )}
-      {/* Fondo del modal para cerrar al hacer click fuera */}
       {showModal && (
         <div
           className="modal-backdrop fade show"
@@ -393,7 +379,6 @@ export default function ClientesTable() {
           onClick={() => setShowModal(false)}
         ></div>
       )}
-
       {/* Modal de edición de cliente */}
       {showEditModal && clienteEdit && (
         <div
@@ -611,7 +596,6 @@ export default function ClientesTable() {
           </div>
         </div>
       )}
-      {/* Fondo del modal de edición para cerrar al hacer click fuera */}
       {showEditModal && (
         <div
           className="modal-backdrop fade show"
@@ -621,4 +605,6 @@ export default function ClientesTable() {
       )}
     </div>
   );
-}
+});
+
+export default ClientesTable;

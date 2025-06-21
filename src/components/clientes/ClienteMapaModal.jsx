@@ -1,8 +1,42 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 
-function ClienteMapaModal({ showModal, mapCoords, onClose }) {
-  return showModal ? (
+// Envuelve el componente con React.memo para evitar renders innecesarios si las props no cambian
+const ClienteMapaModal = React.memo(function ClienteMapaModal({ showModal, mapCoords, onClose }) {
+  // Memoiza el handler de cierre
+  const handleClose = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
+  // Memoiza el contenido del mapa para evitar renders innecesarios
+  const mapaContent = useMemo(() => {
+    if (mapCoords.lat && mapCoords.lng) {
+      return (
+        <MapContainer
+          center={[mapCoords.lat, mapCoords.lng]}
+          zoom={16}
+          style={{ height: "100%", width: "100%" }}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <Marker position={[mapCoords.lat, mapCoords.lng]}>
+            <Popup>Ubicación del cliente</Popup>
+          </Marker>
+        </MapContainer>
+      );
+    }
+    return (
+      <div className="text-center text-danger">
+        No GeoReferenciado
+      </div>
+    );
+  }, [mapCoords.lat, mapCoords.lng]);
+
+  if (!showModal) return null;
+
+  return (
     <>
       <div
         className="modal fade show"
@@ -18,29 +52,11 @@ function ClienteMapaModal({ showModal, mapCoords, onClose }) {
                 type="button"
                 className="btn-close"
                 aria-label="Close"
-                onClick={onClose}
+                onClick={handleClose}
               ></button>
             </div>
             <div className="modal-body" style={{ height: "400px" }}>
-              {mapCoords.lat && mapCoords.lng ? (
-                <MapContainer
-                  center={[mapCoords.lat, mapCoords.lng]}
-                  zoom={16}
-                  style={{ height: "100%", width: "100%" }}
-                >
-                  <TileLayer
-                    attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  <Marker position={[mapCoords.lat, mapCoords.lng]}>
-                    <Popup>Ubicación del cliente</Popup>
-                  </Marker>
-                </MapContainer>
-              ) : (
-                <div className="text-center text-danger">
-                  No GeoReferenciado
-                </div>
-              )}
+              {mapaContent}
             </div>
           </div>
         </div>
@@ -48,10 +64,10 @@ function ClienteMapaModal({ showModal, mapCoords, onClose }) {
       <div
         className="modal-backdrop fade show"
         style={{ zIndex: 1040 }}
-        onClick={onClose}
+        onClick={handleClose}
       ></div>
     </>
-  ) : null;
-}
+  );
+});
 
 export default ClienteMapaModal;

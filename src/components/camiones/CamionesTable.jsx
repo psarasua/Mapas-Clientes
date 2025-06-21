@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useCallback } from "react"; // Importa useCallback para funciones memorizadas
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import supabase from "../../supabaseClient";
 
-export default function CamionesTable() {
+// Envuelve el componente con React.memo para evitar renders innecesarios si las props no cambian
+const CamionesTable = React.memo(function CamionesTable() {
   // Estado para la lista de camiones
   const [camiones, setCamiones] = useState([]);
   // Estado para mostrar spinner de carga
@@ -11,50 +12,108 @@ export default function CamionesTable() {
   // Estado para saber si se está editando y el id correspondiente
   const [editId, setEditId] = useState(null);
 
-  // Carga los camiones al montar el componente
-  useEffect(() => {
-    fetchCamiones();
-  }, []);
-
-  // Función para obtener camiones de la base de datos (memorizada)
+  // useCallback para evitar recrear la función en cada render
   const fetchCamiones = useCallback(async () => {
-    setLoading(true); // Activa spinner
+    setLoading(true);
     const { data, error } = await supabase
       .from("camiones")
       .select("*")
       .order("id", { ascending: true });
-    if (!error) setCamiones(data); // Actualiza estado si no hay error
-    setLoading(false); // Desactiva spinner
+    if (!error) setCamiones(data);
+    setLoading(false);
   }, []);
 
-  // Maneja el envío del formulario para agregar o actualizar
-  const handleSubmit = useCallback(async (e) => {
-    e.preventDefault(); // Previene recarga de página
-    if (editId) {
-      // Actualiza camión existente
-      await supabase.from("camiones").update(form).eq("id", editId);
-    } else {
-      // Inserta nuevo camión
-      await supabase.from("camiones").insert([form]);
-    }
-    setForm({ descripcion: "" }); // Limpia formulario
-    setEditId(null); // Sale del modo edición
-    fetchCamiones(); // Refresca lista
-  }, [editId, form, fetchCamiones]);
-
-  // Maneja la eliminación de un camión
-  const handleDelete = useCallback(async (id) => {
-    if (window.confirm("¿Seguro que deseas eliminar este camión?")) {
-      await supabase.from("camiones").delete().eq("id", id);
-      fetchCamiones(); // Refresca lista
-    }
+  // Carga los camiones al montar el componente
+  useEffect(() => {
+    fetchCamiones();
   }, [fetchCamiones]);
 
-  // Maneja la edición de un camión (carga datos al formulario)
+  // useCallback para manejar el envío del formulario
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      if (editId) {
+        await supabase.from("camiones").update(form).eq("id", editId);
+      } else {
+        await supabase.from("camiones").insert([form]);
+      }
+      setForm({ descripcion: "" });
+      setEditId(null);
+      fetchCamiones();
+    },
+    [editId, form, fetchCamiones]
+  );
+
+  // useCallback para manejar la eliminación de un camión
+  const handleDelete = useCallback(
+    async (id) => {
+      if (window.confirm("¿Seguro que deseas eliminar este camión?")) {
+        await supabase.from("camiones").delete().eq("id", id);
+        fetchCamiones();
+      }
+    },
+    [fetchCamiones]
+  );
+
+  // useCallback para manejar la edición de un camión
   const handleEdit = useCallback((camion) => {
     setForm({ descripcion: camion.descripcion });
     setEditId(camion.id);
   }, []);
+
+  // useMemo para memorizar la tabla de camiones y evitar renders innecesarios
+  const camionesTable = useMemo(
+    () => (
+      <div className="table-responsive flex-grow-1">
+        <table className="table table-striped table-hover align-middle w-100">
+          <thead className="table-dark">
+            <tr>
+              <th>ID</th>
+              <th>Descripción</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {camiones.length === 0 ? (
+              <tr>
+                <td colSpan={3} className="text-center py-4">
+                  No hay camiones registrados.
+                </td>
+              </tr>
+            ) : (
+              camiones.map((camion) => (
+                <tr key={camion.id}>
+                  <td>{camion.id}</td>
+                  <td>{camion.descripcion}</td>
+                  <td>
+                    <div className="d-flex gap-2">
+                      {/* Botón para editar */}
+                      <button
+                        className="btn btn-outline-primary btn-sm"
+                        title="Editar"
+                        onClick={() => handleEdit(camion)}
+                      >
+                        <i className="bi bi-pencil"></i>
+                      </button>
+                      {/* Botón para eliminar */}
+                      <button
+                        className="btn btn-outline-danger btn-sm"
+                        title="Eliminar"
+                        onClick={() => handleDelete(camion.id)}
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    ),
+    [camiones, handleEdit, handleDelete]
+  );
 
   // Renderizado principal
   return (
@@ -67,7 +126,7 @@ export default function CamionesTable() {
             className="form-control"
             placeholder="Descripción"
             value={form.descripcion}
-            onChange={e => setForm({ ...form, descripcion: e.target.value })}
+            onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
             required
           />
         </div>
@@ -77,7 +136,7 @@ export default function CamionesTable() {
           </button>
         </div>
       </form>
-      {/* Spinner de carga */}
+      {/* Spinner de carga o tabla */}
       {loading ? (
         <div className="text-center py-4 flex-grow-1 d-flex align-items-center justify-content-center">
           <div className="spinner-border text-primary" role="status">
@@ -85,55 +144,10 @@ export default function CamionesTable() {
           </div>
         </div>
       ) : (
-        // Tabla de camiones
-        <div className="table-responsive flex-grow-1">
-          <table className="table table-striped table-hover align-middle w-100">
-            <thead className="table-dark">
-              <tr>
-                <th>ID</th>
-                <th>Descripción</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {camiones.length === 0 ? (
-                <tr>
-                  <td colSpan={3} className="text-center py-4">
-                    No hay camiones registrados.
-                  </td>
-                </tr>
-              ) : (
-                camiones.map(camion => (
-                  <tr key={camion.id}>
-                    <td>{camion.id}</td>
-                    <td>{camion.descripcion}</td>
-                    <td>
-                      <div className="d-flex gap-2">
-                        {/* Botón para editar */}
-                        <button
-                          className="btn btn-outline-primary btn-sm"
-                          title="Editar"
-                          onClick={() => handleEdit(camion)}
-                        >
-                          <i className="bi bi-pencil"></i>
-                        </button>
-                        {/* Botón para eliminar */}
-                        <button
-                          className="btn btn-outline-danger btn-sm"
-                          title="Eliminar"
-                          onClick={() => handleDelete(camion.id)}
-                        >
-                          <i className="bi bi-trash"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        camionesTable
       )}
     </div>
   );
-}
+});
+
+export default CamionesTable;

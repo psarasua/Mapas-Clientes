@@ -1,3 +1,4 @@
+import React, { useMemo } from "react";
 import { Routes, Route } from "react-router-dom"; // Importa componentes de rutas de React Router
 import Menu from "./components/menu/Menu"; // Nuevo path para el menú de navegación principal
 import Dashboard from "./components/Dashboard"; // El dashboard puede quedar igual si no lo moviste
@@ -6,13 +7,10 @@ import CamionesTable from "./components/camiones/CamionesTable"; // Nuevo path p
 import DiasEntregaTable from "./components/diasEntrega/Dias_EntregaTable"; // Nuevo path para la tabla de días de entrega
 import CamionDiasTable from "./components/camionDias/Camion_DiasTable"; // Nuevo path para la tabla de repartos
 
-function App() {
-  // Componente principal de la aplicación
-  return (
-    <>
-      {/* Menú de navegación persistente en todas las páginas */}
-      <Menu />
-      {/* Definición de rutas de la aplicación */}
+const App = React.memo(function App() {
+  // Memoiza las rutas para evitar renders innecesarios si los componentes no cambian
+  const routes = useMemo(
+    () => (
       <Routes>
         {/* Ruta para el dashboard/inicio */}
         <Route path="/" element={<Dashboard />} />
@@ -25,8 +23,19 @@ function App() {
         {/* Ruta para la tabla de repartos (camión-día) */}
         <Route path="/camion-dias" element={<CamionDiasTable />} />
       </Routes>
+    ),
+    []
+  );
+
+  // Componente principal de la aplicación
+  return (
+    <>
+      {/* Menú de navegación persistente en todas las páginas */}
+      <Menu />
+      {/* Definición de rutas de la aplicación */}
+      {routes}
     </>
   );
-}
+});
 
 export default App; // Exporta el componente principal para su uso en index.js

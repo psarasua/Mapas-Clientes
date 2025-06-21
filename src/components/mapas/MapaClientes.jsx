@@ -1,10 +1,10 @@
-import { useState, useMemo, useCallback } from "react"; // Importa hooks necesarios
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet"; // Importa componentes de Leaflet
-import "leaflet/dist/leaflet.css"; // Importa estilos de Leaflet
-import L from "leaflet"; // Importa Leaflet para iconos personalizados
+import React, { useState, useMemo, useCallback } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 
-// Crea un icono con número usando divIcon (memorizado para evitar recreación)
-const getNumeroIcon = (numero) =>
+// Memoiza la función para crear el icono numerado
+const getNumeroIcon = useCallback((numero) =>
   L.divIcon({
     className: "numero-marker",
     html: `<div style="
@@ -25,22 +25,21 @@ const getNumeroIcon = (numero) =>
     iconSize: [24, 24],
     iconAnchor: [12, 24],
     popupAnchor: [0, -24],
-  });
+  }), []
+);
 
 // Componente auxiliar para centrar el mapa en un cliente seleccionado
-function FlyTo({ position }) {
-  const map = useMap(); // Obtiene instancia del mapa
-  if (position) map.flyTo(position, 16); // Centra el mapa si hay posición seleccionada
+const FlyTo = React.memo(function FlyTo({ position }) {
+  const map = useMap();
+  if (position) map.flyTo(position, 16);
   return null;
-}
+});
 
-function MapaClientes({ clientes }) {
-  // Estado para controlar si el mapa está en fullscreen
+const MapaClientes = React.memo(function MapaClientes({ clientes }) {
   const [fullscreen, setFullscreen] = useState(false);
-  // Estado para la posición seleccionada (para centrar el mapa)
   const [selectedPosition, setSelectedPosition] = useState(null);
 
-  // Filtra solo clientes con coordenadas válidas (memorizado para eficiencia)
+  // Memoiza la lista de clientes con ubicación válida
   const clientesConUbicacion = useMemo(
     () => clientes.filter(
       c => !isNaN(Number(c.x)) && !isNaN(Number(c.y))
@@ -48,22 +47,70 @@ function MapaClientes({ clientes }) {
     [clientes]
   );
 
-  // Si no hay clientes con ubicación, muestra mensaje
-  if (!clientesConUbicacion.length) return <div>No hay clientes con ubicación.</div>;
-
-  // Calcula el centro inicial del mapa (primer cliente con ubicación)
+  // Memoiza el centro inicial del mapa
   const center = useMemo(
-    () => [clientesConUbicacion[0].y, clientesConUbicacion[0].x],
+    () => [clientesConUbicacion[0]?.y, clientesConUbicacion[0]?.x],
     [clientesConUbicacion]
   );
 
-  // Maneja el click en un cliente de la lista para centrar el mapa (memorizado)
+  // Memoiza el handler para centrar el mapa en el cliente seleccionado
   const handleClienteClick = useCallback(
     (c) => setSelectedPosition([c.y, c.x]),
     []
   );
 
-  // Render principal del componente
+  // Memoiza la lista de clientes para la barra lateral
+  const clientesList = useMemo(() => (
+    <ul className="list-group">
+      {clientesConUbicacion.map((c, idx) => (
+        <li
+          key={c.id || idx}
+          className="list-group-item d-flex align-items-center"
+          style={{ cursor: "pointer" }}
+          onClick={() => handleClienteClick(c)}
+        >
+          <span
+            style={{
+              display: "inline-block",
+              width: 24,
+              height: 24,
+              borderRadius: "50%",
+              border: "1.5px solid #888",
+              background: "#fff",
+              color: "#222",
+              fontWeight: 400,
+              fontSize: 14,
+              marginRight: 10,
+              textAlign: "center",
+              lineHeight: "24px",
+            }}
+          >
+            {idx + 1}
+          </span>
+          {c.nombre}
+        </li>
+      ))}
+    </ul>
+  ), [clientesConUbicacion, handleClienteClick]);
+
+  // Memoiza los marcadores del mapa
+  const markers = useMemo(() =>
+    clientesConUbicacion.map((c, idx) => (
+      <Marker
+        key={c.id || idx}
+        position={[c.y, c.x]}
+        icon={getNumeroIcon(idx + 1)}
+      >
+        <Popup>
+          <strong>{idx + 1}. {c.nombre}</strong>
+        </Popup>
+      </Marker>
+    )),
+    [clientesConUbicacion, getNumeroIcon]
+  );
+
+  if (!clientesConUbicacion.length) return <div>No hay clientes con ubicación.</div>;
+
   return (
     <div>
       {/* Botón para salir de fullscreen */}
@@ -110,58 +157,19 @@ function MapaClientes({ clientes }) {
       >
         {/* Lista de clientes a la izquierda */}
         <div className="col-md-3" style={{ overflowY: "auto", maxHeight: "100%" }}>
-          <ul className="list-group">
-            {clientesConUbicacion.map((c, idx) => (
-              <li
-                key={c.id || idx}
-                className="list-group-item d-flex align-items-center"
-                style={{ cursor: "pointer" }}
-                onClick={() => handleClienteClick(c)}
-              >
-                <span
-                  style={{
-                    display: "inline-block",
-                    width: 24,
-                    height: 24,
-                    borderRadius: "50%",
-                    border: "1.5px solid #888",
-                    background: "#fff",
-                    color: "#222",
-                    fontWeight: 400,
-                    fontSize: 14,
-                    marginRight: 10,
-                    textAlign: "center",
-                    lineHeight: "24px",
-                  }}
-                >
-                  {idx + 1}
-                </span>
-                {c.nombre}
-              </li>
-            ))}
-          </ul>
+          {clientesList}
         </div>
         {/* Mapa con los clientes */}
         <div className="col-md-9" style={{ height: "100%" }}>
           <MapContainer center={center} zoom={13} style={{ height: "100%", width: "100%" }}>
             <FlyTo position={selectedPosition} />
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            {clientesConUbicacion.map((c, idx) => (
-              <Marker
-                key={c.id || idx}
-                position={[c.y, c.x]}
-                icon={getNumeroIcon(idx + 1)}
-              >
-                <Popup>
-                  <strong>{idx + 1}. {c.nombre}</strong>
-                </Popup>
-              </Marker>
-            ))}
+            {markers}
           </MapContainer>
         </div>
       </div>
     </div>
   );
-}
+});
 
 export default MapaClientes;

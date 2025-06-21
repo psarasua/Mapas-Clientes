@@ -1,13 +1,59 @@
-import React from "react";
+import React, { useCallback } from "react";
 import SelectorCoordenadas from "./SelectorCoordenadas";
 
-function ClienteEditModal({
+// Envuelve el componente con React.memo para evitar renders innecesarios si las props no cambian
+const ClienteEditModal = React.memo(function ClienteEditModal({
   showEditModal,
   clienteEdit,
   setClienteEdit,
   onClose,
   fetchClientes,
 }) {
+  // Memoiza el handler de cierre
+  const handleClose = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
+  // Memoiza el handler de cambio de campos del formulario
+  const handleInputChange = useCallback(
+    (e) => {
+      const { name, value } = e.target;
+      setClienteEdit((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    },
+    [setClienteEdit]
+  );
+
+  // Memoiza el handler para el cambio de coordenadas
+  const handleCoordsChange = useCallback(
+    ({ x, y }) => {
+      setClienteEdit((prev) => ({
+        ...prev,
+        x,
+        y,
+      }));
+    },
+    [setClienteEdit]
+  );
+
+  // Memoiza el submit del formulario
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      const { error } = await window.supabase
+        .from("clientes")
+        .update(clienteEdit)
+        .eq("id", clienteEdit.id);
+      if (!error) {
+        fetchClientes();
+        onClose();
+      }
+    },
+    [clienteEdit, fetchClientes, onClose]
+  );
+
   if (!showEditModal || !clienteEdit) return null;
 
   return (
@@ -26,109 +72,74 @@ function ClienteEditModal({
                 type="button"
                 className="btn-close"
                 aria-label="Close"
-                onClick={onClose}
+                onClick={handleClose}
               ></button>
             </div>
             <div className="modal-body">
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const { error } = await window.supabase
-                    .from("clientes")
-                    .update(clienteEdit)
-                    .eq("id", clienteEdit.id);
-                  if (!error) {
-                    fetchClientes();
-                    onClose();
-                  }
-                }}
-              >
+              <form onSubmit={handleSubmit}>
                 <div className="row">
                   {/* Campos del formulario de edición */}
                   <div className="mb-3 col-md-6">
                     <label className="form-label">Código Alternativo</label>
                     <input
                       className="form-control"
+                      name="codigo_alternativo"
                       value={clienteEdit.codigo_alternativo || ""}
-                      onChange={(e) =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          codigo_alternativo: e.target.value,
-                        })
-                      }
+                      onChange={handleInputChange}
                     />
                   </div>
                   <div className="mb-3 col-md-6">
                     <label className="form-label">Nombre</label>
                     <input
                       className="form-control"
+                      name="nombre"
                       value={clienteEdit.nombre || ""}
-                      onChange={(e) =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          nombre: e.target.value,
-                        })
-                      }
+                      onChange={handleInputChange}
                     />
                   </div>
                   <div className="mb-3 col-md-6">
                     <label className="form-label">Razón</label>
                     <input
                       className="form-control"
+                      name="razon"
                       value={clienteEdit.razon || ""}
-                      onChange={(e) =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          razon: e.target.value,
-                        })
-                      }
+                      onChange={handleInputChange}
                     />
                   </div>
                   <div className="mb-3 col-md-6">
                     <label className="form-label">Dirección</label>
                     <input
                       className="form-control"
+                      name="direccion"
                       value={clienteEdit.direccion || ""}
-                      onChange={(e) =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          direccion: e.target.value,
-                        })
-                      }
+                      onChange={handleInputChange}
                     />
                   </div>
                   <div className="mb-3 col-md-6">
                     <label className="form-label">Teléfono</label>
                     <input
                       className="form-control"
+                      name="telefono"
                       value={clienteEdit.telefono || ""}
-                      onChange={(e) =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          telefono: e.target.value,
-                        })
-                      }
+                      onChange={handleInputChange}
                     />
                   </div>
                   <div className="mb-3 col-md-6">
                     <label className="form-label">RUT</label>
                     <input
                       className="form-control"
+                      name="rut"
                       value={clienteEdit.rut || ""}
-                      onChange={(e) =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          rut: e.target.value,
-                        })
-                      }
+                      onChange={handleInputChange}
                     />
                   </div>
                   <div className="mb-3 col-md-6">
                     <label className="form-label">Activo</label>
                     <select
                       className="form-select"
+                      name="activo"
                       value={clienteEdit.activo ? "true" : "false"}
-                      onChange={(e) =>
+                      onChange={e =>
                         setClienteEdit({
                           ...clienteEdit,
                           activo: e.target.value === "true",
@@ -145,13 +156,9 @@ function ClienteEditModal({
                       type="number"
                       step="any"
                       className="form-control"
+                      name="x"
                       value={clienteEdit.x || ""}
-                      onChange={e =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          x: e.target.value
-                        })
-                      }
+                      onChange={handleInputChange}
                     />
                   </div>
                   <div className="mb-3 col-md-6">
@@ -160,26 +167,16 @@ function ClienteEditModal({
                       type="number"
                       step="any"
                       className="form-control"
+                      name="y"
                       value={clienteEdit.y || ""}
-                      onChange={e =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          y: e.target.value
-                        })
-                      }
+                      onChange={handleInputChange}
                     />
                   </div>
                   <div className="mb-3 col-12">
                     <label className="form-label">Seleccionar ubicación en el mapa</label>
                     <SelectorCoordenadas
                       value={{ x: clienteEdit.x, y: clienteEdit.y }}
-                      onChange={({ x, y }) =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          x,
-                          y,
-                        })
-                      }
+                      onChange={handleCoordsChange}
                     />
                   </div>
                 </div>
@@ -196,10 +193,10 @@ function ClienteEditModal({
       <div
         className="modal-backdrop fade show"
         style={{ zIndex: 1040 }}
-        onClick={onClose}
+        onClick={handleClose}
       ></div>
     </>
   );
-}
+});
 
 export default ClienteEditModal;

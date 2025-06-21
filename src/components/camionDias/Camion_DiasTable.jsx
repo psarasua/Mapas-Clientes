@@ -1,8 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import React from "react";
 import CamionDiasModal from "./CamionDiasModal";
 import CamionDiasColumnas from "./CamionDiasColumnas";
 import MapaClientesModal from "./MapaClientesModal";
 import supabase from "../../supabaseClient";
+
+// Envuelve los componentes hijos con React.memo para evitar renders innecesarios
+const MemoCamionDiasColumnas = React.memo(CamionDiasColumnas);
+const MemoCamionDiasModal = React.memo(CamionDiasModal);
+const MemoMapaClientesModal = React.memo(MapaClientesModal);
 
 function CamionesDiasCards() {
   // Estados principales del componente
@@ -24,9 +30,8 @@ function CamionesDiasCards() {
     fetchAll();
   }, []);
 
-  // Función para cargar todos los datos principales (memorizada para evitar recreación)
+  // useCallback para evitar recrear la función en cada render
   const fetchAll = useCallback(async () => {
-    // Carga registros de camiones_dias con relaciones
     const { data: registrosData } = await supabase
       .from("camiones_dias")
       .select(`
@@ -43,16 +48,14 @@ function CamionesDiasCards() {
       `);
     setRegistros(registrosData || []);
 
-    // Carga días de entrega
     const { data: diasData } = await supabase.from("dias_entrega").select("*");
     setDias(diasData || []);
 
-    // Carga camiones
     const { data: camionesData } = await supabase.from("camiones").select("*");
     setCamiones(camionesData || []);
   }, []);
 
-  // Abre el modal para agregar o editar un registro
+  // useCallback para evitar recrear la función en cada render
   const openModal = useCallback(async (registro = null) => {
     if (registro) {
       setEditId(registro.id);
@@ -60,7 +63,6 @@ function CamionesDiasCards() {
         camion_id: registro.camion_id,
         dia_id: registro.dia_id,
       });
-      // Carga clientes asignados al registro
       setClientesAsignados(
         (registro.clientesAsignados || []).map(ca => ({
           id: ca.id,
@@ -77,7 +79,6 @@ function CamionesDiasCards() {
     setMensaje("");
     setModalOpen(true);
 
-    // Carga todos los clientes solo si aún no están cargados
     if (todosClientes.length === 0) {
       const { data } = await supabase
         .from("clientes")
@@ -87,22 +88,21 @@ function CamionesDiasCards() {
     }
   }, [todosClientes.length]);
 
-  // Cierra el modal y limpia mensajes
+  // useCallback para evitar recrear la función en cada render
   const closeModal = useCallback(() => {
     setModalOpen(false);
     setMensaje("");
   }, []);
 
-  // Maneja cambios en los campos del formulario
+  // useCallback para evitar recrear la función en cada render
   const handleChange = useCallback((e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  }, [form]);
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  }, []);
 
-  // Maneja el submit del formulario (agregar o actualizar)
+  // useCallback para evitar recrear la función en cada render
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     if (editId) {
-      // Actualiza registro existente
       const { error } = await supabase
         .from("camiones_dias")
         .update(form)
@@ -113,7 +113,6 @@ function CamionesDiasCards() {
       }
       setMensaje("Registro actualizado.");
     } else {
-      // Inserta nuevo registro
       const { error } = await supabase
         .from("camiones_dias")
         .insert([form]);
@@ -123,11 +122,11 @@ function CamionesDiasCards() {
       }
       setMensaje("Registro agregado.");
     }
-    fetchAll(); // Refresca datos
-    setTimeout(closeModal, 1000); // Cierra modal tras feedback
+    fetchAll();
+    setTimeout(closeModal, 1000);
   }, [editId, form, fetchAll, closeModal]);
 
-  // Elimina un registro de camión/día
+  // useCallback para evitar recrear la función en cada render
   const handleDelete = useCallback(async (id) => {
     if (window.confirm("¿Seguro que deseas eliminar este registro?")) {
       const { error } = await supabase
@@ -140,7 +139,7 @@ function CamionesDiasCards() {
     }
   }, [fetchAll]);
 
-  // Muestra el mapa con los clientes asignados a un camión/día
+  // useCallback para evitar recrear la función en cada render
   const handleVerMapa = useCallback((cd) => {
     const clientes = (cd.clientesAsignados || [])
       .filter(ca => ca.clientes && ca.clientes.x && ca.clientes.y)
@@ -154,17 +153,16 @@ function CamionesDiasCards() {
     setMostrarMapa(true);
   }, []);
 
-  // Agrega un cliente al camión/día actual
+  // useCallback para evitar recrear la función en cada render
   const agregarCliente = useCallback(async (cliente) => {
     if (!editId) return;
     await supabase.from("camion_dias_entrega").insert([
       { camion_dia: editId, cliente_id: cliente.id }
     ]);
-    // Actualiza la lista localmente para feedback inmediato
     setClientesAsignados(prev => [...prev, cliente]);
   }, [editId]);
 
-  // Elimina un cliente asignado del camión/día actual
+  // useCallback para evitar recrear la función en cada render
   const eliminarCliente = useCallback(async (clienteId) => {
     if (!editId) return;
     await supabase
@@ -175,7 +173,7 @@ function CamionesDiasCards() {
     setClientesAsignados(prev => prev.filter(c => c.id !== clienteId));
   }, [editId]);
 
-  // Agrupa los registros por día y los ordena por id (memorizado para evitar cálculos innecesarios)
+  // useMemo para evitar cálculos innecesarios al agrupar registros por día
   const columnasPorDia = useMemo(() =>
     dias.map((dia) => {
       const registrosDelDia = registros
@@ -185,10 +183,10 @@ function CamionesDiasCards() {
     }), [dias, registros]
   );
 
-  // Limpia y normaliza el texto de búsqueda
+  // useMemo para limpiar y normalizar el texto de búsqueda
   const busquedaLimpia = useMemo(() => busqueda.trim().toLowerCase(), [busqueda]);
 
-  // Filtra los clientes según la búsqueda (memorizado)
+  // useMemo para filtrar los clientes según la búsqueda
   const clientesFiltrados = useMemo(() =>
     todosClientes.filter(
       c =>
@@ -209,14 +207,14 @@ function CamionesDiasCards() {
       <button className="btn btn-success mb-3" onClick={() => openModal()}>
         Agregar registro
       </button>
-      <CamionDiasColumnas
+      <MemoCamionDiasColumnas
         columnasPorDia={columnasPorDia}
         onVerMapa={handleVerMapa}
         onEditar={openModal}
         onEliminar={handleDelete}
       />
       {modalOpen && (
-        <CamionDiasModal
+        <MemoCamionDiasModal
           editId={editId}
           form={form}
           camiones={camiones}
@@ -234,7 +232,7 @@ function CamionesDiasCards() {
         />
       )}
       {mostrarMapa && (
-        <MapaClientesModal
+        <MemoMapaClientesModal
           clientes={clientesMapa}
           onClose={() => setMostrarMapa(false)}
         />
@@ -243,4 +241,4 @@ function CamionesDiasCards() {
   );
 }
 
-export default CamionesDiasCards;
+export default React.memo(CamionesDiasCards);
