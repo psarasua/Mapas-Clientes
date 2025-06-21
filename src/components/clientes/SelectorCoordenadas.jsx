@@ -1,18 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-
-// Icono personalizado para el marcador
-const getNumeroIcon = useCallback((numero) => {
-  return L.divIcon({
-    className: "numero-marker",
-    html: `<div style="background:#fff;border:2px solid #333;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:16px;">${numero}</div>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32],
-  });
-}, []);
 
 const SelectorCoordenadas = React.memo(function SelectorCoordenadas({ value, onChange }) {
   const [marker, setMarker] = useState(
@@ -25,7 +13,6 @@ const SelectorCoordenadas = React.memo(function SelectorCoordenadas({ value, onC
     }
   }, [value.x, value.y]);
 
-  // Memoiza el handler de click en el mapa
   const handleMapClick = useCallback(
     (e) => {
       setMarker(e.latlng);
@@ -34,16 +21,12 @@ const SelectorCoordenadas = React.memo(function SelectorCoordenadas({ value, onC
     [onChange]
   );
 
-  // Memoiza el componente MapClicker
-  const MapClicker = useCallback(function MapClicker() {
+  function MapClicker() {
     useMapEvents({
       click: handleMapClick,
     });
     return null;
-  }, [handleMapClick]);
-
-  // Memoiza el icono del marcador
-  const markerIcon = useMemo(() => getNumeroIcon(1), [getNumeroIcon]);
+  }
 
   return (
     <div style={{ height: 300, width: "100%" }}>
@@ -62,7 +45,7 @@ const SelectorCoordenadas = React.memo(function SelectorCoordenadas({ value, onC
         />
         <MapClicker />
         {marker && (
-          <Marker position={[marker.lat, marker.lng]} icon={markerIcon}>
+          <Marker position={[marker.lat, marker.lng]}>
             <Popup>
               Coordenadas seleccionadas:<br />
               Lat: {marker.lat.toFixed(6)}<br />

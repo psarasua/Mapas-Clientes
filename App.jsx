@@ -1,10 +1,10 @@
 import { Routes, Route } from "react-router-dom";
-import Menu from "./components/Menu";
+import Menu from "./components/menu/Menu";
 import Dashboard from "./components/Dashboard";
-import ClientesTable from "./components/ClientesTable";
-import CamionesTable from "./components/CamionesTable";
-import Dias_EntregaTable from "./components/Dias_EntregaTable";
-// Eliminados: Login, PrivateRoute, AuthProvider
+import ClientesTable from "./components/clientes/ClientesTable";
+import CamionesTable from "./components/camiones/CamionesTable";
+import Dias_EntregaTable from "./components/diasEntrega/Dias_EntregaTable";
+
 
 function App() {
   return (

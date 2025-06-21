@@ -3,9 +3,9 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-// Memoiza la función para crear el icono numerado
-const getNumeroIcon = useCallback((numero) =>
-  L.divIcon({
+// Definir la función fuera del componente, sin hooks
+function getNumeroIcon(numero) {
+  return L.divIcon({
     className: "numero-marker",
     html: `<div style="
       background:#fff;
@@ -25,8 +25,8 @@ const getNumeroIcon = useCallback((numero) =>
     iconSize: [24, 24],
     iconAnchor: [12, 24],
     popupAnchor: [0, -24],
-  }), []
-);
+  });
+}
 
 // Componente auxiliar para centrar el mapa en un cliente seleccionado
 const FlyTo = React.memo(function FlyTo({ position }) {
@@ -106,7 +106,7 @@ const MapaClientes = React.memo(function MapaClientes({ clientes }) {
         </Popup>
       </Marker>
     )),
-    [clientesConUbicacion, getNumeroIcon]
+    [clientesConUbicacion]
   );
 
   if (!clientesConUbicacion.length) return <div>No hay clientes con ubicación.</div>;
