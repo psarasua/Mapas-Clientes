@@ -19,6 +19,7 @@ const ClientesTable = React.memo(function ClientesTable() {
   const [mapCoords, setMapCoords] = useState({ lat: null, lng: null });
   const [clienteEdit, setClienteEdit] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showAltaModal, setShowAltaModal] = useState(false);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 20,
@@ -212,6 +213,9 @@ const ClientesTable = React.memo(function ClientesTable() {
     <div className="vw-100 vh-100 d-flex flex-column" style={{ minHeight: "100vh", minWidth: "100vw", padding: 0, margin: 0 }}>
       <div className="flex-grow-1 d-flex flex-column">
         <h2 className="text-center mb-4 mt-3">Clientes</h2>
+        <button className="btn btn-success mb-3" onClick={() => setShowAltaModal(true)}>
+          Crear Cliente
+        </button>
         <div className="px-3 mb-3">
           <input
             value={filter ?? ""}
@@ -235,6 +239,16 @@ const ClientesTable = React.memo(function ClientesTable() {
         </div>
       </div>
       <ClientesTableModalMapa showModal={showModal} mapCoords={mapCoords} setShowModal={setShowModal} />
+      {/* Modal para crear cliente */}
+      <ClientesTableModalEditar
+        showEditModal={showAltaModal}
+        clienteEdit={null}
+        setShowEditModal={setShowAltaModal}
+        fetchClientes={fetchClientes}
+        supabase={supabase}
+      />
+
+      {/* Modal para editar cliente */}
       <ClientesTableModalEditar
         showEditModal={showEditModal}
         clienteEdit={clienteEdit}

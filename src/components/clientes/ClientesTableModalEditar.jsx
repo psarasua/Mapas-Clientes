@@ -1,5 +1,17 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SelectorCoordenadas from "./SelectorCoordenadas";
+
+const camposVacios = {
+  codigo_alternativo: "",
+  nombre: "",
+  razon: "",
+  direccion: "",
+  telefono: "",
+  rut: "",
+  activo: true,
+  x: "",
+  y: "",
+};
 
 const ClientesTableModalEditar = ({
   showEditModal,
@@ -9,7 +21,40 @@ const ClientesTableModalEditar = ({
   fetchClientes,
   supabase,
 }) => {
-  if (!showEditModal || !clienteEdit) return null;
+  // Detectar modo
+  const esAlta = !clienteEdit;
+
+  // Estado local del formulario
+  const [form, setForm] = useState(esAlta ? camposVacios : clienteEdit);
+
+  // Sincronizar cuando cambia clienteEdit o se abre el modal
+  useEffect(() => {
+    setForm(esAlta ? camposVacios : clienteEdit);
+  }, [clienteEdit, showEditModal]);
+
+  if (!showEditModal) return null;
+
+  const handleChange = (campo, valor) => {
+    setForm((prev) => ({ ...prev, [campo]: valor }));
+    if (!esAlta && setClienteEdit) {
+      setClienteEdit((prev) => ({ ...prev, [campo]: valor }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    let error = null;
+    if (esAlta) {
+      ({ error } = await supabase.from("clientes").insert([{ ...form, activo: true }]));
+    } else {
+      ({ error } = await supabase.from("clientes").update(form).eq("id", form.id));
+    }
+    if (!error) {
+      fetchClientes();
+      setShowEditModal(false);
+      if (setClienteEdit) setClienteEdit(null);
+    }
+  };
 
   return (
     <>
@@ -22,28 +67,19 @@ const ClientesTableModalEditar = ({
         <div className="modal-dialog modal-lg modal-dialog-centered" role="document">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title">Editar Cliente</h5>
+              <h5 className="modal-title">{esAlta ? "Crear Cliente" : "Editar Cliente"}</h5>
               <button
                 type="button"
                 className="btn-close"
                 aria-label="Close"
-                onClick={() => setShowEditModal(false)}
+                onClick={() => {
+                  setShowEditModal(false);
+                  if (setClienteEdit) setClienteEdit(null);
+                }}
               ></button>
             </div>
             <div className="modal-body">
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const { error } = await supabase
-                    .from("clientes")
-                    .update(clienteEdit)
-                    .eq("id", clienteEdit.id);
-                  if (!error) {
-                    fetchClientes();
-                    setShowEditModal(false);
-                  }
-                }}
-              >
+              <form onSubmit={handleSubmit}>
                 <div className="row">
                   <div className="mb-3 col-md-6">
                     <label className="form-label d-flex align-items-center">
@@ -52,13 +88,8 @@ const ClientesTableModalEditar = ({
                     </label>
                     <input
                       className="form-control"
-                      value={clienteEdit.codigo_alternativo || ""}
-                      onChange={(e) =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          codigo_alternativo: e.target.value,
-                        })
-                      }
+                      value={form.codigo_alternativo || ""}
+                      onChange={(e) => handleChange("codigo_alternativo", e.target.value)}
                     />
                   </div>
                   <div className="mb-3 col-md-6">
@@ -68,13 +99,9 @@ const ClientesTableModalEditar = ({
                     </label>
                     <input
                       className="form-control"
-                      value={clienteEdit.nombre || ""}
-                      onChange={(e) =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          nombre: e.target.value,
-                        })
-                      }
+                      value={form.nombre || ""}
+                      onChange={(e) => handleChange("nombre", e.target.value)}
+                      required
                     />
                   </div>
                   <div className="mb-3 col-md-6">
@@ -84,13 +111,8 @@ const ClientesTableModalEditar = ({
                     </label>
                     <input
                       className="form-control"
-                      value={clienteEdit.razon || ""}
-                      onChange={(e) =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          razon: e.target.value,
-                        })
-                      }
+                      value={form.razon || ""}
+                      onChange={(e) => handleChange("razon", e.target.value)}
                     />
                   </div>
                   <div className="mb-3 col-md-6">
@@ -100,13 +122,8 @@ const ClientesTableModalEditar = ({
                     </label>
                     <input
                       className="form-control"
-                      value={clienteEdit.direccion || ""}
-                      onChange={(e) =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          direccion: e.target.value,
-                        })
-                      }
+                      value={form.direccion || ""}
+                      onChange={(e) => handleChange("direccion", e.target.value)}
                     />
                   </div>
                   <div className="mb-3 col-md-6">
@@ -116,13 +133,8 @@ const ClientesTableModalEditar = ({
                     </label>
                     <input
                       className="form-control"
-                      value={clienteEdit.telefono || ""}
-                      onChange={(e) =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          telefono: e.target.value,
-                        })
-                      }
+                      value={form.telefono || ""}
+                      onChange={(e) => handleChange("telefono", e.target.value)}
                     />
                   </div>
                   <div className="mb-3 col-md-6">
@@ -132,34 +144,26 @@ const ClientesTableModalEditar = ({
                     </label>
                     <input
                       className="form-control"
-                      value={clienteEdit.rut || ""}
-                      onChange={(e) =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          rut: e.target.value,
-                        })
-                      }
+                      value={form.rut || ""}
+                      onChange={(e) => handleChange("rut", e.target.value)}
                     />
                   </div>
-                  <div className="mb-3 col-md-6">
-                    <label className="form-label d-flex align-items-center">
-                      <i className="bi bi-check-circle-fill me-2"></i>
-                      Activo
-                    </label>
-                    <select
-                      className="form-select"
-                      value={clienteEdit.activo ? "true" : "false"}
-                      onChange={(e) =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          activo: e.target.value === "true",
-                        })
-                      }
-                    >
-                      <option value="true">Sí</option>
-                      <option value="false">No</option>
-                    </select>
-                  </div>
+                  {!esAlta && (
+                    <div className="mb-3 col-md-6">
+                      <label className="form-label d-flex align-items-center">
+                        <i className="bi bi-check-circle-fill me-2"></i>
+                        Activo
+                      </label>
+                      <select
+                        className="form-select"
+                        value={form.activo ? "true" : "false"}
+                        onChange={(e) => handleChange("activo", e.target.value === "true")}
+                      >
+                        <option value="true">Sí</option>
+                        <option value="false">No</option>
+                      </select>
+                    </div>
+                  )}
                   <div className="mb-3 col-md-6">
                     <label className="form-label d-flex align-items-center">
                       <i className="bi bi-geo me-2"></i>
@@ -169,13 +173,8 @@ const ClientesTableModalEditar = ({
                       type="number"
                       step="any"
                       className="form-control"
-                      value={clienteEdit.x || ""}
-                      onChange={e =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          x: e.target.value
-                        })
-                      }
+                      value={form.x || ""}
+                      onChange={e => handleChange("x", e.target.value)}
                     />
                   </div>
                   <div className="mb-3 col-md-6">
@@ -187,13 +186,8 @@ const ClientesTableModalEditar = ({
                       type="number"
                       step="any"
                       className="form-control"
-                      value={clienteEdit.y || ""}
-                      onChange={e =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          y: e.target.value
-                        })
-                      }
+                      value={form.y || ""}
+                      onChange={e => handleChange("y", e.target.value)}
                     />
                   </div>
                   <div className="mb-3 col-12">
@@ -202,20 +196,14 @@ const ClientesTableModalEditar = ({
                       Seleccionar ubicación en el mapa
                     </label>
                     <SelectorCoordenadas
-                      value={{ x: clienteEdit.x, y: clienteEdit.y }}
-                      onChange={({ x, y }) =>
-                        setClienteEdit({
-                          ...clienteEdit,
-                          x,
-                          y,
-                        })
-                      }
+                      value={{ x: form.x, y: form.y }}
+                      onChange={({ x, y }) => handleChange("x", x) || handleChange("y", y)}
                     />
                   </div>
                 </div>
                 <div className="text-end">
                   <button type="submit" className="btn btn-primary">
-                    Guardar Cambios
+                    {esAlta ? "Crear Cliente" : "Guardar Cambios"}
                   </button>
                 </div>
               </form>
@@ -226,7 +214,10 @@ const ClientesTableModalEditar = ({
       <div
         className="modal-backdrop fade show"
         style={{ zIndex: 1040 }}
-        onClick={() => setShowEditModal(false)}
+        onClick={() => {
+          setShowEditModal(false);
+          if (setClienteEdit) setClienteEdit(null);
+        }}
       ></div>
     </>
   );
