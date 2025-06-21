@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router-dom"; // Importa componentes de rutas de React Router
 import Menu from "./components/Menu"; // Importa el menú de navegación principal
 import Dashboard from "./components/Dashboard"; // Importa el dashboard/inicio
-import ClientesTable from "./components/ClientesTable"; // Importa la tabla de clientes
-import CamionesTable from "./components/CamionesTable"; // Importa la tabla de camiones
+import ClientesTable from "./components/clientes/ClientesTable"; // Importa la tabla de clientes
+import CamionesTable from "./components/clientes/CamionesTable"; // Importa la tabla de camiones
 import Dias_EntregaTable from "./components/Dias_EntregaTable"; // Importa la tabla de días de entrega
 import Camion_DiasTable from "./components/Camion_DiasTable"; // Importa la tabla de repartos
 

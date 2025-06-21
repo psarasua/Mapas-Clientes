@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react"; // Importa hooks principales de React
-import supabase from "../supabaseClient"; // Cliente de Supabase para la base de datos
+import supabase from "../../supabaseClient"; // Cliente de Supabase para la base de datos
 import {
   useReactTable,
   getCoreRowModel,

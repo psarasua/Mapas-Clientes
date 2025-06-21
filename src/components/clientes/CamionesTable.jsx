@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react"; // Importa useCallback para funciones memorizadas
-import supabase from "../supabaseClient";
+import supabase from "../../supabaseClient";
 
 export default function CamionesTable() {
   // Estado para la lista de camiones

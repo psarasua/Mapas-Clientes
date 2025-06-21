@@ -1,5 +1,5 @@
 import React from "react";
-import MapaClientes from "./MapaClientes";
+import MapaClientes from "../mapas/MapaClientes";
 
 function MapaClientesModal({ clientes, onClose }) {
   return (

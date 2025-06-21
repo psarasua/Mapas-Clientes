@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import CamionDiasModal from "./CamionDiasModal";
 import CamionDiasColumnas from "./CamionDiasColumnas";
 import MapaClientesModal from "./MapaClientesModal";
-import supabase from "../supabaseClient";
+import supabase from "../../supabaseClient";
 
 function CamionesDiasCards() {
   // Estados principales del componente
