@@ -25,19 +25,19 @@ const CamionDiasColumnas = React.memo(function CamionDiasColumnas({
                 </p>
                 <div className="d-flex gap-2 mt-2">
                   <button
-                    className="btn btn-info btn-sm"
+                    className="btn btn-outline-info btn-sm"
                     onClick={() => handleVerMapa(cd)}
                   >
                     Ver Mapa
                   </button>
                   <button
-                    className="btn btn-warning btn-sm"
+                    className="btn btn-outline-warning btn-sm"
                     onClick={() => handleEditar(cd)}
                   >
                     Editar
                   </button>
                   <button
-                    className="btn btn-danger btn-sm"
+                    className="btn btn-outline-danger btn-sm"
                     onClick={() => handleEliminar(cd.id)}
                   >
                     Eliminar

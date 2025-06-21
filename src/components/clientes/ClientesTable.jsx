@@ -213,9 +213,16 @@ const ClientesTable = React.memo(function ClientesTable() {
     <div className="vw-100 vh-100 d-flex flex-column" style={{ minHeight: "100vh", minWidth: "100vw", padding: 0, margin: 0 }}>
       <div className="flex-grow-1 d-flex flex-column">
         <h2 className="text-center mb-4 mt-3">Clientes</h2>
-        <button className="btn btn-success mb-3" onClick={() => setShowAltaModal(true)}>
-          Crear Cliente
-        </button>
+        <div className="d-flex justify-content-end align-items-center px-3 mb-3">
+          <button
+            className="btn btn-success btn-sm d-flex align-items-center"
+            style={{ minWidth: "auto" }}
+            onClick={() => setShowAltaModal(true)}
+          >
+            <i className="bi bi-plus-lg me-1"></i>
+            Crear Cliente
+          </button>
+        </div>
         <div className="px-3 mb-3">
           <input
             value={filter ?? ""}
