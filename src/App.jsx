@@ -1,10 +1,10 @@
 import { Routes, Route } from "react-router-dom"; // Importa componentes de rutas de React Router
-import Menu from "./components/Menu"; // Importa el menú de navegación principal
-import Dashboard from "./components/Dashboard"; // Importa el dashboard/inicio
-import ClientesTable from "./components/clientes/ClientesTable"; // Importa la tabla de clientes
-import CamionesTable from "./components/clientes/CamionesTable"; // Importa la tabla de camiones
-import Dias_EntregaTable from "./components/Dias_EntregaTable"; // Importa la tabla de días de entrega
-import Camion_DiasTable from "./components/Camion_DiasTable"; // Importa la tabla de repartos
+import Menu from "./components/menu/Menu"; // Nuevo path para el menú de navegación principal
+import Dashboard from "./components/Dashboard"; // El dashboard puede quedar igual si no lo moviste
+import ClientesTable from "./components/clientes/ClientesTable"; // Nuevo path para la tabla de clientes
+import CamionesTable from "./components/camiones/CamionesTable"; // Nuevo path para la tabla de camiones
+import DiasEntregaTable from "./components/diasEntrega/Dias_EntregaTable"; // Nuevo path para la tabla de días de entrega
+import CamionDiasTable from "./components/camionDias/Camion_DiasTable"; // Nuevo path para la tabla de repartos
 
 function App() {
   // Componente principal de la aplicación
@@ -21,9 +21,9 @@ function App() {
         {/* Ruta para la tabla de camiones */}
         <Route path="/camiones" element={<CamionesTable />} />
         {/* Ruta para la tabla de días de entrega */}
-        <Route path="/dias-entrega" element={<Dias_EntregaTable />} />
+        <Route path="/dias-entrega" element={<DiasEntregaTable />} />
         {/* Ruta para la tabla de repartos (camión-día) */}
-        <Route path="/camion-dias" element={<Camion_DiasTable />} />
+        <Route path="/camion-dias" element={<CamionDiasTable />} />
       </Routes>
     </>
   );
