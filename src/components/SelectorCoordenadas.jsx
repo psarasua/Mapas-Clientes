@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
+import React, { useState, useEffect } from "react"; // Importa hooks principales de React
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet"; // Importa componentes de Leaflet
+import "leaflet/dist/leaflet.css"; // Importa estilos de Leaflet
+import L from "leaflet"; // Importa Leaflet para iconos personalizados
 
+// Función para crear un icono numerado personalizado
 function getNumeroIcon(numero) {
   return L.divIcon({
     className: "numero-marker",
@@ -13,38 +14,42 @@ function getNumeroIcon(numero) {
   });
 }
 
+// Componente principal para seleccionar coordenadas y mostrar clientes en el mapa
 function SelectorCoordenadas({ value, onChange, clientes }) {
   // value: { x, y }
+  // Estado local para el marcador seleccionado
   const [marker, setMarker] = useState(
     value && value.x && value.y ? { lat: Number(value.y), lng: Number(value.x) } : null
   );
 
-  // Actualiza el marcador si cambian las coordenadas desde fuera
+  // Sincroniza el marcador si cambian las coordenadas desde fuera
   useEffect(() => {
     if (value && value.x && value.y) {
       setMarker({ lat: Number(value.y), lng: Number(value.x) });
     }
   }, [value, value.x, value.y]);
 
+  // Permite seleccionar una ubicación haciendo click en el mapa
   function MapClicker() {
     useMapEvents({
       click(e) {
-        setMarker(e.latlng);
-        onChange({ x: e.latlng.lng, y: e.latlng.lat });
+        setMarker(e.latlng); // Actualiza el marcador local
+        onChange({ x: e.latlng.lng, y: e.latlng.lat }); // Notifica al padre
       },
     });
     return null;
   }
 
+  // Render principal del componente
   return (
     <div style={{ height: 300, width: "100%" }}>
       <MapContainer
         center={
           marker
-            ? [marker.lat, marker.lng]
+            ? [marker.lat, marker.lng] // Centra en el marcador si existe
             : [-34.9, -56.2] // Montevideo por defecto
         }
-        zoom={marker ? 16 : 12}
+        zoom={marker ? 16 : 12} // Zoom más cercano si hay marcador
         style={{ height: "100%", width: "100%" }}
       >
         <TileLayer
@@ -52,6 +57,7 @@ function SelectorCoordenadas({ value, onChange, clientes }) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <MapClicker />
+        {/* Muestra el marcador seleccionado */}
         {marker && (
           <Marker position={[marker.lat, marker.lng]} icon={getNumeroIcon(1)}>
             <Popup>
@@ -61,6 +67,7 @@ function SelectorCoordenadas({ value, onChange, clientes }) {
             </Popup>
           </Marker>
         )}
+        {/* Muestra los clientes existentes en el mapa */}
         {clientes.map((cliente, idx) => (
           <Marker
             key={cliente.id}

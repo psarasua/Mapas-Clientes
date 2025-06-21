@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
+import { useState, useMemo, useCallback } from "react"; // Importa hooks necesarios
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet"; // Importa componentes de Leaflet
+import "leaflet/dist/leaflet.css"; // Importa estilos de Leaflet
+import L from "leaflet"; // Importa Leaflet para iconos personalizados
 
-// Crea un icono con número usando divIcon
-function getNumeroIcon(numero) {
-  return L.divIcon({
+// Crea un icono con número usando divIcon (memorizado para evitar recreación)
+const getNumeroIcon = (numero) =>
+  L.divIcon({
     className: "numero-marker",
     html: `<div style="
       background:#fff;
@@ -24,30 +24,49 @@ function getNumeroIcon(numero) {
     </div>`,
     iconSize: [24, 24],
     iconAnchor: [12, 24],
-    popupAnchor: [0, -24]
+    popupAnchor: [0, -24],
   });
-}
 
 // Componente auxiliar para centrar el mapa en un cliente seleccionado
 function FlyTo({ position }) {
-  const map = useMap();
-  if (position) map.flyTo(position, 16);
+  const map = useMap(); // Obtiene instancia del mapa
+  if (position) map.flyTo(position, 16); // Centra el mapa si hay posición seleccionada
   return null;
 }
 
 function MapaClientes({ clientes }) {
+  // Estado para controlar si el mapa está en fullscreen
   const [fullscreen, setFullscreen] = useState(false);
+  // Estado para la posición seleccionada (para centrar el mapa)
   const [selectedPosition, setSelectedPosition] = useState(null);
 
-  const clientesConUbicacion = clientes.filter(
-    c => !isNaN(Number(c.x)) && !isNaN(Number(c.y))
+  // Filtra solo clientes con coordenadas válidas (memorizado para eficiencia)
+  const clientesConUbicacion = useMemo(
+    () => clientes.filter(
+      c => !isNaN(Number(c.x)) && !isNaN(Number(c.y))
+    ),
+    [clientes]
   );
-  if (!clientesConUbicacion.length) return <div>No hay clientes con ubicación.</div>;
-  const center = [clientesConUbicacion[0].y, clientesConUbicacion[0].x];
 
+  // Si no hay clientes con ubicación, muestra mensaje
+  if (!clientesConUbicacion.length) return <div>No hay clientes con ubicación.</div>;
+
+  // Calcula el centro inicial del mapa (primer cliente con ubicación)
+  const center = useMemo(
+    () => [clientesConUbicacion[0].y, clientesConUbicacion[0].x],
+    [clientesConUbicacion]
+  );
+
+  // Maneja el click en un cliente de la lista para centrar el mapa (memorizado)
+  const handleClienteClick = useCallback(
+    (c) => setSelectedPosition([c.y, c.x]),
+    []
+  );
+
+  // Render principal del componente
   return (
     <div>
-      {/* Botón fullscreen */}
+      {/* Botón para salir de fullscreen */}
       {fullscreen && (
         <button
           className="btn btn-danger"
@@ -55,13 +74,14 @@ function MapaClientes({ clientes }) {
             position: "fixed",
             top: 20,
             right: 20,
-            zIndex: 3000
+            zIndex: 3000,
           }}
           onClick={() => setFullscreen(false)}
         >
           Salir de Fullscreen
         </button>
       )}
+      {/* Botón para entrar en fullscreen */}
       {!fullscreen && (
         <button
           className="btn btn-secondary"
@@ -69,7 +89,7 @@ function MapaClientes({ clientes }) {
             position: "absolute",
             top: 10,
             right: 10,
-            zIndex: 1000
+            zIndex: 1000,
           }}
           onClick={() => setFullscreen(true)}
         >
@@ -85,10 +105,10 @@ function MapaClientes({ clientes }) {
           top: fullscreen ? 0 : "auto",
           left: fullscreen ? 0 : "auto",
           zIndex: fullscreen ? 2000 : "auto",
-          background: "#fff"
+          background: "#fff",
         }}
       >
-        {/* Lista de clientes */}
+        {/* Lista de clientes a la izquierda */}
         <div className="col-md-3" style={{ overflowY: "auto", maxHeight: "100%" }}>
           <ul className="list-group">
             {clientesConUbicacion.map((c, idx) => (
@@ -96,7 +116,7 @@ function MapaClientes({ clientes }) {
                 key={c.id || idx}
                 className="list-group-item d-flex align-items-center"
                 style={{ cursor: "pointer" }}
-                onClick={() => setSelectedPosition([c.y, c.x])}
+                onClick={() => handleClienteClick(c)}
               >
                 <span
                   style={{
@@ -111,7 +131,7 @@ function MapaClientes({ clientes }) {
                     fontSize: 14,
                     marginRight: 10,
                     textAlign: "center",
-                    lineHeight: "24px"
+                    lineHeight: "24px",
                   }}
                 >
                   {idx + 1}
@@ -121,7 +141,7 @@ function MapaClientes({ clientes }) {
             ))}
           </ul>
         </div>
-        {/* Mapa */}
+        {/* Mapa con los clientes */}
         <div className="col-md-9" style={{ height: "100%" }}>
           <MapContainer center={center} zoom={13} style={{ height: "100%", width: "100%" }}>
             <FlyTo position={selectedPosition} />

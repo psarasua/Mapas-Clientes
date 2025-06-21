@@ -1,26 +1,30 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react"; // Importa useCallback y useMemo para optimizaciones
 import supabase from "../supabaseClient";
 import MapaClientes from "./MapaClientes";
 
 function CamionesDiasCards() {
-  const [registros, setRegistros] = useState([]);
-  const [dias, setDias] = useState([]);
-  const [camiones, setCamiones] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editId, setEditId] = useState(null);
-  const [form, setForm] = useState({ camion_id: "", dia_id: "" });
-  const [mensaje, setMensaje] = useState("");
-  const [mostrarMapa, setMostrarMapa] = useState(false);
-  const [clientesMapa, setClientesMapa] = useState([]);
-  const [clientesAsignados, setClientesAsignados] = useState([]);
-  const [todosClientes, setTodosClientes] = useState([]);
-  const [busqueda, setBusqueda] = useState("");
+  // Estados principales del componente
+  const [registros, setRegistros] = useState([]); // Registros de camiones por día
+  const [dias, setDias] = useState([]); // Días disponibles
+  const [camiones, setCamiones] = useState([]); // Camiones disponibles
+  const [modalOpen, setModalOpen] = useState(false); // Estado del modal
+  const [editId, setEditId] = useState(null); // ID de edición
+  const [form, setForm] = useState({ camion_id: "", dia_id: "" }); // Formulario de camión y día
+  const [mensaje, setMensaje] = useState(""); // Mensaje de feedback
+  const [mostrarMapa, setMostrarMapa] = useState(false); // Estado del modal de mapa
+  const [clientesMapa, setClientesMapa] = useState([]); // Clientes a mostrar en el mapa
+  const [clientesAsignados, setClientesAsignados] = useState([]); // Clientes asignados al camión/día
+  const [todosClientes, setTodosClientes] = useState([]); // Todos los clientes activos
+  const [busqueda, setBusqueda] = useState(""); // Texto de búsqueda de clientes
 
+  // Carga inicial de datos al montar el componente
   useEffect(() => {
     fetchAll();
   }, []);
 
-  const fetchAll = async () => {
+  // Función para cargar todos los datos principales (memorizada para evitar recreación)
+  const fetchAll = useCallback(async () => {
+    // Carga registros de camiones_dias con relaciones
     const { data: registrosData } = await supabase
       .from("camiones_dias")
       .select(`
@@ -37,21 +41,24 @@ function CamionesDiasCards() {
       `);
     setRegistros(registrosData || []);
 
+    // Carga días de entrega
     const { data: diasData } = await supabase.from("dias_entrega").select("*");
     setDias(diasData || []);
 
+    // Carga camiones
     const { data: camionesData } = await supabase.from("camiones").select("*");
     setCamiones(camionesData || []);
-  };
+  }, []);
 
-  const openModal = async (registro = null) => {
+  // Abre el modal para agregar o editar un registro
+  const openModal = useCallback(async (registro = null) => {
     if (registro) {
       setEditId(registro.id);
       setForm({
         camion_id: registro.camion_id,
         dia_id: registro.dia_id,
       });
-      // Carga clientes asignados
+      // Carga clientes asignados al registro
       setClientesAsignados(
         (registro.clientesAsignados || []).map(ca => ({
           id: ca.id,
@@ -68,7 +75,7 @@ function CamionesDiasCards() {
     setMensaje("");
     setModalOpen(true);
 
-    // Carga todos los clientes (solo una vez)
+    // Carga todos los clientes solo si aún no están cargados
     if (todosClientes.length === 0) {
       const { data } = await supabase
         .from("clientes")
@@ -76,20 +83,24 @@ function CamionesDiasCards() {
         .eq("activo", true);
       setTodosClientes(data || []);
     }
-  };
+  }, [todosClientes.length]);
 
-  const closeModal = () => {
+  // Cierra el modal y limpia mensajes
+  const closeModal = useCallback(() => {
     setModalOpen(false);
     setMensaje("");
-  };
+  }, []);
 
-  const handleChange = (e) => {
+  // Maneja cambios en los campos del formulario
+  const handleChange = useCallback((e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  }, [form]);
 
-  const handleSubmit = async (e) => {
+  // Maneja el submit del formulario (agregar o actualizar)
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     if (editId) {
+      // Actualiza registro existente
       const { error } = await supabase
         .from("camiones_dias")
         .update(form)
@@ -100,6 +111,7 @@ function CamionesDiasCards() {
       }
       setMensaje("Registro actualizado.");
     } else {
+      // Inserta nuevo registro
       const { error } = await supabase
         .from("camiones_dias")
         .insert([form]);
@@ -109,11 +121,12 @@ function CamionesDiasCards() {
       }
       setMensaje("Registro agregado.");
     }
-    fetchAll();
-    setTimeout(closeModal, 1000); // Solo aquí se cierra el modal
-  };
+    fetchAll(); // Refresca datos
+    setTimeout(closeModal, 1000); // Cierra modal tras feedback
+  }, [editId, form, fetchAll, closeModal]);
 
-  const handleDelete = async (id) => {
+  // Elimina un registro de camión/día
+  const handleDelete = useCallback(async (id) => {
     if (window.confirm("¿Seguro que deseas eliminar este registro?")) {
       const { error } = await supabase
         .from("camiones_dias")
@@ -123,9 +136,10 @@ function CamionesDiasCards() {
         fetchAll();
       }
     }
-  };
+  }, [fetchAll]);
 
-  const handleVerMapa = (cd) => {
+  // Muestra el mapa con los clientes asignados a un camión/día
+  const handleVerMapa = useCallback((cd) => {
     const clientes = (cd.clientesAsignados || [])
       .filter(ca => ca.clientes && ca.clientes.x && ca.clientes.y)
       .map(ca => ({
@@ -136,52 +150,61 @@ function CamionesDiasCards() {
       }));
     setClientesMapa(clientes);
     setMostrarMapa(true);
-  };
+  }, []);
 
-  const agregarCliente = async (cliente) => {
+  // Agrega un cliente al camión/día actual
+  const agregarCliente = useCallback(async (cliente) => {
     if (!editId) return;
     await supabase.from("camion_dias_entrega").insert([
       { camion_dia: editId, cliente_id: cliente.id }
     ]);
-    // Actualiza la lista local (sin cerrar el modal)
-    setClientesAsignados([...clientesAsignados, cliente]);
-  };
+    // Actualiza la lista localmente para feedback inmediato
+    setClientesAsignados(prev => [...prev, cliente]);
+  }, [editId]);
 
-  const eliminarCliente = async (clienteId) => {
+  // Elimina un cliente asignado del camión/día actual
+  const eliminarCliente = useCallback(async (clienteId) => {
     if (!editId) return;
     await supabase
       .from("camion_dias_entrega")
       .delete()
       .eq("camion_dia", editId)
       .eq("cliente_id", clienteId);
-    setClientesAsignados(clientesAsignados.filter(c => c.id !== clienteId));
-  };
+    setClientesAsignados(prev => prev.filter(c => c.id !== clienteId));
+  }, [editId]);
 
-  // Agrupa los registros por día y los ordena por id dentro de cada día
-  const columnasPorDia = dias.map((dia) => {
-    const registrosDelDia = registros
-      .filter((r) => r.dia_id === dia.id)
-      .sort((a, b) => a.id - b.id);
-    return { ...dia, registros: registrosDelDia };
-  });
-
-  const busquedaLimpia = busqueda.trim().toLowerCase();
-
-  const clientesFiltrados = todosClientes.filter(
-    c =>
-      c &&
-      (
-        (c.nombre && c.nombre.toLowerCase().includes(busquedaLimpia)) ||
-        (c.razon && c.razon.toLowerCase().includes(busquedaLimpia)) ||
-        (c.codigo_alternativo &&
-          c.codigo_alternativo.toString().toLowerCase().includes(busquedaLimpia))
-      )
+  // Agrupa los registros por día y los ordena por id (memorizado para evitar cálculos innecesarios)
+  const columnasPorDia = useMemo(() =>
+    dias.map((dia) => {
+      const registrosDelDia = registros
+        .filter((r) => r.dia_id === dia.id)
+        .sort((a, b) => a.id - b.id);
+      return { ...dia, registros: registrosDelDia };
+    }), [dias, registros]
   );
 
+  // Limpia y normaliza el texto de búsqueda
+  const busquedaLimpia = useMemo(() => busqueda.trim().toLowerCase(), [busqueda]);
 
+  // Filtra los clientes según la búsqueda (memorizado)
+  const clientesFiltrados = useMemo(() =>
+    todosClientes.filter(
+      c =>
+        c &&
+        (
+          (c.nombre && c.nombre.toLowerCase().includes(busquedaLimpia)) ||
+          (c.razon && c.razon.toLowerCase().includes(busquedaLimpia)) ||
+          (c.codigo_alternativo &&
+            c.codigo_alternativo.toString().toLowerCase().includes(busquedaLimpia))
+        )
+    ), [todosClientes, busquedaLimpia]
+  );
+
+  // Render principal del componente
   return (
     <div>
       <h2>Camiones agrupados por día (columnas)</h2>
+      {/* Botón para abrir modal de agregar */}
       <button className="btn btn-success mb-3" onClick={() => openModal()}>
         Agregar registro
       </button>
@@ -201,12 +224,15 @@ function CamionesDiasCards() {
                     <strong>Total de clientes:</strong> {cd.clientesAsignados?.length || 0}
                   </p>
                   <div className="d-flex gap-2 mt-2">
+                    {/* Botón para ver mapa */}
                     <button className="btn btn-info btn-sm" onClick={() => handleVerMapa(cd)}>
                       Ver Mapa
                     </button>
+                    {/* Botón para editar */}
                     <button className="btn btn-warning btn-sm" onClick={() => openModal(cd)}>
                       Editar
                     </button>
+                    {/* Botón para eliminar */}
                     <button
                       className="btn btn-danger btn-sm"
                       onClick={() => handleDelete(cd.id)}
@@ -217,6 +243,7 @@ function CamionesDiasCards() {
                 </div>
               </div>
             ))}
+            {/* Mensaje si no hay camiones ese día */}
             {dia.registros.length === 0 && (
               <div className="text-muted text-center">Sin camiones</div>
             )}
@@ -245,6 +272,7 @@ function CamionesDiasCards() {
               </div>
               <form onSubmit={handleSubmit}>
                 <div className="modal-body">
+                  {/* Selector de camión */}
                   <div className="mb-3">
                     <label className="form-label">Camión:</label>
                     <select
@@ -263,6 +291,7 @@ function CamionesDiasCards() {
                       ))}
                     </select>
                   </div>
+                  {/* Selector de día */}
                   <div className="mb-3">
                     <label className="form-label">Día:</label>
                     <select
@@ -281,13 +310,14 @@ function CamionesDiasCards() {
                       ))}
                     </select>
                   </div>
+                  {/* Lista de clientes asignados */}
                   <div className="mb-3">
                     <label className="form-label">Clientes asignados:</label>
                     <ul className="list-group mb-2">
                       {clientesAsignados.map((c) => (
                         <li key={c.id} className="list-group-item d-flex justify-content-between align-items-center">
                           {c.nombre}
-                          <button className="btn btn-sm btn-danger" onClick={() => eliminarCliente(c.id)}>
+                          <button className="btn btn-sm btn-danger" type="button" onClick={() => eliminarCliente(c.id)}>
                             Eliminar
                           </button>
                         </li>
@@ -296,6 +326,7 @@ function CamionesDiasCards() {
                         <li className="list-group-item text-muted">Sin clientes asignados</li>
                       )}
                     </ul>
+                    {/* Buscador de clientes */}
                     <input
                       type="text"
                       className="form-control mb-2"
@@ -304,7 +335,7 @@ function CamionesDiasCards() {
                       onChange={e => setBusqueda(e.target.value)}
                       onKeyDown={e => { if (e.key === "Enter") e.preventDefault(); }}
                     />
-
+                    {/* Resultados de búsqueda */}
                     {busquedaLimpia.length > 0 && (
                       <ul className="list-group">
                         {clientesFiltrados.length > 0 ? (
@@ -335,6 +366,7 @@ function CamionesDiasCards() {
                       </ul>
                     )}
                   </div>
+                  {/* Mensaje de feedback */}
                   {mensaje && (
                     <div className="alert alert-info">{mensaje}</div>
                   )}

@@ -1,14 +1,14 @@
-import React, { useEffect, useState, useMemo } from "react";
-import supabase  from "../supabaseClient";
+import React, { useEffect, useState, useMemo } from "react"; // Importa hooks principales de React
+import supabase from "../supabaseClient"; // Cliente de Supabase para la base de datos
 import {
   useReactTable,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   flexRender,
-} from "@tanstack/react-table";
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+} from "@tanstack/react-table"; // Utilidades de react-table para tablas avanzadas
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet"; // Componentes de Leaflet para mapas
+import "leaflet/dist/leaflet.css"; // Estilos de Leaflet
 
 // Componente auxiliar para seleccionar coordenadas en el mapa
 function SelectorCoordenadas({ value, onChange }) {
@@ -24,16 +24,18 @@ function SelectorCoordenadas({ value, onChange }) {
     }
   }, [value.x, value.y]);
 
+  // Permite seleccionar una ubicación haciendo click en el mapa
   function MapClicker() {
     useMapEvents({
       click(e) {
         setMarker(e.latlng);
-        onChange({ x: e.latlng.lng, y: e.latlng.lat });
+        onChange({ x: e.latlng.lng, y: e.latlng.lat }); // Actualiza coordenadas en el padre
       },
     });
     return null;
   }
 
+  // Renderiza el mapa y el marcador seleccionado
   return (
     <div style={{ height: 300, width: "100%" }}>
       <MapContainer
@@ -68,31 +70,49 @@ function SelectorCoordenadas({ value, onChange }) {
 }
 
 export default function ClientesTable() {
+  // Estado para la lista de clientes
   const [clientes, setClientes] = useState([]);
+  // Estado para el filtro global de búsqueda
   const [filter, setFilter] = useState("");
+  // Estado para mostrar spinner de carga
   const [loading, setLoading] = useState(true);
+  // Estado para mostrar el modal de mapa
   const [showModal, setShowModal] = useState(false);
+  // Estado para coordenadas del mapa modal
   const [mapCoords, setMapCoords] = useState({ lat: null, lng: null });
+  // Estado para cliente en edición
   const [clienteEdit, setClienteEdit] = useState(null);
+  // Estado para mostrar modal de edición
   const [showEditModal, setShowEditModal] = useState(false);
-  // Estado para la paginación
+  // Estado para la paginación de la tabla
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 20,
   });
+
+  // Maneja la edición de un cliente
   const handleEdit = (cliente) => {
     setClienteEdit(cliente);
     setShowEditModal(true);
   };
 
-  const handleDelete = (clienteId) => {
-    console.log("Eliminar cliente con ID:", clienteId);
+  // Maneja la eliminación de un cliente (soft delete)
+  const handleDelete = async (clienteId) => {
+    if (window.confirm("¿Seguro que deseas eliminar este cliente?")) {
+      const { error } = await supabase
+        .from("clientes")
+        .update({ activo: false })
+        .eq("id", clienteId);
+      if (!error) fetchClientes();
+    }
   };
 
+  // Carga los clientes al montar el componente
   useEffect(() => {
     fetchClientes();
   }, []);
 
+  // Función para obtener clientes activos de la base de datos
   async function fetchClientes() {
     setLoading(true);
     const { data, error } = await supabase
@@ -108,6 +128,7 @@ export default function ClientesTable() {
     setLoading(false);
   }
 
+  // Definición de columnas para react-table (memorizada)
   const columns = useMemo(
     () => [
       { accessorKey: "id", header: "ID" },
@@ -121,6 +142,7 @@ export default function ClientesTable() {
       {
         header: "Ver Mapa",
         cell: ({ row }) => {
+          // Extrae coordenadas del cliente
           const lat = row.original.y;
           const lng = row.original.x;
           const tieneCoords =
@@ -130,6 +152,7 @@ export default function ClientesTable() {
             lng !== undefined &&
             lat !== 0 &&
             lng !== 0;
+          // Botón para ver el mapa si tiene coordenadas
           return tieneCoords ? (
             <button
               className="btn btn-link p-0"
@@ -158,7 +181,6 @@ export default function ClientesTable() {
         header: "Acciones",
         cell: ({ row }) => {
           const cliente = row.original;
-
           return (
             <div className="d-flex gap-2">
               <button
@@ -183,6 +205,7 @@ export default function ClientesTable() {
     []
   );
 
+  // Configuración de la tabla con react-table
   const table = useReactTable({
     data: clientes,
     columns,
@@ -197,6 +220,7 @@ export default function ClientesTable() {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
+  // Render principal del componente
   return (
     <div
       className="vw-100 vh-100 d-flex flex-column"
@@ -205,6 +229,7 @@ export default function ClientesTable() {
       <div className="flex-grow-1 d-flex flex-column">
         <h2 className="text-center mb-4 mt-3">Clientes</h2>
 
+        {/* Filtro de búsqueda */}
         <div className="px-3 mb-3">
           <input
             value={filter ?? ""}
@@ -214,8 +239,10 @@ export default function ClientesTable() {
           />
         </div>
 
+        {/* Tabla de clientes */}
         <div className="flex-grow-1 d-flex flex-column px-3">
           {loading ? (
+            // Spinner de carga
             <div className="text-center py-4 flex-grow-1 d-flex align-items-center justify-content-center">
               <div className="spinner-border text-primary" role="status">
                 <span className="visually-hidden">Cargando...</span>
@@ -404,6 +431,7 @@ export default function ClientesTable() {
                   }}
                 >
                   <div className="row">
+                    {/* Campos del formulario de edición */}
                     <div className="mb-3 col-md-6">
                       <label className="form-label d-flex align-items-center">
                         <i className="bi bi-upc me-2"></i>
@@ -571,7 +599,6 @@ export default function ClientesTable() {
                         }
                       />
                     </div>
-                    {/* Agrega más campos aquí si tu tabla tiene más */}
                   </div>
                   <div className="text-end">
                     <button type="submit" className="btn btn-primary">

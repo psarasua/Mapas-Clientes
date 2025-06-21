@@ -1,51 +1,66 @@
-import React, { useEffect, useState } from "react";
-import supabase  from "../supabaseClient";
+import React, { useEffect, useState, useCallback } from "react"; // Importa hooks principales y useCallback para funciones memorizadas
+import supabase from "../supabaseClient"; // Cliente de Supabase
 
 export default function DiasEntregaTable() {
+  // Estado para la lista de días de entrega
   const [dias, setDias] = useState([]);
+  // Estado para mostrar spinner de carga
   const [loading, setLoading] = useState(true);
+  // Estado para el formulario (agregar/editar)
   const [form, setForm] = useState({ descripcion: "" });
+  // Estado para saber si se está editando y el id correspondiente
   const [editId, setEditId] = useState(null);
 
+  // Carga los días de entrega al montar el componente
   useEffect(() => {
     fetchDias();
   }, []);
 
-  async function fetchDias() {
-    setLoading(true);
+  // Función para obtener días de entrega de la base de datos (memorizada)
+  const fetchDias = useCallback(async () => {
+    setLoading(true); // Activa spinner
     const { data, error } = await supabase
       .from("dias_entrega")
       .select("*")
       .order("id", { ascending: true });
-    if (!error) setDias(data);
-    setLoading(false);
-  }
+    if (!error) setDias(data); // Actualiza estado si no hay error
+    setLoading(false); // Desactiva spinner
+  }, []);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  // Maneja el envío del formulario para agregar o actualizar
+  const handleSubmit = useCallback(async (e) => {
+    e.preventDefault(); // Previene recarga de página
     if (editId) {
+      // Actualiza día existente
       await supabase.from("dias_entrega").update(form).eq("id", editId);
     } else {
+      // Inserta nuevo día
       await supabase.from("dias_entrega").insert([form]);
     }
-    setForm({ descripcion: "" });
-    setEditId(null);
-    fetchDias();
-  }
+    setForm({ descripcion: "" }); // Limpia formulario
+    setEditId(null); // Sale del modo edición
+    fetchDias(); // Refresca lista
+  }, [editId, form, fetchDias]);
 
-  async function handleDelete(id) {
-    await supabase.from("dias_entrega").delete().eq("id", id);
-    fetchDias();
-  }
+  // Maneja la eliminación de un día
+  const handleDelete = useCallback(async (id) => {
+    if (window.confirm("¿Seguro que deseas eliminar este día?")) {
+      await supabase.from("dias_entrega").delete().eq("id", id);
+      fetchDias(); // Refresca lista
+    }
+  }, [fetchDias]);
 
-  function handleEdit(dia) {
+  // Maneja la edición de un día (carga datos al formulario)
+  const handleEdit = useCallback((dia) => {
     setForm({ descripcion: dia.descripcion });
     setEditId(dia.id);
-  }
+  }, []);
 
+  // Render principal del componente
   return (
     <div className="container mt-4">
       <h2>Días de Entrega</h2>
+      {/* Formulario para agregar o editar día */}
       <form className="row g-3 mb-4" onSubmit={handleSubmit}>
         <div className="col-md-8">
           <input
@@ -62,6 +77,7 @@ export default function DiasEntregaTable() {
           </button>
         </div>
       </form>
+      {/* Spinner de carga */}
       {loading ? (
         <div className="text-center py-4 flex-grow-1 d-flex align-items-center justify-content-center">
           <div className="spinner-border text-primary" role="status">
@@ -69,6 +85,7 @@ export default function DiasEntregaTable() {
           </div>
         </div>
       ) : (
+        // Tabla de días de entrega
         <div className="table-responsive flex-grow-1">
           <table className="table table-striped table-hover align-middle w-100">
             <thead className="table-dark">
@@ -92,6 +109,7 @@ export default function DiasEntregaTable() {
                     <td>{dia.descripcion}</td>
                     <td>
                       <div className="d-flex gap-2">
+                        {/* Botón para editar */}
                         <button
                           className="btn btn-outline-primary btn-sm"
                           title="Editar"
@@ -99,6 +117,7 @@ export default function DiasEntregaTable() {
                         >
                           <i className="bi bi-pencil"></i>
                         </button>
+                        {/* Botón para eliminar */}
                         <button
                           className="btn btn-outline-danger btn-sm"
                           title="Eliminar"
