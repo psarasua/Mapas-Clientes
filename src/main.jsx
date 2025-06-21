@@ -1,6 +1,5 @@
 import { StrictMode } from "react"; // Activa comprobaciones adicionales en desarrollo
 import { createRoot } from "react-dom/client"; // Nueva API de React 18 para crear el root
-import "./index.css"; // Importa estilos globales personalizados
 import App from "./App.jsx"; // Importa el componente principal de la app
 
 import "leaflet/dist/leaflet.css"; // Estilos de Leaflet para mapas
