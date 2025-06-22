@@ -108,6 +108,7 @@ const ClientesTable = React.memo(function ClientesTable() {
             <button
               className="btn btn-link p-0"
               title="Ver Mapa"
+              aria-label={`Ver mapa del cliente ${row.original.nombre}`}
               onClick={() => {
                 setMapCoords({ lat: Number(lat), lng: Number(lng) });
                 setShowModal(true);
@@ -116,14 +117,18 @@ const ClientesTable = React.memo(function ClientesTable() {
               <i
                 className="bi bi-flag-fill"
                 style={{ color: "green", fontSize: "1.5rem" }}
+                aria-hidden="true"
               ></i>
+              <span className="visually-hidden">Ver Mapa</span>
             </button>
           ) : (
             <span title="No GeoReferenciado">
               <i
                 className="bi bi-flag-fill"
                 style={{ color: "red", fontSize: "1.5rem" }}
+                aria-hidden="true"
               ></i>
+              <span className="visually-hidden">No georreferenciado</span>
             </span>
           );
         },
@@ -137,16 +142,20 @@ const ClientesTable = React.memo(function ClientesTable() {
               <button
                 className="btn btn-outline-primary btn-sm"
                 title="Editar"
+                aria-label={`Editar cliente ${cliente.nombre}`}
                 onClick={() => handleEdit(cliente)}
               >
-                <i className="bi bi-pencil"></i>
+                <i className="bi bi-pencil" aria-hidden="true"></i>
+                <span className="visually-hidden">Editar</span>
               </button>
               <button
                 className="btn btn-outline-danger btn-sm"
                 title="Eliminar"
+                aria-label={`Eliminar cliente ${cliente.nombre}`}
                 onClick={() => handleDelete(cliente.id)}
               >
-                <i className="bi bi-trash"></i>
+                <i className="bi bi-trash" aria-hidden="true"></i>
+                <span className="visually-hidden">Eliminar</span>
               </button>
             </div>
           );
@@ -170,7 +179,10 @@ const ClientesTable = React.memo(function ClientesTable() {
   });
 
   const paginationControls = useMemo(() => (
-    <div className="d-flex justify-content-between align-items-center mt-3">
+    <nav
+      className="d-flex justify-content-between align-items-center mt-3"
+      aria-label="Paginación de la tabla de clientes"
+    >
       <div>
         Página{" "}
         <strong>
@@ -182,6 +194,7 @@ const ClientesTable = React.memo(function ClientesTable() {
           className="btn btn-outline-primary btn-sm me-2"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
+          aria-label="Página anterior"
         >
           {"<"}
         </button>
@@ -189,16 +202,22 @@ const ClientesTable = React.memo(function ClientesTable() {
           className="btn btn-outline-primary btn-sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
+          aria-label="Página siguiente"
         >
           {">"}
         </button>
       </div>
+      <label htmlFor="pageSizeSelect" className="visually-hidden">
+        Seleccionar cantidad de filas por página
+      </label>
       <select
+        id="pageSizeSelect"
         className="form-select form-select-sm w-auto"
         value={table.getState().pagination.pageSize}
         onChange={(e) => {
           table.setPageSize(Number(e.target.value));
         }}
+        aria-label="Seleccionar cantidad de filas por página"
       >
         {[20, 50, 100].map((pageSize) => (
           <option key={pageSize} value={pageSize}>
@@ -206,25 +225,33 @@ const ClientesTable = React.memo(function ClientesTable() {
           </option>
         ))}
       </select>
-    </div>
+    </nav>
   ), [table, pageCount]);
 
   return (
     <div className="vw-100 vh-100 d-flex flex-column" style={{ minHeight: "100vh", minWidth: "100vw", padding: 0, margin: 0 }}>
       <div className="flex-grow-1 d-flex flex-column">
-        <h2 className="text-center mb-4 mt-3">Clientes</h2>
+        <h2 className="text-center mb-4 mt-3" id="clientes-titulo" tabIndex={0}>
+          Clientes
+        </h2>
         <div className="d-flex justify-content-end align-items-center px-3 mb-3">
           <button
             className="btn btn-success btn-sm d-flex align-items-center"
             style={{ minWidth: "auto" }}
             onClick={() => setShowAltaModal(true)}
+            aria-label="Crear nuevo cliente"
           >
-            <i className="bi bi-plus-lg me-1"></i>
+            <i className="bi bi-plus-lg me-1" aria-hidden="true"></i>
+            <span className="visually-hidden">Crear Cliente</span>
             Crear Cliente
           </button>
         </div>
         <div className="px-3 mb-3">
+          <label htmlFor="clientes-busqueda" className="visually-hidden">
+            Buscar clientes
+          </label>
           <input
+            id="clientes-busqueda"
             value={filter ?? ""}
             onChange={(e) => {
               setFilter(e.target.value);
@@ -232,6 +259,8 @@ const ClientesTable = React.memo(function ClientesTable() {
             }}
             placeholder="Buscar clientes..."
             className="form-control"
+            aria-label="Buscar clientes"
+            autoComplete="off"
           />
         </div>
         <div className="flex-grow-1 d-flex flex-column px-3">

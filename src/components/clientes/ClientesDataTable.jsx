@@ -23,12 +23,23 @@ const ClientesDataTable = React.memo(function ClientesDataTable({
   const tableContent = useMemo(
     () => (
       <div className="table-responsive flex-grow-1">
-        <table className="table table-striped table-hover align-middle w-100">
+        <table
+          className="table table-striped table-hover align-middle w-100"
+          role="table"
+          aria-label="Tabla de clientes"
+        >
           <thead className="table-dark">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <th key={header.id} scope="col">
+                  <th
+                    key={header.id}
+                    scope="col"
+                    tabIndex={0}
+                    aria-label={typeof header.column.columnDef.header === "string"
+                      ? header.column.columnDef.header
+                      : undefined}
+                  >
                     {flexRender(
                       header.column.columnDef.header,
                       header.getContext()
@@ -69,7 +80,10 @@ const ClientesDataTable = React.memo(function ClientesDataTable({
   // Memoiza el renderizado de los controles de paginación
   const paginationControls = useMemo(
     () => (
-      <div className="d-flex justify-content-between align-items-center mt-3">
+      <nav
+        className="d-flex justify-content-between align-items-center mt-3"
+        aria-label="Paginación de la tabla de clientes"
+      >
         <div>
           Página{" "}
           <strong>
@@ -82,6 +96,7 @@ const ClientesDataTable = React.memo(function ClientesDataTable({
             className="btn btn-outline-primary btn-sm me-2"
             onClick={handlePrevPage}
             disabled={!table.getCanPreviousPage()}
+            aria-label="Página anterior"
           >
             {"<"}
           </button>
@@ -89,14 +104,20 @@ const ClientesDataTable = React.memo(function ClientesDataTable({
             className="btn btn-outline-primary btn-sm"
             onClick={handleNextPage}
             disabled={!table.getCanNextPage()}
+            aria-label="Página siguiente"
           >
             {">"}
           </button>
         </div>
+        <label htmlFor="pageSizeSelect" className="visually-hidden">
+          Seleccionar cantidad de filas por página
+        </label>
         <select
+          id="pageSizeSelect"
           className="form-select form-select-sm w-auto"
           value={table.getState().pagination.pageSize}
           onChange={handlePageSizeChange}
+          aria-label="Seleccionar cantidad de filas por página"
         >
           {[20, 50, 100].map((pageSize) => (
             <option key={pageSize} value={pageSize}>
@@ -104,7 +125,7 @@ const ClientesDataTable = React.memo(function ClientesDataTable({
             </option>
           ))}
         </select>
-      </div>
+      </nav>
     ),
     [table, handlePrevPage, handleNextPage, handlePageSizeChange]
   );
@@ -114,7 +135,7 @@ const ClientesDataTable = React.memo(function ClientesDataTable({
     <div className="flex-grow-1 d-flex flex-column px-3">
       {loading ? (
         <div className="text-center py-4 flex-grow-1 d-flex align-items-center justify-content-center">
-          <div className="spinner-border text-primary" role="status">
+          <div className="spinner-border text-primary" role="status" aria-live="polite">
             <span className="visually-hidden">Cargando...</span>
           </div>
         </div>

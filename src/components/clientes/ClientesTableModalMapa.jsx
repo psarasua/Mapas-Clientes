@@ -10,15 +10,19 @@ const ClientesTableModalMapa = ({ showModal, mapCoords, setShowModal }) => {
         style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
         tabIndex="-1"
         role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-mapa-titulo"
       >
         <div className="modal-dialog modal-lg modal-dialog-centered" role="document">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title">Ubicación en el Mapa</h5>
+              <h5 className="modal-title" id="modal-mapa-titulo">
+                Ubicación en el Mapa
+              </h5>
               <button
                 type="button"
                 className="btn-close"
-                aria-label="Close"
+                aria-label="Cerrar modal"
                 onClick={() => setShowModal(false)}
               ></button>
             </div>
@@ -28,6 +32,7 @@ const ClientesTableModalMapa = ({ showModal, mapCoords, setShowModal }) => {
                   center={[mapCoords.lat, mapCoords.lng]}
                   zoom={16}
                   style={{ height: "100%", width: "100%" }}
+                  aria-label="Mapa de ubicación del cliente"
                 >
                   <TileLayer
                     attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -38,7 +43,9 @@ const ClientesTableModalMapa = ({ showModal, mapCoords, setShowModal }) => {
                   </Marker>
                 </MapContainer>
               ) : (
-                <div className="text-center text-danger">No GeoReferenciado</div>
+                <div className="text-center text-danger" role="status" aria-live="polite">
+                  No GeoReferenciado
+                </div>
               )}
             </div>
           </div>
@@ -47,6 +54,7 @@ const ClientesTableModalMapa = ({ showModal, mapCoords, setShowModal }) => {
       <div
         className="modal-backdrop fade show"
         style={{ zIndex: 1040 }}
+        aria-hidden="true"
         onClick={() => setShowModal(false)}
       ></div>
     </>

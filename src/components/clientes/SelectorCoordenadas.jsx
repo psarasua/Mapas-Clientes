@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-const SelectorCoordenadas = React.memo(function SelectorCoordenadas({ value, onChange }) {
+const SelectorCoordenadas = React.memo(function SelectorCoordenadas({ value, onChange, id = "selector-coordenadas" }) {
   const [marker, setMarker] = useState(
     value && value.x && value.y ? { lat: Number(value.y), lng: Number(value.x) } : null
   );
@@ -29,7 +29,13 @@ const SelectorCoordenadas = React.memo(function SelectorCoordenadas({ value, onC
   }
 
   return (
-    <div style={{ height: 300, width: "100%" }}>
+    <div
+      style={{ height: 300, width: "100%" }}
+      id={id}
+      role="region"
+      aria-label="Selector de coordenadas en el mapa"
+      tabIndex={0}
+    >
       <MapContainer
         center={
           marker
@@ -38,6 +44,7 @@ const SelectorCoordenadas = React.memo(function SelectorCoordenadas({ value, onC
         }
         zoom={marker ? 16 : 12}
         style={{ height: "100%", width: "100%" }}
+        aria-label="Mapa para seleccionar coordenadas"
       >
         <TileLayer
           attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -54,7 +61,7 @@ const SelectorCoordenadas = React.memo(function SelectorCoordenadas({ value, onC
           </Marker>
         )}
       </MapContainer>
-      <div className="form-text">
+      <div className="form-text" id={`${id}-ayuda`}>
         Haga clic en el mapa para seleccionar la ubicación del cliente.
       </div>
     </div>

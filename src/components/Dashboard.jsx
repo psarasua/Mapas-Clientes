@@ -4,9 +4,17 @@ const Dashboard = React.memo(function Dashboard() {
   // Memoiza el contenido del dashboard (útil si luego agregas lógica)
   const content = useMemo(
     () => (
-      <div className="container-fluid mt-4">
-        <h3>Sin información</h3>
-      </div>
+      <main
+        className="container-fluid mt-4 d-flex flex-column align-items-center justify-content-center"
+        role="main"
+        aria-label="Panel principal"
+        tabIndex={0}
+      >
+        <h3 id="dashboard-titulo" tabIndex={0}>
+          Sin información
+        </h3>
+        {/* Puedes agregar aquí widgets o tarjetas informativas en el futuro */}
+      </main>
     ),
     []
   );

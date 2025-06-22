@@ -16,6 +16,10 @@ const CamionDiasModal = React.memo(function CamionDiasModal({
   clientesFiltrados,
   agregarCliente,
   mensaje,
+  // Props de accesibilidad
+  role = "dialog",
+  ariaModal = "true",
+  ariaLabelledby = "modal-titulo",
 }) {
   // Memoiza la lista de opciones de camiones
   const camionesOptions = useMemo(
@@ -39,6 +43,20 @@ const CamionDiasModal = React.memo(function CamionDiasModal({
     [dias]
   );
 
+  // Memoiza los handlers para evitar que cambien en cada render
+  const handleEliminarCliente = useCallback(
+    (id) => eliminarCliente(id),
+    [eliminarCliente]
+  );
+  const handleAgregarCliente = useCallback(
+    (c) => agregarCliente(c),
+    [agregarCliente]
+  );
+  const handleBusquedaChange = useCallback(
+    (e) => setBusqueda(e.target.value),
+    [setBusqueda]
+  );
+
   // Memoiza la lista de clientes asignados
   const clientesAsignadosList = useMemo(
     () =>
@@ -48,11 +66,12 @@ const CamionDiasModal = React.memo(function CamionDiasModal({
             key={c.id}
             className="list-group-item d-flex justify-content-between align-items-center"
           >
-            {c.nombre}
+            <span>{c.nombre}</span>
             <button
               className="btn btn-sm btn-danger"
               type="button"
               onClick={() => handleEliminarCliente(c.id)}
+              aria-label={`Eliminar cliente ${c.nombre}`}
             >
               Eliminar
             </button>
@@ -61,7 +80,7 @@ const CamionDiasModal = React.memo(function CamionDiasModal({
       ) : (
         <li className="list-group-item text-muted">Sin clientes asignados</li>
       ),
-    [clientesAsignados, eliminarCliente]
+    [clientesAsignados, handleEliminarCliente]
   );
 
   // Memoiza la lista de resultados de búsqueda de clientes
@@ -78,10 +97,12 @@ const CamionDiasModal = React.memo(function CamionDiasModal({
           key={c.id}
           className="list-group-item d-flex justify-content-between align-items-center"
         >
-          {c.nombre}{" "}
-          {c.razon && <span className="text-muted">({c.razon})</span>}
+          <span>
+            {c.nombre}{" "}
+            {c.razon && <span className="text-muted">({c.razon})</span>}
+          </span>
           {yaAsignado ? (
-            <button className="btn btn-sm btn-secondary" disabled>
+            <button className="btn btn-sm btn-secondary" disabled aria-disabled="true">
               Ya asignado
             </button>
           ) : (
@@ -89,6 +110,7 @@ const CamionDiasModal = React.memo(function CamionDiasModal({
               type="button"
               className="btn btn-sm btn-success"
               onClick={() => handleAgregarCliente(c)}
+              aria-label={`Agregar cliente ${c.nombre}`}
             >
               Agregar
             </button>
@@ -96,52 +118,46 @@ const CamionDiasModal = React.memo(function CamionDiasModal({
         </li>
       );
     });
-  }, [busqueda, clientesFiltrados, clientesAsignados, agregarCliente]);
-
-  // Memoiza los handlers para evitar que cambien en cada render
-  const handleEliminarCliente = useCallback(
-    (id) => eliminarCliente(id),
-    [eliminarCliente]
-  );
-  const handleAgregarCliente = useCallback(
-    (c) => agregarCliente(c),
-    [agregarCliente]
-  );
-  const handleBusquedaChange = useCallback(
-    (e) => setBusqueda(e.target.value),
-    [setBusqueda]
-  );
+  }, [busqueda, clientesFiltrados, clientesAsignados, handleAgregarCliente]);
 
   return (
     <div
       className="modal show d-block"
       tabIndex="-1"
       style={{ background: "rgba(0,0,0,0.3)" }}
+      role={role}
+      aria-modal={ariaModal}
+      aria-labelledby={ariaLabelledby}
     >
-      <div className="modal-dialog">
+      <div className="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">
+            <h5 className="modal-title" id={ariaLabelledby}>
               {editId ? "Editar" : "Agregar"} registro
             </h5>
             <button
               type="button"
               className="btn-close"
+              aria-label="Cerrar modal"
               onClick={closeModal}
             ></button>
           </div>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} autoComplete="off">
             <div className="modal-body">
               {/* Selector de camión */}
               <div className="mb-3">
-                <label className="form-label">Camión:</label>
+                <label htmlFor="camion_id" className="form-label">
+                  Camión:
+                </label>
                 <select
                   className="form-select"
+                  id="camion_id"
                   name="camion_id"
                   value={form.camion_id}
                   onChange={handleChange}
                   required
                   disabled={!!editId}
+                  aria-required="true"
                 >
                   <option value="">Seleccione</option>
                   {camionesOptions}
@@ -149,14 +165,18 @@ const CamionDiasModal = React.memo(function CamionDiasModal({
               </div>
               {/* Selector de día */}
               <div className="mb-3">
-                <label className="form-label">Día:</label>
+                <label htmlFor="dia_id" className="form-label">
+                  Día:
+                </label>
                 <select
                   className="form-select"
+                  id="dia_id"
                   name="dia_id"
                   value={form.dia_id}
                   onChange={handleChange}
                   required
                   disabled={!!editId}
+                  aria-required="true"
                 >
                   <option value="">Seleccione</option>
                   {diasOptions}
@@ -164,16 +184,26 @@ const CamionDiasModal = React.memo(function CamionDiasModal({
               </div>
               {/* Lista de clientes asignados */}
               <div className="mb-3">
-                <label className="form-label">Clientes asignados:</label>
-                <ul className="list-group mb-2">{clientesAsignadosList}</ul>
+                <label className="form-label" htmlFor="clientes_asignados">
+                  Clientes asignados:
+                </label>
+                <ul className="list-group mb-2" id="clientes_asignados">
+                  {clientesAsignadosList}
+                </ul>
                 {/* Buscador de clientes */}
+                <label htmlFor="busqueda_cliente" className="form-label visually-hidden">
+                  Buscar cliente por nombre o razón social
+                </label>
                 <input
                   type="text"
                   className="form-control mb-2"
+                  id="busqueda_cliente"
                   placeholder="Buscar cliente por nombre o razón..."
                   value={busqueda}
                   onChange={handleBusquedaChange}
                   onKeyDown={e => { if (e.key === "Enter") e.preventDefault(); }}
+                  aria-label="Buscar cliente por nombre o razón social"
+                  autoComplete="off"
                 />
                 {/* Resultados de búsqueda */}
                 {busqueda.length > 0 && (
@@ -182,7 +212,7 @@ const CamionDiasModal = React.memo(function CamionDiasModal({
               </div>
               {/* Mensaje de feedback */}
               {mensaje && (
-                <div className="alert alert-info">{mensaje}</div>
+                <div className="alert alert-info" role="status">{mensaje}</div>
               )}
             </div>
             <div className="modal-footer">

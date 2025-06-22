@@ -1,8 +1,10 @@
 import React, { useMemo } from "react";
-import { Link } from "react-router-dom"; // Importa Link para navegación sin recarga
+import { Link, useLocation } from "react-router-dom";
 
 // Componente de menú de navegación principal
 const Menu = React.memo(function Menu() {
+  const location = useLocation();
+
   // Memoiza la lista de links del menú para evitar renders innecesarios
   const menuLinks = useMemo(
     () => [
@@ -17,11 +19,14 @@ const Menu = React.memo(function Menu() {
 
   // Renderizado principal del menú
   return (
-    // Barra de navegación con Bootstrap
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <nav
+      className="navbar navbar-expand-lg navbar-dark bg-dark mb-4"
+      role="navigation"
+      aria-label="Menú principal"
+    >
       <div className="container-fluid">
         {/* Logo o nombre de la app, navega al inicio */}
-        <Link className="navbar-brand" to="/">
+        <Link className="navbar-brand" to="/" aria-label="Ir a inicio">
           ClientesApp
         </Link>
         {/* Botón para mostrar/ocultar menú en pantallas pequeñas */}
@@ -32,16 +37,26 @@ const Menu = React.memo(function Menu() {
           data-bs-target="#navbarNav"
           aria-controls="navbarNav"
           aria-expanded="false"
-          aria-label="Toggle navigation"
+          aria-label="Mostrar u ocultar menú de navegación"
         >
           <span className="navbar-toggler-icon"></span>
         </button>
         {/* Contenedor de los links del menú */}
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav me-auto">
+          <ul className="navbar-nav me-auto" role="menubar">
             {menuLinks.map((link) => (
-              <li className="nav-item" key={link.to}>
-                <Link className="nav-link" to={link.to}>
+              <li className="nav-item" key={link.to} role="none">
+                <Link
+                  className={`nav-link${
+                    location.pathname === link.to ? " active" : ""
+                  }`}
+                  to={link.to}
+                  role="menuitem"
+                  aria-current={
+                    location.pathname === link.to ? "page" : undefined
+                  }
+                  tabIndex={0}
+                >
                   {link.label}
                 </Link>
               </li>

@@ -4,12 +4,23 @@ import { flexRender } from "@tanstack/react-table";
 const ClientesTableContent = React.memo(function ClientesTableContent({ table, columns }) {
   return (
     <div className="table-responsive flex-grow-1">
-      <table className="table table-striped table-hover align-middle w-100">
+      <table
+        className="table table-striped table-hover align-middle w-100"
+        role="table"
+        aria-label="Tabla de clientes"
+      >
         <thead className="table-dark">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th key={header.id} scope="col">
+                <th
+                  key={header.id}
+                  scope="col"
+                  tabIndex={0}
+                  aria-label={typeof header.column.columnDef.header === "string"
+                    ? header.column.columnDef.header
+                    : undefined}
+                >
                   {flexRender(header.column.columnDef.header, header.getContext())}
                 </th>
               ))}

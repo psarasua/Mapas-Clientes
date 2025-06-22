@@ -202,17 +202,29 @@ function CamionesDiasCards() {
 
   // Render principal del componente
   return (
-    <div>
-      <h2>Camiones agrupados por día (columnas)</h2>
-      <button className="btn btn-success mb-3" onClick={() => openModal()}>
-        Agregar registro
-      </button>
-      <MemoCamionDiasColumnas
-        columnasPorDia={columnasPorDia}
-        onVerMapa={handleVerMapa}
-        onEditar={openModal}
-        onEliminar={handleDelete}
-      />
+    <div className="container my-4">
+      <h2 className="mb-4" tabIndex={0} aria-label="Camiones agrupados por día">
+        Camiones agrupados por día (columnas)
+      </h2>
+      <div className="d-flex justify-content-end mb-3">
+        <button
+          className="btn btn-success"
+          onClick={() => openModal()}
+          aria-label="Agregar nuevo registro de camión por día"
+        >
+          Agregar registro
+        </button>
+      </div>
+      <div className="row">
+        <div className="col-12">
+          <MemoCamionDiasColumnas
+            columnasPorDia={columnasPorDia}
+            onVerMapa={handleVerMapa}
+            onEditar={openModal}
+            onEliminar={handleDelete}
+          />
+        </div>
+      </div>
       {modalOpen && (
         <MemoCamionDiasModal
           editId={editId}
@@ -229,12 +241,20 @@ function CamionesDiasCards() {
           clientesFiltrados={clientesFiltrados}
           agregarCliente={agregarCliente}
           mensaje={mensaje}
+          // Accesibilidad: role y aria-modal
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-titulo"
         />
       )}
       {mostrarMapa && (
         <MemoMapaClientesModal
           clientes={clientesMapa}
           onClose={() => setMostrarMapa(false)}
+          // Accesibilidad: role y aria-modal
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="mapa-modal-titulo"
         />
       )}
     </div>

@@ -61,13 +61,24 @@ const MapaClientes = React.memo(function MapaClientes({ clientes }) {
 
   // Memoiza la lista de clientes para la barra lateral
   const clientesList = useMemo(() => (
-    <ul className="list-group">
+    <ul
+      className="list-group"
+      role="list"
+      aria-label="Lista de clientes con ubicación"
+      tabIndex={0}
+    >
       {clientesConUbicacion.map((c, idx) => (
         <li
           key={c.id || idx}
           className="list-group-item d-flex align-items-center"
           style={{ cursor: "pointer" }}
           onClick={() => handleClienteClick(c)}
+          tabIndex={0}
+          role="listitem"
+          aria-label={`Cliente ${c.nombre}, marcador ${idx + 1}`}
+          onKeyDown={e => {
+            if (e.key === "Enter" || e.key === " ") handleClienteClick(c);
+          }}
         >
           <span
             style={{
@@ -84,10 +95,11 @@ const MapaClientes = React.memo(function MapaClientes({ clientes }) {
               textAlign: "center",
               lineHeight: "24px",
             }}
+            aria-hidden="true"
           >
             {idx + 1}
           </span>
-          {c.nombre}
+          <span>{c.nombre}</span>
         </li>
       ))}
     </ul>
@@ -100,6 +112,7 @@ const MapaClientes = React.memo(function MapaClientes({ clientes }) {
         key={c.id || idx}
         position={[c.y, c.x]}
         icon={getNumeroIcon(idx + 1)}
+        aria-label={`Marcador ${idx + 1} para cliente ${c.nombre}`}
       >
         <Popup>
           <strong>{idx + 1}. {c.nombre}</strong>
@@ -109,7 +122,8 @@ const MapaClientes = React.memo(function MapaClientes({ clientes }) {
     [clientesConUbicacion]
   );
 
-  if (!clientesConUbicacion.length) return <div>No hay clientes con ubicación.</div>;
+  if (!clientesConUbicacion.length)
+    return <div className="alert alert-warning" role="status" aria-live="polite">No hay clientes con ubicación.</div>;
 
   return (
     <div>
@@ -124,6 +138,7 @@ const MapaClientes = React.memo(function MapaClientes({ clientes }) {
             zIndex: 3000,
           }}
           onClick={() => setFullscreen(false)}
+          aria-label="Salir de pantalla completa"
         >
           Salir de Fullscreen
         </button>
@@ -139,6 +154,7 @@ const MapaClientes = React.memo(function MapaClientes({ clientes }) {
             zIndex: 1000,
           }}
           onClick={() => setFullscreen(true)}
+          aria-label="Ver mapa en pantalla completa"
         >
           Fullscreen
         </button>
@@ -154,14 +170,26 @@ const MapaClientes = React.memo(function MapaClientes({ clientes }) {
           zIndex: fullscreen ? 2000 : "auto",
           background: "#fff",
         }}
+        role="region"
+        aria-label="Mapa de clientes y lista"
       >
         {/* Lista de clientes a la izquierda */}
         <div className="col-md-3" style={{ overflowY: "auto", maxHeight: "100%" }}>
+          <h6 className="mt-3 mb-2" id="clientes-lista-titulo" tabIndex={0}>
+            Clientes con ubicación
+          </h6>
           {clientesList}
         </div>
         {/* Mapa con los clientes */}
         <div className="col-md-9" style={{ height: "100%" }}>
-          <MapContainer center={center} zoom={13} style={{ height: "100%", width: "100%" }}>
+          <MapContainer
+            center={center}
+            zoom={13}
+            style={{ height: "100%", width: "100%" }}
+            aria-label="Mapa de clientes"
+            role="application"
+            aria-describedby="clientes-lista-titulo"
+          >
             <FlyTo position={selectedPosition} />
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             {markers}

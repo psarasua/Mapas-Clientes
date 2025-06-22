@@ -1,6 +1,12 @@
 import React, { useMemo, useCallback } from "react";
 
-const DiasEntregaList = React.memo(function DiasEntregaList({ dias, loading, onEdit, onDelete }) {
+const DiasEntregaList = React.memo(function DiasEntregaList({
+  dias,
+  loading,
+  onEdit,
+  onDelete,
+  ariaLabelledby = "dias-entrega-titulo",
+}) {
   // Memoiza el handler de edición
   const handleEdit = useCallback(
     (dia) => onEdit(dia),
@@ -33,16 +39,20 @@ const DiasEntregaList = React.memo(function DiasEntregaList({ dias, loading, onE
             <button
               className="btn btn-outline-primary btn-sm"
               title="Editar"
+              aria-label={`Editar día de entrega ${dia.descripcion}`}
               onClick={() => handleEdit(dia)}
             >
-              <i className="bi bi-pencil"></i>
+              <i className="bi bi-pencil" aria-hidden="true"></i>
+              <span className="visually-hidden">Editar</span>
             </button>
             <button
               className="btn btn-outline-danger btn-sm"
               title="Eliminar"
+              aria-label={`Eliminar día de entrega ${dia.descripcion}`}
               onClick={() => handleDelete(dia.id)}
             >
-              <i className="bi bi-trash"></i>
+              <i className="bi bi-trash" aria-hidden="true"></i>
+              <span className="visually-hidden">Eliminar</span>
             </button>
           </div>
         </td>
@@ -53,7 +63,7 @@ const DiasEntregaList = React.memo(function DiasEntregaList({ dias, loading, onE
   if (loading) {
     return (
       <div className="text-center py-4 flex-grow-1 d-flex align-items-center justify-content-center">
-        <div className="spinner-border text-primary" role="status">
+        <div className="spinner-border text-primary" role="status" aria-live="polite">
           <span className="visually-hidden">Cargando...</span>
         </div>
       </div>
@@ -62,12 +72,17 @@ const DiasEntregaList = React.memo(function DiasEntregaList({ dias, loading, onE
 
   return (
     <div className="table-responsive flex-grow-1">
-      <table className="table table-striped table-hover align-middle w-100">
+      <table
+        className="table table-striped table-hover align-middle w-100"
+        role="table"
+        aria-label="Tabla de días de entrega"
+        aria-labelledby={ariaLabelledby}
+      >
         <thead className="table-dark">
           <tr>
-            <th>ID</th>
-            <th>Descripción</th>
-            <th>Acciones</th>
+            <th scope="col">ID</th>
+            <th scope="col">Descripción</th>
+            <th scope="col">Acciones</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>

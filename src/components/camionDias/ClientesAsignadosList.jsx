@@ -9,6 +9,20 @@ const ClientesAsignadosList = React.memo(function ClientesAsignadosList({
   clientesFiltrados,
   agregarCliente,
 }) {
+  // Memoiza los handlers para evitar recrearlos en cada render
+  const handleEliminarCliente = useCallback(
+    (id) => eliminarCliente(id),
+    [eliminarCliente]
+  );
+  const handleAgregarCliente = useCallback(
+    (c) => agregarCliente(c),
+    [agregarCliente]
+  );
+  const handleBusquedaChange = useCallback(
+    (e) => setBusqueda(e.target.value),
+    [setBusqueda]
+  );
+
   // Memoiza la lista de clientes asignados
   const asignadosList = useMemo(
     () =>
@@ -18,11 +32,12 @@ const ClientesAsignadosList = React.memo(function ClientesAsignadosList({
             key={c.id}
             className="list-group-item d-flex justify-content-between align-items-center"
           >
-            {c.nombre}
+            <span>{c.nombre}</span>
             <button
               className="btn btn-sm btn-danger"
               type="button"
               onClick={() => handleEliminarCliente(c.id)}
+              aria-label={`Eliminar cliente ${c.nombre}`}
             >
               Eliminar
             </button>
@@ -33,7 +48,7 @@ const ClientesAsignadosList = React.memo(function ClientesAsignadosList({
           Sin clientes asignados
         </li>
       ),
-    [clientesAsignados, eliminarCliente]
+    [clientesAsignados, handleEliminarCliente]
   );
 
   // Memoiza la lista de resultados de búsqueda
@@ -50,10 +65,12 @@ const ClientesAsignadosList = React.memo(function ClientesAsignadosList({
           key={c.id}
           className="list-group-item d-flex justify-content-between align-items-center"
         >
-          {c.nombre}{" "}
-          {c.razon && <span className="text-muted">({c.razon})</span>}
+          <span>
+            {c.nombre}{" "}
+            {c.razon && <span className="text-muted">({c.razon})</span>}
+          </span>
           {yaAsignado ? (
-            <button className="btn btn-sm btn-secondary" disabled>
+            <button className="btn btn-sm btn-secondary" disabled aria-disabled="true">
               Ya asignado
             </button>
           ) : (
@@ -61,6 +78,7 @@ const ClientesAsignadosList = React.memo(function ClientesAsignadosList({
               type="button"
               className="btn btn-sm btn-success"
               onClick={() => handleAgregarCliente(c)}
+              aria-label={`Agregar cliente ${c.nombre}`}
             >
               Agregar
             </button>
@@ -68,38 +86,41 @@ const ClientesAsignadosList = React.memo(function ClientesAsignadosList({
         </li>
       );
     });
-  }, [busqueda, clientesFiltrados, clientesAsignados, agregarCliente]);
-
-  // Memoiza los handlers para evitar recrearlos en cada render
-  const handleEliminarCliente = useCallback(
-    (id) => eliminarCliente(id),
-    [eliminarCliente]
-  );
-  const handleAgregarCliente = useCallback(
-    (c) => agregarCliente(c),
-    [agregarCliente]
-  );
-  const handleBusquedaChange = useCallback(
-    (e) => setBusqueda(e.target.value),
-    [setBusqueda]
-  );
+  }, [busqueda, clientesFiltrados, clientesAsignados, handleAgregarCliente]);
 
   return (
     <div className="mb-3">
-      <label className="form-label">Clientes asignados:</label>
-      <ul className="list-group mb-2">{asignadosList}</ul>
+      <label className="form-label" htmlFor="clientes_asignados_list">
+        Clientes asignados:
+      </label>
+      <ul
+        className="list-group mb-2"
+        id="clientes_asignados_list"
+        role="list"
+        aria-label="Lista de clientes asignados"
+      >
+        {asignadosList}
+      </ul>
       {/* Buscador de clientes */}
+      <label htmlFor="busqueda_cliente" className="form-label visually-hidden">
+        Buscar cliente por nombre o razón social
+      </label>
       <input
         type="text"
         className="form-control mb-2"
+        id="busqueda_cliente"
         placeholder="Buscar cliente por nombre o razón..."
         value={busqueda}
         onChange={handleBusquedaChange}
         onKeyDown={e => { if (e.key === "Enter") e.preventDefault(); }}
+        aria-label="Buscar cliente por nombre o razón social"
+        autoComplete="off"
       />
       {/* Resultados de búsqueda */}
       {busqueda.length > 0 && (
-        <ul className="list-group">{filtradosList}</ul>
+        <ul className="list-group" role="list" aria-label="Resultados de búsqueda de clientes">
+          {filtradosList}
+        </ul>
       )}
     </div>
   );

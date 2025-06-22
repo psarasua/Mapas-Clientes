@@ -66,19 +66,27 @@ const DiasEntregaTable = React.memo(function DiasEntregaTable() {
 
   return (
     <div className="container mt-4">
-      <h2>Días de Entrega</h2>
-      <DiasEntregaForm
-        form={form}
-        editId={editId}
-        onChange={setForm}
-        onSubmit={handleSubmit}
-      />
-      <DiasEntregaList
-        dias={diasMemo}
-        loading={loading}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+      <h2 id="dias-entrega-titulo" tabIndex={0}>Días de Entrega</h2>
+      <div className="row">
+        <div className="col-12 col-lg-6 mb-4">
+          <DiasEntregaForm
+            form={form}
+            editId={editId}
+            onChange={setForm}
+            onSubmit={handleSubmit}
+            ariaLabelledby="dias-entrega-titulo"
+          />
+        </div>
+        <div className="col-12 col-lg-6">
+          <DiasEntregaList
+            dias={diasMemo}
+            loading={loading}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            ariaLabelledby="dias-entrega-titulo"
+          />
+        </div>
+      </div>
     </div>
   );
 });
