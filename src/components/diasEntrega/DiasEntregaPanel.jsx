@@ -3,14 +3,12 @@ import supabase from "../../supabaseClient";
 import DiaEntregaFormulario from "./DiaEntregaFormulario";
 import DiasEntregaLista from "./DiasEntregaLista";
 
-// Envuelve el componente con React.memo para evitar renders innecesarios si las props no cambian
-const DiasEntregaTable = React.memo(function DiasEntregaTable() {
+const DiasEntregaPanel = React.memo(function DiasEntregaPanel() {
   const [dias, setDias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ descripcion: "" });
   const [editId, setEditId] = useState(null);
 
-  // Memoiza la función para obtener los días de entrega
   const fetchDias = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -25,7 +23,6 @@ const DiasEntregaTable = React.memo(function DiasEntregaTable() {
     fetchDias();
   }, [fetchDias]);
 
-  // Memoiza el submit del formulario
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
@@ -41,7 +38,6 @@ const DiasEntregaTable = React.memo(function DiasEntregaTable() {
     [editId, form, fetchDias]
   );
 
-  // Memoiza el handler de eliminación
   const handleDelete = useCallback(
     async (id) => {
       if (window.confirm("¿Seguro que deseas eliminar este día?")) {
@@ -52,7 +48,6 @@ const DiasEntregaTable = React.memo(function DiasEntregaTable() {
     [fetchDias]
   );
 
-  // Memoiza el handler de edición
   const handleEdit = useCallback(
     (dia) => {
       setForm({ descripcion: dia.descripcion });
@@ -61,14 +56,15 @@ const DiasEntregaTable = React.memo(function DiasEntregaTable() {
     []
   );
 
-  // Memoiza la lista de días para evitar renders innecesarios en DiasEntregaLista
   const diasMemo = useMemo(() => dias, [dias]);
 
   return (
-    <div className="container mt-4">
-      <h2 id="dias-entrega-titulo" tabIndex={0}>Días de Entrega</h2>
+    <div className="container my-4" style={{ maxWidth: 1200 }}>
+      <h2 className="text-center mb-4 mt-3" id="dias-entrega-titulo" tabIndex={0}>
+        Días de Entrega
+      </h2>
       <div className="row">
-        <div className="col-12 col-lg-6 mb-4">
+        <div className="col-12 mb-4">
           <DiaEntregaFormulario
             form={form}
             editId={editId}
@@ -77,7 +73,7 @@ const DiasEntregaTable = React.memo(function DiasEntregaTable() {
             ariaLabelledby="dias-entrega-titulo"
           />
         </div>
-        <div className="col-12 col-lg-6">
+        <div className="col-12">
           <DiasEntregaLista
             dias={diasMemo}
             loading={loading}
@@ -91,4 +87,4 @@ const DiasEntregaTable = React.memo(function DiasEntregaTable() {
   );
 });
 
-export default DiasEntregaTable;
+export default DiasEntregaPanel;
