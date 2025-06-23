@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-const SelectorCoordenadas = React.memo(function SelectorCoordenadas({ value, onChange, id = "selector-coordenadas" }) {
+const SelectorCoordenadasMapa = React.memo(function SelectorCoordenadasMapa({ value, onChange, id = "selector-coordenadas" }) {
   const [marker, setMarker] = useState(
     value && value.x && value.y ? { lat: Number(value.y), lng: Number(value.x) } : null
   );
@@ -68,4 +68,4 @@ const SelectorCoordenadas = React.memo(function SelectorCoordenadas({ value, onC
   );
 });
 
-export default SelectorCoordenadas;
+export default SelectorCoordenadasMapa;

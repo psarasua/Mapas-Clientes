@@ -1,7 +1,7 @@
 import React from "react";
 import { flexRender } from "@tanstack/react-table";
 
-const ClientesTableContent = React.memo(function ClientesTableContent({ table, columns }) {
+const ClientesPanelContent = React.memo(function ClientesPanelContent({ table, columns }) {
   return (
     <div className="table-responsive flex-grow-1">
       <table
@@ -51,4 +51,4 @@ const ClientesTableContent = React.memo(function ClientesTableContent({ table, c
   );
 });
 
-export default ClientesTableContent;
+export default ClientesPanelContent;

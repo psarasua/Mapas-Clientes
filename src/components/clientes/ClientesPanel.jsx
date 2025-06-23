@@ -4,12 +4,12 @@ import {
   useReactTable,
   getCoreRowModel,
 } from "@tanstack/react-table";
-import LoadingBar from "../ui/LoadingBar";
-import ClientesTableContent from "./ClientesTableContent";
-import ClientesTableModalMapa from "./ClientesTableModalMapa";
-import ClientesTableModalEditar from "./ClientesTableModalEditar";
+import BarraCarga from "../ui/BarraCarga";
+import ClientesTabla from "./ClientesTabla";
+import ClienteModalMapa from "./ClienteModalMapa";
+import ClienteModalFormulario from "./ClienteModalFormulario";
 
-const ClientesTable = React.memo(function ClientesTable() {
+const ClientesPanel = React.memo(function ClientesPanel() {
   const [clientes, setClientes] = useState([]);
   const [total, setTotal] = useState(0);
   const [filter, setFilter] = useState("");
@@ -229,54 +229,52 @@ const ClientesTable = React.memo(function ClientesTable() {
   ), [table, pageCount]);
 
   return (
-    <div className="vw-100 vh-100 d-flex flex-column" style={{ minHeight: "100vh", minWidth: "100vw", padding: 0, margin: 0 }}>
-      <div className="flex-grow-1 d-flex flex-column">
-        <h2 className="text-center mb-4 mt-3" id="clientes-titulo" tabIndex={0}>
-          Clientes
-        </h2>
-        <div className="d-flex justify-content-end align-items-center px-3 mb-3">
-          <button
-            className="btn btn-success btn-sm d-flex align-items-center"
-            style={{ minWidth: "auto" }}
-            onClick={() => setShowAltaModal(true)}
-            aria-label="Crear nuevo cliente"
-          >
-            <i className="bi bi-plus-lg me-1" aria-hidden="true"></i>
-            <span className="visually-hidden">Crear Cliente</span>
-            Crear Cliente
-          </button>
-        </div>
-        <div className="px-3 mb-3">
-          <label htmlFor="clientes-busqueda" className="visually-hidden">
-            Buscar clientes
-          </label>
-          <input
-            id="clientes-busqueda"
-            value={filter ?? ""}
-            onChange={(e) => {
-              setFilter(e.target.value);
-              setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-            }}
-            placeholder="Buscar clientes..."
-            className="form-control"
-            aria-label="Buscar clientes"
-            autoComplete="off"
-          />
-        </div>
-        <div className="flex-grow-1 d-flex flex-column px-3">
-          {loading ? (
-            <LoadingBar progress={progress} text="Cargando clientes..." />
-          ) : (
-            <>
-              <ClientesTableContent table={table} columns={columns} />
-              {paginationControls}
-            </>
-          )}
-        </div>
+    <div className="container my-4" style={{ maxWidth: 1200 }}>
+      <h2 className="text-center mb-4 mt-3" id="clientes-titulo" tabIndex={0}>
+        Clientes
+      </h2>
+      <div className="d-flex justify-content-end align-items-center mb-3">
+        <button
+          className="btn btn-success btn-sm d-flex align-items-center"
+          style={{ minWidth: "auto" }}
+          onClick={() => setShowAltaModal(true)}
+          aria-label="Crear nuevo cliente"
+        >
+          <i className="bi bi-plus-lg me-1" aria-hidden="true"></i>
+          <span className="visually-hidden">Crear Cliente</span>
+          Crear Cliente
+        </button>
       </div>
-      <ClientesTableModalMapa showModal={showModal} mapCoords={mapCoords} setShowModal={setShowModal} />
+      <div className="mb-3">
+        <label htmlFor="clientes-busqueda" className="visually-hidden">
+          Buscar clientes
+        </label>
+        <input
+          id="clientes-busqueda"
+          value={filter ?? ""}
+          onChange={(e) => {
+            setFilter(e.target.value);
+            setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+          }}
+          placeholder="Buscar clientes..."
+          className="form-control"
+          aria-label="Buscar clientes"
+          autoComplete="off"
+        />
+      </div>
+      <div>
+        {loading ? (
+          <BarraCarga progress={progress} text="Cargando clientes..." />
+        ) : (
+          <>
+            <ClientesTabla table={table} columns={columns} />
+            {paginationControls}
+          </>
+        )}
+      </div>
+      <ClienteModalMapa showModal={showModal} mapCoords={mapCoords} setShowModal={setShowModal} />
       {/* Modal para crear cliente */}
-      <ClientesTableModalEditar
+      <ClienteModalFormulario
         showEditModal={showAltaModal}
         clienteEdit={null}
         setShowEditModal={setShowAltaModal}
@@ -285,7 +283,7 @@ const ClientesTable = React.memo(function ClientesTable() {
       />
 
       {/* Modal para editar cliente */}
-      <ClientesTableModalEditar
+      <ClienteModalFormulario
         showEditModal={showEditModal}
         clienteEdit={clienteEdit}
         setShowEditModal={setShowEditModal}
@@ -297,4 +295,4 @@ const ClientesTable = React.memo(function ClientesTable() {
   );
 });
 
-export default ClientesTable;
+export default ClientesPanel;

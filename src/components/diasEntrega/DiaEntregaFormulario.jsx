@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 
-const DiasEntregaForm = React.memo(function DiasEntregaForm({
+const DiaEntregaFormulario = React.memo(function DiaEntregaFormulario({
   form,
   editId,
   onChange,
@@ -53,4 +53,4 @@ const DiasEntregaForm = React.memo(function DiasEntregaForm({
   );
 });
 
-export default DiasEntregaForm;
+export default DiaEntregaFormulario;

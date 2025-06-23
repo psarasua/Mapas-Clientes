@@ -1,8 +1,8 @@
 import React, { useCallback } from "react";
-import MapaClientes from "../mapas/MapaClientes";
+import ClientesMapa from "../mapas/ClientesMapa";
 
 // Envuelve el componente con React.memo para evitar renders innecesarios si las props no cambian
-const MapaClientesModal = React.memo(function MapaClientesModal({ clientes, onClose }) {
+const CamionDiaMapaModal = React.memo(function CamionDiaMapaModal({ clientes, onClose }) {
   // Memoiza el handler de cierre para evitar recrearlo en cada render
   const handleClose = useCallback(() => {
     onClose();
@@ -17,7 +17,7 @@ const MapaClientesModal = React.memo(function MapaClientesModal({ clientes, onCl
       aria-modal="true"
       aria-labelledby="mapa-modal-titulo"
     >
-      <div className="modal-dialog modal-xl modal-dialog-centered" role="document">
+      <div className="modal-dialog modal-xl modal-dialog-centered" role="document" style={{ maxWidth: 900, margin: "auto" }}>
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title" id="mapa-modal-titulo">
@@ -31,7 +31,7 @@ const MapaClientesModal = React.memo(function MapaClientesModal({ clientes, onCl
             ></button>
           </div>
           <div className="modal-body" style={{ height: 500 }}>
-            <MapaClientes clientes={clientes} />
+            <ClientesMapa clientes={clientes} />
           </div>
         </div>
       </div>
@@ -39,4 +39,4 @@ const MapaClientesModal = React.memo(function MapaClientesModal({ clientes, onCl
   );
 });
 
-export default MapaClientesModal;
+export default CamionDiaMapaModal;

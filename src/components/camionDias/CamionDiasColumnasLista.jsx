@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from "react";
 
 // Envuelve el componente con React.memo para evitar renders innecesarios si las props no cambian
-const CamionDiasColumnas = React.memo(function CamionDiasColumnas({
+const CamionDiasColumnasLista = React.memo(function CamionDiasColumnasLista({
   columnasPorDia,
   onVerMapa,
   onEditar,
@@ -92,4 +92,4 @@ const CamionDiasColumnas = React.memo(function CamionDiasColumnas({
   );
 });
 
-export default CamionDiasColumnas;
+export default CamionDiasColumnasLista;

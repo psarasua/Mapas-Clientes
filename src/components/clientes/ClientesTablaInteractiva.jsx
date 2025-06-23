@@ -2,7 +2,7 @@ import React, { useMemo, useCallback } from "react";
 import { flexRender } from "@tanstack/react-table";
 
 // Envuelve el componente con React.memo para evitar renders innecesarios si las props no cambian
-const ClientesDataTable = React.memo(function ClientesDataTable({
+const ClientesTablaInteractiva = React.memo(function ClientesTablaInteractiva({
   loading,
   table,
   columns,
@@ -149,4 +149,4 @@ const ClientesDataTable = React.memo(function ClientesDataTable({
   );
 });
 
-export default ClientesDataTable;
+export default ClientesTablaInteractiva;

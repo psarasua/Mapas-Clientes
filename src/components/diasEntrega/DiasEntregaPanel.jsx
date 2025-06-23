@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import supabase from "../../supabaseClient";
-import DiasEntregaForm from "./DiasEntregaForm";
-import DiasEntregaList from "./DiasEntregaList";
+import DiaEntregaFormulario from "./DiaEntregaFormulario";
+import DiasEntregaLista from "./DiasEntregaLista";
 
 // Envuelve el componente con React.memo para evitar renders innecesarios si las props no cambian
 const DiasEntregaTable = React.memo(function DiasEntregaTable() {
@@ -61,7 +61,7 @@ const DiasEntregaTable = React.memo(function DiasEntregaTable() {
     []
   );
 
-  // Memoiza la lista de días para evitar renders innecesarios en DiasEntregaList
+  // Memoiza la lista de días para evitar renders innecesarios en DiasEntregaLista
   const diasMemo = useMemo(() => dias, [dias]);
 
   return (
@@ -69,7 +69,7 @@ const DiasEntregaTable = React.memo(function DiasEntregaTable() {
       <h2 id="dias-entrega-titulo" tabIndex={0}>Días de Entrega</h2>
       <div className="row">
         <div className="col-12 col-lg-6 mb-4">
-          <DiasEntregaForm
+          <DiaEntregaFormulario
             form={form}
             editId={editId}
             onChange={setForm}
@@ -78,7 +78,7 @@ const DiasEntregaTable = React.memo(function DiasEntregaTable() {
           />
         </div>
         <div className="col-12 col-lg-6">
-          <DiasEntregaList
+          <DiasEntregaLista
             dias={diasMemo}
             loading={loading}
             onEdit={handleEdit}

@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from "react";
 
 // Lista de clientes asignados y buscador/agregador de clientes
-const ClientesAsignadosList = React.memo(function ClientesAsignadosList({
+const ClientesAsignadosLista = React.memo(function ClientesAsignadosLista({
   clientesAsignados,
   eliminarCliente,
   busqueda,
@@ -126,4 +126,4 @@ const ClientesAsignadosList = React.memo(function ClientesAsignadosList({
   );
 });
 
-export default ClientesAsignadosList;
+export default ClientesAsignadosLista;

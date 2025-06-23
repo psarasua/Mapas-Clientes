@@ -1,19 +1,19 @@
 import React from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 
-const ClientesTableModalMapa = ({ showModal, mapCoords, setShowModal }) => {
+const ClientesPanelModalMapa = ({ showModal, mapCoords, setShowModal }) => {
   if (!showModal) return null;
   return (
     <>
       <div
         className="modal fade show"
-        style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+        style={{ display: "block", background: "rgba(0,0,0,0.5)", zIndex: 1050 }}
         tabIndex="-1"
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-mapa-titulo"
       >
-        <div className="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div className="modal-dialog modal-lg modal-dialog-centered" role="document" style={{ maxWidth: 700, margin: "auto" }}>
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="modal-mapa-titulo">
@@ -61,4 +61,4 @@ const ClientesTableModalMapa = ({ showModal, mapCoords, setShowModal }) => {
   );
 };
 
-export default ClientesTableModalMapa;
+export default ClientesPanelModalMapa;

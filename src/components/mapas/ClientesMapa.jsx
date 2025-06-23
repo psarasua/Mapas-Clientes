@@ -35,7 +35,7 @@ const FlyTo = React.memo(function FlyTo({ position }) {
   return null;
 });
 
-const MapaClientes = React.memo(function MapaClientes({ clientes }) {
+const ClientesMapa = React.memo(function ClientesMapa({ clientes }) {
   const [fullscreen, setFullscreen] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState(null);
 
@@ -200,4 +200,4 @@ const MapaClientes = React.memo(function MapaClientes({ clientes }) {
   );
 });
 
-export default MapaClientes;
+export default ClientesMapa;

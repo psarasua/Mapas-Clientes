@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from "react";
 
-const DiasEntregaList = React.memo(function DiasEntregaList({
+const DiasEntregaLista = React.memo(function DiasEntregaLista({
   dias,
   loading,
   onEdit,
@@ -91,4 +91,4 @@ const DiasEntregaList = React.memo(function DiasEntregaList({
   );
 });
 
-export default DiasEntregaList;
+export default DiasEntregaLista;

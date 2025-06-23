@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import React from "react";
-import CamionDiasModal from "./CamionDiasModal";
-import CamionDiasColumnas from "./CamionDiasColumnas";
-import MapaClientesModal from "./MapaClientesModal";
+import CamionDiaModalFormulario from "./CamionDiaModalFormulario";
+import CamionDiasColumnasLista from "./CamionDiasColumnasLista";
+import CamionDiaMapaModal from "./CamionDiaMapaModal";
 import supabase from "../../supabaseClient";
 
 // Envuelve los componentes hijos con React.memo para evitar renders innecesarios
-const MemoCamionDiasColumnas = React.memo(CamionDiasColumnas);
-const MemoCamionDiasModal = React.memo(CamionDiasModal);
-const MemoMapaClientesModal = React.memo(MapaClientesModal);
+const MemoCamionDiasColumnasLista = React.memo(CamionDiasColumnasLista);
+const MemoCamionDiaModalFormulario = React.memo(CamionDiaModalFormulario);
+const MemoCamionDiaMapaModal = React.memo(CamionDiaMapaModal);
 
 function CamionesDiasCards() {
   // Estados principales del componente
@@ -217,7 +217,7 @@ function CamionesDiasCards() {
       </div>
       <div className="row">
         <div className="col-12">
-          <MemoCamionDiasColumnas
+          <MemoCamionDiasColumnasLista
             columnasPorDia={columnasPorDia}
             onVerMapa={handleVerMapa}
             onEditar={openModal}
@@ -226,7 +226,7 @@ function CamionesDiasCards() {
         </div>
       </div>
       {modalOpen && (
-        <MemoCamionDiasModal
+        <MemoCamionDiaModalFormulario
           editId={editId}
           form={form}
           camiones={camiones}
@@ -248,7 +248,7 @@ function CamionesDiasCards() {
         />
       )}
       {mostrarMapa && (
-        <MemoMapaClientesModal
+        <MemoCamionDiaMapaModal
           clientes={clientesMapa}
           onClose={() => setMostrarMapa(false)}
           // Accesibilidad: role y aria-modal

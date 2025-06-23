@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 
-const Dashboard = React.memo(function Dashboard() {
+const PanelPrincipal = React.memo(function PanelPrincipal() {
   // Memoiza el contenido del dashboard (útil si luego agregas lógica)
   const content = useMemo(
     () => (
@@ -22,4 +22,4 @@ const Dashboard = React.memo(function Dashboard() {
   return content;
 });
 
-export default Dashboard;
+export default PanelPrincipal;

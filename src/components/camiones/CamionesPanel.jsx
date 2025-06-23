@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 import supabase from "../../supabaseClient";
 
 // Envuelve el componente con React.memo para evitar renders innecesarios si las props no cambian
-const CamionesTable = React.memo(function CamionesTable() {
+const CamionesPanel = React.memo(function CamionesPanel() {
   // Estado para la lista de camiones
   const [camiones, setCamiones] = useState([]);
   // Estado para mostrar spinner de carga
@@ -164,4 +164,4 @@ const CamionesTable = React.memo(function CamionesTable() {
   );
 });
 
-export default CamionesTable;
+export default CamionesPanel;

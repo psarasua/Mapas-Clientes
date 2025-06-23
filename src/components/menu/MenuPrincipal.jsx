@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 // Componente de menú de navegación principal
-const Menu = React.memo(function Menu() {
+const MenuPrincipal = React.memo(function MenuPrincipal() {
   const location = useLocation();
 
   // Memoiza la lista de links del menú para evitar renders innecesarios
@@ -24,7 +24,8 @@ const Menu = React.memo(function Menu() {
       role="navigation"
       aria-label="Menú principal"
     >
-      <div className="container-fluid">
+      {/* Usar container para alinear el menú con el contenido */}
+      <div className="container">
         {/* Logo o nombre de la app, navega al inicio */}
         <Link className="navbar-brand" to="/" aria-label="Ir a inicio">
           ClientesApp
@@ -69,4 +70,4 @@ const Menu = React.memo(function Menu() {
   );
 });
 
-export default Menu;
+export default MenuPrincipal;

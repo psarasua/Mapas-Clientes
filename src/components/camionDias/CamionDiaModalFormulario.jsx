@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from "react";
 
 // Envuelve el componente con React.memo para evitar renders innecesarios si las props no cambian
-const CamionDiasModal = React.memo(function CamionDiasModal({
+const CamionDiaModalFormulario = React.memo(function CamionDiaModalFormulario({
   editId,
   form,
   camiones,
@@ -129,7 +129,7 @@ const CamionDiasModal = React.memo(function CamionDiasModal({
       aria-modal={ariaModal}
       aria-labelledby={ariaLabelledby}
     >
-      <div className="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div className="modal-dialog modal-lg modal-dialog-centered" role="document" style={{ maxWidth: 650, margin: "auto" }}>
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title" id={ariaLabelledby}>
@@ -234,4 +234,4 @@ const CamionDiasModal = React.memo(function CamionDiasModal({
   );
 });
 
-export default CamionDiasModal;
+export default CamionDiaModalFormulario;

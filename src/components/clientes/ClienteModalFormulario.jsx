@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import SelectorCoordenadas from "./SelectorCoordenadas";
+import SelectorCoordenadasMapa from "./SelectorCoordenadasMapa";
 
 const camposVacios = {
   codigo_alternativo: "",
@@ -13,7 +13,7 @@ const camposVacios = {
   y: "",
 };
 
-const ClientesTableModalEditar = ({
+const ClientesPanelModalEditar = ({
   showEditModal,
   clienteEdit,
   setShowEditModal,
@@ -60,13 +60,13 @@ const ClientesTableModalEditar = ({
     <>
       <div
         className="modal fade show"
-        style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+        style={{ display: "block", background: "rgba(0,0,0,0.5)", zIndex: 1050 }}
         tabIndex="-1"
         role="dialog"
         aria-modal="true"
         aria-labelledby="cliente-modal-titulo"
       >
-        <div className="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div className="modal-dialog modal-lg modal-dialog-centered" role="document" style={{ maxWidth: 600, margin: "auto" }}>
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title" id="cliente-modal-titulo">
@@ -226,7 +226,7 @@ const ClientesTableModalEditar = ({
                       <i className="bi bi-map me-2"></i>
                       Seleccionar ubicación en el mapa
                     </label>
-                    <SelectorCoordenadas
+                    <SelectorCoordenadasMapa
                       id="selector-coordenadas"
                       value={{ x: form.x, y: form.y }}
                       onChange={({ x, y }) => handleChange("x", x) || handleChange("y", y)}
@@ -256,4 +256,4 @@ const ClientesTableModalEditar = ({
   );
 };
 
-export default ClientesTableModalEditar;
+export default ClientesPanelModalEditar;

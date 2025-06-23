@@ -1,6 +1,6 @@
 import React from "react";
 
-const LoadingBar = React.memo(function LoadingBar({ progress = 0, text = "Cargando..." }) {
+const BarraCarga = React.memo(function BarraCarga({ progress = 0, text = "Cargando..." }) {
   return (
     <div
       className="text-center py-4 flex-grow-1 d-flex flex-column align-items-center justify-content-center"
@@ -31,4 +31,4 @@ const LoadingBar = React.memo(function LoadingBar({ progress = 0, text = "Cargan
   );
 });
 
-export default LoadingBar;
+export default BarraCarga;
