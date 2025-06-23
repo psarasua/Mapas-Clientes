@@ -93,7 +93,7 @@ const CamionesPanel = React.memo(function CamionesPanel() {
                     <div className="d-flex gap-2">
                       {/* Botón para editar */}
                       <button
-                        className="btn btn-outline-primary btn-sm"
+                        className="btn btn-outline-warning btn-sm"
                         title="Editar"
                         aria-label={`Editar camión ${camion.descripcion}`}
                         onClick={() => handleEdit(camion)}
@@ -126,7 +126,7 @@ const CamionesPanel = React.memo(function CamionesPanel() {
   // Renderizado principal
   return (
     <div className="container mt-4">
-      <h2 id="camiones-titulo" tabIndex={0}>Camiones</h2>
+      <h2 id="camiones-titulo" className="text-center" tabIndex={0}>Camiones</h2>
       {/* Formulario para agregar o editar camión */}
       <form className="row g-3 mb-4" onSubmit={handleSubmit} aria-labelledby="camiones-titulo">
         <div className="col-md-8">

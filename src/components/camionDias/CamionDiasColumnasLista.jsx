@@ -50,24 +50,30 @@ const CamionDiasColumnasLista = React.memo(function CamionDiasColumnasLista({
               <div className="d-flex flex-wrap gap-2 justify-content-center mt-2">
                 <button
                   className="btn btn-outline-info btn-sm"
+                  title="Ver mapa"
                   onClick={() => handleVerMapa(cd)}
                   aria-label={`Ver mapa de clientes asignados al camión ${cd.camiones?.descripcion || cd.camion_id}`}
                 >
-                  Ver Mapa
+                  <i className="bi bi-map" aria-hidden="true"></i>
+                  <span className="visually-hidden">Ver Mapa</span>
                 </button>
                 <button
+                title="Editar"
                   className="btn btn-outline-warning btn-sm"
                   onClick={() => handleEditar(cd)}
                   aria-label={`Editar camión ${cd.camiones?.descripcion || cd.camion_id}`}
                 >
-                  Editar
+                  <i className="bi bi-pencil" aria-hidden="true"></i>
+                  <span className="visually-hidden">Editar</span>
                 </button>
                 <button
+                title="Eliminar"
                   className="btn btn-outline-danger btn-sm"
                   onClick={() => handleEliminar(cd.id)}
                   aria-label={`Eliminar camión ${cd.camiones?.descripcion || cd.camion_id}`}
                 >
-                  Eliminar
+                  <i className="bi bi-trash" aria-hidden="true"></i>
+                  <span className="visually-hidden">Eliminar</span>
                 </button>
               </div>
             </div>

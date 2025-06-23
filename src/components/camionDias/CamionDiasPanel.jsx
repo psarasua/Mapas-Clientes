@@ -203,8 +203,8 @@ function CamionesDiasCards() {
   // Render principal del componente
   return (
     <div className="container my-4">
-      <h2 className="mb-4" tabIndex={0} aria-label="Camiones agrupados por día">
-        Camiones agrupados por día (columnas)
+      <h2 className=" text-center mb-4" tabIndex={0} aria-label="Camiones agrupados por día">
+        Camiones agrupados por día
       </h2>
       <div className="d-flex justify-content-end mb-3">
         <button

@@ -37,7 +37,7 @@ const DiasEntregaLista = React.memo(function DiasEntregaLista({
         <td>
           <div className="d-flex gap-2">
             <button
-              className="btn btn-outline-primary btn-sm"
+              className="btn btn-outline-warning btn-sm"
               title="Editar"
               aria-label={`Editar día de entrega ${dia.descripcion}`}
               onClick={() => handleEdit(dia)}

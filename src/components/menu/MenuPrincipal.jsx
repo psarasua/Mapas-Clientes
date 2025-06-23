@@ -28,7 +28,7 @@ const MenuPrincipal = React.memo(function MenuPrincipal() {
       <div className="container">
         {/* Logo o nombre de la app, navega al inicio */}
         <Link className="navbar-brand" to="/" aria-label="Ir a inicio">
-          ClientesApp
+          MapaClientes
         </Link>
         {/* Botón para mostrar/ocultar menú en pantallas pequeñas */}
         <button
