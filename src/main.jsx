@@ -7,6 +7,8 @@ import 'bootstrap-icons/font/bootstrap-icons.css'; // Iconos de Bootstrap
 import { BrowserRouter } from "react-router-dom"; // Proveedor de rutas para SPA
 import "bootswatch/dist/flatly/bootstrap.min.css"; // Tema Flatly de Bootswatch para Bootstrap
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // JS de Bootstrap para menú hamburguesa
+import { SpeedInsights } from "@vercel/speed-insights/react";
+
 
 // Monta la aplicación en el elemento root del HTML
 createRoot(document.getElementById("root")).render(
@@ -14,6 +16,8 @@ createRoot(document.getElementById("root")).render(
     {/* Proveedor de rutas para navegación SPA */}
     <BrowserRouter>
       <App /> {/* Componente principal de la aplicación */}
+        <SpeedInsights />
+
     </BrowserRouter>
   </StrictMode>
 );
