@@ -71,8 +71,7 @@ const ClientesPanel = React.memo(function ClientesPanel() {
 
   const checkBackend = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/ping`);
-      if (!res.ok) throw new Error("Respuesta no OK");
+      await apiFetch('/ping');
       setBackendOk(true);
       setBackendChecked(true);
     } catch (err) {
