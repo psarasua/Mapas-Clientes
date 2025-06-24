@@ -1,7 +1,9 @@
 import React from "react";
 import { flexRender } from "@tanstack/react-table";
 
-const ClientesPanelContent = React.memo(function ClientesPanelContent({ table, columns }) {
+const ClientesPanelContent = React.memo(function ClientesPanelContent({ table }) {
+  // Obtener las columnas visibles desde la tabla
+  const visibleColumns = table.getVisibleLeafColumns ? table.getVisibleLeafColumns() : [];
   return (
     <div className="table-responsive flex-grow-1">
       <table
@@ -30,7 +32,7 @@ const ClientesPanelContent = React.memo(function ClientesPanelContent({ table, c
         <tbody>
           {table.getRowModel().rows.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="text-center py-4">
+              <td colSpan={visibleColumns.length || 1} className="text-center py-4">
                 No se encontraron resultados
               </td>
             </tr>
