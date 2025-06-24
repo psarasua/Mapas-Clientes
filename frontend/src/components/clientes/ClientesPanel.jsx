@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-// import supabase from "../../supabaseClient";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 import {
   useReactTable,
   getCoreRowModel,
@@ -10,6 +11,7 @@ import ClienteModalMapa from "./ClienteModalMapa";
 import ClienteModalFormulario from "./ClienteModalFormulario";
 
 const API_URL = "http://localhost:3001/api";
+const MySwal = withReactContent(Swal);
 
 const ClientesPanel = React.memo(function ClientesPanel() {
   const [clientes, setClientes] = useState([]);
@@ -28,6 +30,8 @@ const ClientesPanel = React.memo(function ClientesPanel() {
   });
   const [columnVisibility, setColumnVisibility] = useState({});
   const [sorting, setSorting] = useState([]);
+  const [backendOk, setBackendOk] = useState(false);
+  const [backendChecked, setBackendChecked] = useState(false);
 
   const table = useReactTable({
     data: clientes,
@@ -62,6 +66,34 @@ const ClientesPanel = React.memo(function ClientesPanel() {
 
     fetchClientes();
   }, [pagination.pageIndex, pagination.pageSize]);
+
+  const checkBackend = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/ping`);
+      if (!res.ok) throw new Error("Respuesta no OK");
+      setBackendOk(true);
+      setBackendChecked(true);
+    } catch (err) {
+      setBackendOk(false);
+      setBackendChecked(true);
+      MySwal.fire({
+        icon: "error",
+        title: "Error de conexión",
+        text: "No se pudo conectar con el backend. Por favor, verifique que el servidor esté en funcionamiento.",
+        confirmButtonText: "Reintentar",
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      }).then(() => {
+        checkBackend();
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!backendChecked) {
+      checkBackend();
+    }
+  }, [backendChecked, checkBackend]);
 
   const handleRowClick = useCallback((cliente) => {
     setClienteEdit(cliente);
