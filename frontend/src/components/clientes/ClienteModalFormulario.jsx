@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState } from "react";
 import SelectorCoordenadasMapa from "./SelectorCoordenadasMapa";
+import { apiFetch } from '../../services/api';
 
 const camposVacios = {
   codigo_alternativo: "",
@@ -17,8 +18,6 @@ const camposVacios = {
   x: "",
   y: "",
 };
-
-const API_URL = "http://localhost:3001/api";
 
 const ClientesPanelModalEditar = ({
   showEditModal,
@@ -58,25 +57,19 @@ const ClientesPanelModalEditar = ({
     e.preventDefault();
     let error = null;
     if (esAlta) {
-      const res = await fetch(`${API_URL}/clientes`, {
+      await apiFetch('/clientes', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
       });
-      error = !(res.ok);
     } else {
-      const res = await fetch(`${API_URL}/clientes/${form.id}`, {
+      await apiFetch(`/clientes/${form.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
       });
-      error = !(res.ok);
     }
-    if (!error) {
-      fetchClientes();
-      setShowEditModal(false);
-      if (setClienteEdit) setClienteEdit(null);
-    }
+    fetchClientes();
+    setShowEditModal(false);
+    if (setClienteEdit) setClienteEdit(null);
   };
 
   return (

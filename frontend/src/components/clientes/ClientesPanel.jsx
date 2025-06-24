@@ -14,8 +14,8 @@ import BarraCarga from "../ui/BarraCarga";
 import ClientesTabla from "./ClientesTabla";
 import ClienteModalMapa from "./ClienteModalMapa";
 import ClienteModalFormulario from "./ClienteModalFormulario";
+import { apiFetch } from '../../services/api';
 
-const API_URL = "http://localhost:3001/api";
 const MySwal = withReactContent(Swal);
 
 const ClientesPanel = React.memo(function ClientesPanel() {
@@ -60,12 +60,9 @@ const ClientesPanel = React.memo(function ClientesPanel() {
   useEffect(() => {
     const fetchClientes = async () => {
       setLoading(true);
-      const response = await fetch(
-        `${API_URL}/clientes?page=${pagination.pageIndex + 1}&limit=${pagination.pageSize}`
-      );
-      const data = await response.json();
-      setClientes(data.clientes);
-      setTotal(data.total);
+      const response = await apiFetch(`/clientes?page=${pagination.pageIndex + 1}&limit=${pagination.pageSize}`);
+      setClientes(response.data || response);
+      setTotal(response.total || 0);
       setLoading(false);
     };
 

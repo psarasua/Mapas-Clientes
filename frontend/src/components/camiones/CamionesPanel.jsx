@@ -4,8 +4,7 @@
 // Maneja el estado y la lógica de interacción de la vista de camiones.
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-
-const API_URL = "http://localhost:3001/api";
+import { apiFetch } from "../../services/api";
 
 // Envuelve el componente con React.memo para evitar renders innecesarios si las props no cambian
 const CamionesPanel = React.memo(function CamionesPanel() {
@@ -21,8 +20,7 @@ const CamionesPanel = React.memo(function CamionesPanel() {
   // useCallback para evitar recrear la función en cada render
   const fetchCamiones = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`${API_URL}/camiones`);
-    const data = await res.json();
+    const data = await apiFetch("/camiones");
     setCamiones(data);
     setLoading(false);
   }, []);
@@ -37,19 +35,13 @@ const CamionesPanel = React.memo(function CamionesPanel() {
     async (e) => {
       e.preventDefault();
       if (editId) {
-        await fetch(`${API_URL}/camiones/${editId}`, {
+        await apiFetch(`/camiones/${editId}`, {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify(form),
         });
       } else {
-        await fetch(`${API_URL}/camiones`, {
+        await apiFetch("/camiones", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify(form),
         });
       }
@@ -63,12 +55,8 @@ const CamionesPanel = React.memo(function CamionesPanel() {
   // useCallback para manejar la eliminación de un camión
   const handleDelete = useCallback(
     async (id) => {
-      if (window.confirm("¿Seguro que deseas eliminar este camión?")) {
-        await fetch(`${API_URL}/camiones/${id}`, {
-          method: "DELETE",
-        });
-        fetchCamiones();
-      }
+      await apiFetch(`/camiones/${id}`, { method: "DELETE" });
+      fetchCamiones();
     },
     [fetchCamiones]
   );
@@ -200,7 +188,7 @@ const CamionesPanel = React.memo(function CamionesPanel() {
                     onClick={() => handleDelete(camion.id)}
                   >
                     <i className="bi bi-trash" aria-hidden="true"></i>
-                    <span className="visualmente-hidden">Eliminar</span>
+                    <span className="visually-hidden">Eliminar</span>
                   </button>
                 </div>
               </li>

@@ -4,11 +4,9 @@
 // Maneja el estado y la lógica de interacción de la vista de días de entrega.
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-// import supabase from "../../supabaseClient";
+import { apiFetch } from "../../services/api";
 import DiaEntregaFormulario from "./DiaEntregaFormulario";
 import DiasEntregaLista from "./DiasEntregaLista";
-
-const API_URL = "http://localhost:3001/api";
 
 const DiasEntregaPanel = React.memo(function DiasEntregaPanel() {
   const [dias, setDias] = useState([]);
@@ -18,8 +16,7 @@ const DiasEntregaPanel = React.memo(function DiasEntregaPanel() {
 
   const fetchDias = useCallback(async () => {
     setLoading(true);
-    const response = await fetch(`${API_URL}/dias`);
-    const data = await response.json();
+    const data = await apiFetch("/dias_entrega");
     setDias(data);
     setLoading(false);
   }, []);
@@ -29,9 +26,7 @@ const DiasEntregaPanel = React.memo(function DiasEntregaPanel() {
   }, [fetchDias]);
 
   const handleDelete = async (id) => {
-    await fetch(`${API_URL}/dias/${id}`, {
-      method: "DELETE",
-    });
+    await apiFetch(`/dias_entrega/${id}`, { method: "DELETE" });
     fetchDias();
   };
 
@@ -48,25 +43,19 @@ const DiasEntregaPanel = React.memo(function DiasEntregaPanel() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (editId) {
-      await fetch(`${API_URL}/dias/${editId}`, {
+      await apiFetch(`/dias_entrega/${editId}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(form),
       });
     } else {
-      await fetch(`${API_URL}/dias`, {
+      await apiFetch("/dias_entrega", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(form),
       });
     }
+    fetchDias();
     setForm({ descripcion: "" });
     setEditId(null);
-    fetchDias();
   };
 
   const diasMemo = useMemo(() => dias, [dias]);
