@@ -26,6 +26,8 @@ const ClientesPanel = React.memo(function ClientesPanel() {
     pageIndex: 0,
     pageSize: 20,
   });
+  const [columnVisibility, setColumnVisibility] = useState({});
+  const [sorting, setSorting] = useState([]);
 
   const table = useReactTable({
     data: clientes,
