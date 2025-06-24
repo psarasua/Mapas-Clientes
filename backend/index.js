@@ -25,12 +25,14 @@ import clientesRoutes from './routes/clientes.js';
 import camionesRoutes from './routes/camiones.js';
 import diasEntregaRoutes from './routes/diasEntrega.js';
 import camionesDiasRoutes from './routes/camionesDias.js';
+import pingRoutes from './routes/ping.js';
 
 // Usar las rutas
 app.use('/api/clientes', clientesRoutes);
 app.use('/api/camiones', camionesRoutes);
 app.use('/api/dias_entrega', diasEntregaRoutes);
 app.use('/api/camiones_dias', camionesDiasRoutes);
+app.use('/api/ping', pingRoutes);
 
 // Manejo centralizado de errores
 app.use(errorHandler);
