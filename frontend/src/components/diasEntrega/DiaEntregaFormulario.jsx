@@ -1,3 +1,7 @@
+// DiaEntregaFormulario.jsx
+// Formulario para crear o editar un día de entrega.
+// Permite ingresar la descripción y gestiona el submit del formulario.
+
 import React, { useCallback, useMemo } from "react";
 
 const DiaEntregaFormulario = React.memo(function DiaEntregaFormulario({

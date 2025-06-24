@@ -1,3 +1,8 @@
+// ClientesAsignadosLista.jsx
+// Lista interactiva de clientes asignados a un camión en un día.
+// Permite eliminar clientes asignados y agregar nuevos mediante búsqueda.
+// Incluye mensajes y controles accesibles.
+
 import React, { useMemo, useCallback } from "react";
 
 const ClientesAsignadosLista = React.memo(function ClientesAsignadosLista({

@@ -1,3 +1,7 @@
+// ClientesTabla.jsx
+// Tabla que muestra la lista de clientes con sus datos principales.
+// Utiliza react-table para el renderizado y flexibilidad de columnas.
+
 import React from "react";
 import { flexRender } from "@tanstack/react-table";
 

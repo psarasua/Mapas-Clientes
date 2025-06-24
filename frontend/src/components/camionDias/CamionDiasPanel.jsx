@@ -1,3 +1,8 @@
+// CamionDiasPanel.jsx
+// Panel principal para gestionar la asignación de camiones a días.
+// Permite ver, crear, editar y eliminar asignaciones, así como visualizar clientes en el mapa.
+// Maneja el estado y la lógica de interacción de la vista principal.
+
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import CamionDiasColumnasLista from "./CamionDiasColumnasLista";
 import CamionDiaModalFormulario from "./CamionDiaModalFormulario";

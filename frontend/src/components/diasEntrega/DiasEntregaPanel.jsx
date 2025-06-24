@@ -1,3 +1,8 @@
+// DiasEntregaPanel.jsx
+// Panel principal para la gestión de días de entrega.
+// Permite ver, crear, editar y eliminar días, mostrando la lista y el formulario correspondiente.
+// Maneja el estado y la lógica de interacción de la vista de días de entrega.
+
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 // import supabase from "../../supabaseClient";
 import DiaEntregaFormulario from "./DiaEntregaFormulario";

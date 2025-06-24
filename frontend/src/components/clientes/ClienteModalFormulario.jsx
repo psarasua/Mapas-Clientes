@@ -1,3 +1,8 @@
+// ClienteModalFormulario.jsx
+// Modal con formulario para crear o editar un cliente.
+// Permite ingresar y modificar datos, incluyendo coordenadas en el mapa.
+// Incluye validaciones y sincronización de estado.
+
 import React, { useEffect, useState } from "react";
 import SelectorCoordenadasMapa from "./SelectorCoordenadasMapa";
 

@@ -1,3 +1,7 @@
+// ClientesMapa.jsx
+// Muestra un mapa interactivo con la ubicación de los clientes usando react-leaflet.
+// Centra el mapa en el primer cliente o en una posición por defecto.
+
 import React, { useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";

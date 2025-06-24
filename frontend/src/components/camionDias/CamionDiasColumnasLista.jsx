@@ -1,3 +1,7 @@
+// CamionDiasColumnasLista.jsx
+// Lista de columnas que agrupa los camiones por día, mostrando los clientes asignados a cada camión.
+// Permite ver el mapa, editar o eliminar cada asignación.
+
 import React, { useMemo, useCallback } from "react";
 
 const CamionDiasColumnasLista = React.memo(function CamionDiasColumnasLista({

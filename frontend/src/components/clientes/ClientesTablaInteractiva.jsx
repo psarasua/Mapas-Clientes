@@ -1,3 +1,7 @@
+// ClientesTablaInteractiva.jsx
+// Tabla interactiva para gestionar clientes con paginación, edición, eliminación y visualización en mapa.
+// Utiliza react-table y permite acciones sobre cada fila.
+
 import React, { useMemo, useCallback } from "react";
 import { flexRender } from "@tanstack/react-table";
 

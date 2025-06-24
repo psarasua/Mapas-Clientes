@@ -1,3 +1,8 @@
+// CamionDiaModalFormulario.jsx
+// Modal con formulario para crear o editar la asignación de un camión a un día.
+// Permite seleccionar camión, día y gestionar clientes asignados.
+// Incluye validaciones y mensajes informativos.
+
 import React, { useMemo, useCallback } from "react";
 import ClientesAsignadosLista from "./ClientesAsignadosLista";
 

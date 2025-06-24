@@ -1,3 +1,8 @@
+// CamionesPanel.jsx
+// Panel principal para la gestión de camiones.
+// Permite ver, crear, editar y eliminar camiones, mostrando la lista y el formulario correspondiente.
+// Maneja el estado y la lógica de interacción de la vista de camiones.
+
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 
 const API_URL = "http://localhost:3001/api";

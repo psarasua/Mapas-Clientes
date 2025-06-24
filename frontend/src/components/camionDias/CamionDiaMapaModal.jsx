@@ -1,3 +1,8 @@
+// CamionDiaMapaModal.jsx
+// Modal que muestra un mapa con los clientes asignados a un camión en un día específico.
+// Utiliza el componente ClientesMapa para la visualización geográfica.
+// Permite cerrar el modal y muestra un mensaje si no hay clientes asignados.
+
 import React, { useCallback } from "react";
 import ClientesMapa from "../mapas/ClientesMapa";
 

@@ -1,3 +1,7 @@
+// ClienteModalMapa.jsx
+// Modal que muestra la ubicación de un cliente en un mapa interactivo.
+// Utiliza react-leaflet para la visualización y permite cerrar el modal.
+
 import React from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 

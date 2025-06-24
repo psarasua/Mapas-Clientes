@@ -1,3 +1,8 @@
+// ClientesPanel.jsx
+// Panel principal para la gestión de clientes.
+// Permite ver, crear, editar, eliminar y buscar clientes, así como ver su ubicación en el mapa.
+// Maneja el estado y la lógica de interacción de la vista principal.
+
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";

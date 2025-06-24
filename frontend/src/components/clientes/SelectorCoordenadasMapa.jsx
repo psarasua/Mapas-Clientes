@@ -1,3 +1,7 @@
+// SelectorCoordenadasMapa.jsx
+// Componente para seleccionar coordenadas geográficas en un mapa interactivo.
+// Permite al usuario elegir una ubicación y la comunica al formulario padre.
+
 import React, { useState, useEffect, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";

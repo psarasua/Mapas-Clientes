@@ -1,3 +1,7 @@
+// BarraCarga.jsx
+// Componente visual para mostrar una barra de progreso y spinner de carga.
+// Útil para indicar operaciones en curso o carga de datos.
+
 import React from "react";
 
 const BarraCarga = React.memo(function BarraCarga({ progress = 0, text = "Cargando..." }) {

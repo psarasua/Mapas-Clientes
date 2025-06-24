@@ -1,3 +1,7 @@
+// DiasEntregaLista.jsx
+// Lista de días de entrega registrados.
+// Permite editar o eliminar cada día y muestra mensajes si la lista está vacía.
+
 import React, { useMemo, useCallback } from "react";
 
 const DiasEntregaLista = React.memo(function DiasEntregaLista({

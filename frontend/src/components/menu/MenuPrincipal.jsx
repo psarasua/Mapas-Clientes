@@ -1,3 +1,7 @@
+// MenuPrincipal.jsx
+// Menú de navegación principal de la aplicación.
+// Permite navegar entre las diferentes vistas del sistema de mapas y clientes.
+
 import React, { useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 
