@@ -125,21 +125,24 @@ const CamionesPanel = React.memo(function CamionesPanel() {
 
   // Renderizado principal
   return (
-    <div className="container mt-4">
-      <h2 id="camiones-titulo" className="text-center" tabIndex={0}>Camiones</h2>
+    <div className="container my-4" style={{ maxWidth: 900 }}>
+      <h2 className="text-center mb-4 mt-3" id="camiones-titulo" tabIndex={0}>
+        Camiones
+      </h2>
       {/* Formulario para agregar o editar camión */}
-      <form className="row g-3 mb-4" onSubmit={handleSubmit} aria-labelledby="camiones-titulo">
+      <form className="row g-3 mb-4" onSubmit={handleSubmit} aria-labelledby="camiones-titulo" role="form">
         <div className="col-md-8">
-          <label htmlFor="descripcion_camion" className="form-label visually-hidden">
+          <label htmlFor="descripcion-camion" className="form-label visually-hidden">
             Descripción del camión
           </label>
           <input
+            id="descripcion-camion"
             className="form-control"
-            id="descripcion_camion"
             placeholder="Descripción"
             value={form.descripcion}
-            onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
+            onChange={(e) => setForm({ descripcion: e.target.value })}
             required
+            aria-required="true"
             aria-label="Descripción del camión"
             autoComplete="off"
           />
@@ -150,16 +153,43 @@ const CamionesPanel = React.memo(function CamionesPanel() {
           </button>
         </div>
       </form>
-      {/* Spinner de carga o tabla */}
-      {loading ? (
-        <div className="text-center py-4 flex-grow-1 d-flex align-items-center justify-content-center">
-          <div className="spinner-border text-primary" role="status" aria-live="polite">
-            <span className="visually-hidden">Cargando...</span>
+      <div>
+        {loading ? (
+          <div className="text-center py-4">Cargando camiones...</div>
+        ) : camiones.length === 0 ? (
+          <div className="alert alert-warning text-center my-4" role="status" aria-live="polite">
+            No hay camiones registrados.
           </div>
-        </div>
-      ) : (
-        camionesTable
-      )}
+        ) : (
+          <ul className="list-group">
+            {camiones.map((camion) => (
+              <li key={camion.id} className="list-group-item d-flex justify-content-between align-items-center">
+                <span>{camion.descripcion}</span>
+                <div className="d-flex gap-2">
+                  <button
+                    className="btn btn-outline-warning btn-sm"
+                    title="Editar"
+                    aria-label={`Editar camión ${camion.descripcion}`}
+                    onClick={() => handleEdit(camion)}
+                  >
+                    <i className="bi bi-pencil" aria-hidden="true"></i>
+                    <span className="visually-hidden">Editar</span>
+                  </button>
+                  <button
+                    className="btn btn-outline-danger btn-sm"
+                    title="Eliminar"
+                    aria-label={`Eliminar camión ${camion.descripcion}`}
+                    onClick={() => handleDelete(camion.id)}
+                  >
+                    <i className="bi bi-trash" aria-hidden="true"></i>
+                    <span className="visually-hidden">Eliminar</span>
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 });

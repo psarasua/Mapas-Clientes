@@ -47,6 +47,14 @@ const ClientesMapa = React.memo(function ClientesMapa({ clientes }) {
     [clientes]
   );
 
+  if (!clientesConUbicacion.length) {
+    return (
+      <div className="alert alert-warning text-center my-4" role="status" aria-live="polite">
+        No hay clientes con ubicación válida para mostrar en el mapa.
+      </div>
+    );
+  }
+
   // Memoiza el centro inicial del mapa
   const center = useMemo(
     () => [clientesConUbicacion[0]?.y, clientesConUbicacion[0]?.x],
@@ -121,9 +129,6 @@ const ClientesMapa = React.memo(function ClientesMapa({ clientes }) {
     )),
     [clientesConUbicacion]
   );
-
-  if (!clientesConUbicacion.length)
-    return <div className="alert alert-warning" role="status" aria-live="polite">No hay clientes con ubicación.</div>;
 
   return (
     <div>

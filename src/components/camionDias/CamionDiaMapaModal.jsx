@@ -31,7 +31,13 @@ const CamionDiaMapaModal = React.memo(function CamionDiaMapaModal({ clientes, on
             ></button>
           </div>
           <div className="modal-body" style={{ height: 500 }}>
-            <ClientesMapa clientes={clientes} />
+            {clientes && clientes.length > 0 ? (
+              <ClientesMapa clientes={clientes} />
+            ) : (
+              <div className="alert alert-info text-center my-4" role="status" aria-live="polite">
+                No hay clientes asignados para mostrar en el mapa.
+              </div>
+            )}
           </div>
         </div>
       </div>

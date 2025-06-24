@@ -43,8 +43,8 @@ const ClientesPanelModalMapa = ({ showModal, mapCoords, setShowModal }) => {
                   </Marker>
                 </MapContainer>
               ) : (
-                <div className="text-center text-danger" role="status" aria-live="polite">
-                  No GeoReferenciado
+                <div className="alert alert-info text-center my-4" role="status" aria-live="polite">
+                  No hay coordenadas para mostrar en el mapa.
                 </div>
               )}
             </div>

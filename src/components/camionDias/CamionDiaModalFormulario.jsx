@@ -58,7 +58,7 @@ const CamionDiaModalFormulario = React.memo(function CamionDiaModalFormulario({
   );
 
   // Memoiza la lista de clientes asignados
-  const clientesAsignadosList = useMemo(
+  const asignadosList = useMemo(
     () =>
       clientesAsignados.length > 0 ? (
         clientesAsignados.map((c) => (
@@ -78,13 +78,15 @@ const CamionDiaModalFormulario = React.memo(function CamionDiaModalFormulario({
           </li>
         ))
       ) : (
-        <li className="list-group-item text-muted">Sin clientes asignados</li>
+        <li className="list-group-item text-muted">
+          Sin clientes asignados
+        </li>
       ),
     [clientesAsignados, handleEliminarCliente]
   );
 
-  // Memoiza la lista de resultados de búsqueda de clientes
-  const clientesFiltradosList = useMemo(() => {
+  // Memoiza la lista de resultados de búsqueda
+  const filtradosList = useMemo(() => {
     if (busqueda.length === 0) return null;
     if (clientesFiltrados.length === 0)
       return (
@@ -188,7 +190,7 @@ const CamionDiaModalFormulario = React.memo(function CamionDiaModalFormulario({
                   Clientes asignados:
                 </label>
                 <ul className="list-group mb-2" id="clientes_asignados">
-                  {clientesAsignadosList}
+                  {asignadosList}
                 </ul>
                 {/* Buscador de clientes */}
                 <label htmlFor="busqueda_cliente" className="form-label visually-hidden">
@@ -207,7 +209,7 @@ const CamionDiaModalFormulario = React.memo(function CamionDiaModalFormulario({
                 />
                 {/* Resultados de búsqueda */}
                 {busqueda.length > 0 && (
-                  <ul className="list-group">{clientesFiltradosList}</ul>
+                  <ul className="list-group">{filtradosList}</ul>
                 )}
               </div>
               {/* Mensaje de feedback */}

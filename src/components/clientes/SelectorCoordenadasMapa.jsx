@@ -36,6 +36,11 @@ const SelectorCoordenadasMapa = React.memo(function SelectorCoordenadasMapa({ va
       aria-label="Selector de coordenadas en el mapa"
       tabIndex={0}
     >
+      {marker === null && (
+        <div className="alert alert-info text-center my-2" role="status" aria-live="polite">
+          No hay coordenadas seleccionadas en el mapa.
+        </div>
+      )}
       <MapContainer
         center={
           marker

@@ -33,6 +33,13 @@ const ClientesPanelModalEditar = ({
   }, [clienteEdit, showEditModal]);
 
   if (!showEditModal) return null;
+  if (!form) {
+    return (
+      <div className="alert alert-warning text-center my-4" role="status" aria-live="polite">
+        No hay datos del cliente para mostrar o editar.
+      </div>
+    );
+  }
 
   const handleChange = (campo, valor) => {
     setForm((prev) => ({ ...prev, [campo]: valor }));
