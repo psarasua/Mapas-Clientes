@@ -6,6 +6,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { apiFetch } from "../../services/api";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
+import TablaPanel from "../ui/TablaPanel";
 
 // Envuelve el componente con React.memo para evitar renders innecesarios si las props no cambian
 const CamionesPanel = React.memo(function CamionesPanel() {
@@ -64,6 +65,29 @@ const CamionesPanel = React.memo(function CamionesPanel() {
     setEditId(camion.id);
   }, []);
 
+  // Columnas para TablaPanel
+  const columns = [
+    { name: 'ID', selector: row => row.id, sortable: true, width: '70px' },
+    { name: 'Descripción', selector: row => row.descripcion, sortable: true },
+    {
+      name: 'Acciones',
+      cell: row => (
+        <div className="d-flex gap-2">
+          <button className="btn btn-outline-warning btn-sm" title="Editar" aria-label={`Editar camión ${row.descripcion}`} onClick={() => handleEdit(row)}>
+            <FaPencilAlt aria-hidden="true" />
+          </button>
+          <button className="btn btn-outline-danger btn-sm" title="Eliminar" aria-label={`Eliminar camión ${row.descripcion}`} onClick={() => handleDelete(row.id)}>
+            <FaTrash aria-hidden="true" />
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      width: '120px',
+    },
+  ];
+
   // Renderizado principal
   return (
     <div className="container my-4" style={{ maxWidth: 900 }}>
@@ -94,62 +118,14 @@ const CamionesPanel = React.memo(function CamionesPanel() {
           </button>
         </div>
       </form>
-      <div>
-        {/* Tabla de camiones con encabezado */}
-        <div className="table-responsive flex-grow-1">
-          <table
-            className="table table-striped table-hover align-middle w-100"
-            role="table"
-            aria-label="Tabla de camiones"
-          >
-            <thead className="table-dark">
-              <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Descripción</th>
-                <th scope="col">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {camiones.length === 0 ? (
-                <tr>
-                  <td colSpan={3} className="text-center py-4">
-                    No hay camiones registrados.
-                  </td>
-                </tr>
-              ) : (
-                camiones.map((camion) => (
-                  <tr key={camion.id}>
-                    <td>{camion.id}</td>
-                    <td>{camion.descripcion}</td>
-                    <td>
-                      <div className="d-flex gap-2">
-                        <button
-                          className="btn btn-outline-warning btn-sm"
-                          title="Editar"
-                          aria-label={`Editar camión ${camion.descripcion}`}
-                          onClick={() => handleEdit(camion)}
-                        >
-                          <FaPencilAlt aria-hidden="true" />
-                          <span className="visually-hidden">Editar</span>
-                        </button>
-                        <button
-                          className="btn btn-outline-danger btn-sm"
-                          title="Eliminar"
-                          aria-label={`Eliminar camión ${camion.descripcion}`}
-                          onClick={() => handleDelete(camion.id)}
-                        >
-                          <FaTrash aria-hidden="true" />
-                          <span className="visually-hidden">Eliminar</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <TablaPanel
+        columns={columns}
+        data={camiones}
+        loading={false}
+        title=""
+        searchPlaceholder="Buscar camiones..."
+        noDataText="No hay camiones registrados."
+      />
     </div>
   );
 });

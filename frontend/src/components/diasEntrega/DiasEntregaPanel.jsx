@@ -6,7 +6,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { apiFetch } from "../../services/api";
 import DiaEntregaFormulario from "./DiaEntregaFormulario";
-import DiasEntregaLista from "./DiasEntregaLista";
+import TablaPanel from "../ui/TablaPanel";
+import { FaPencilAlt, FaTrash } from "react-icons/fa";
 
 const DiasEntregaPanel = React.memo(function DiasEntregaPanel() {
   const [dias, setDias] = useState([]);
@@ -58,6 +59,29 @@ const DiasEntregaPanel = React.memo(function DiasEntregaPanel() {
     setEditId(null);
   };
 
+  // Columnas para TablaPanel
+  const columns = [
+    { name: 'ID', selector: row => row.id, sortable: true, width: '70px' },
+    { name: 'Descripción', selector: row => row.descripcion, sortable: true },
+    {
+      name: 'Acciones',
+      cell: row => (
+        <div className="d-flex gap-2">
+          <button className="btn btn-outline-warning btn-sm" title="Editar" aria-label={`Editar día de entrega ${row.descripcion}`} onClick={() => handleEdit(row)}>
+            <FaPencilAlt aria-hidden="true" />
+          </button>
+          <button className="btn btn-outline-danger btn-sm" title="Eliminar" aria-label={`Eliminar día de entrega ${row.descripcion}`} onClick={() => handleDelete(row.id)}>
+            <FaTrash aria-hidden="true" />
+          </button>
+        </div>
+      ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+      width: '120px',
+    },
+  ];
+
   const diasMemo = useMemo(() => dias, [dias]);
 
   return (
@@ -72,17 +96,14 @@ const DiasEntregaPanel = React.memo(function DiasEntregaPanel() {
         editId={editId}
         handleCancelEdit={handleCancelEdit}
       />
-      {loading ? (
-        <div className="text-center py-4">Cargando días de entrega...</div>
-      ) : (
-        <DiasEntregaLista
-          dias={diasMemo}
-          loading={loading}
-          onDelete={handleDelete}
-          onEdit={handleEdit}
-          ariaLabelledby="dias-entrega-titulo"
-        />
-      )}
+      <TablaPanel
+        columns={columns}
+        data={diasMemo}
+        loading={loading}
+        title=""
+        searchPlaceholder="Buscar días de entrega..."
+        noDataText="No hay días de entrega registrados."
+      />
     </div>
   );
 });
