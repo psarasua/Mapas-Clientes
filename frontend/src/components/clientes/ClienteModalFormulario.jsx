@@ -20,25 +20,15 @@ const camposVacios = {
   y: "",
 };
 
-const ClientesPanelModalEditar = ({
-  showEditModal,
-  clienteEdit,
-  setShowEditModal,
-  setClienteEdit,
-  fetchClientes,
-}) => {
-  // Detectar modo
-  const esAlta = !clienteEdit;
+const ClienteModalFormulario = ({ cliente, onClose, fetchClientes, setClienteEdit }) => {
+  const esAlta = !cliente;
+  const [form, setForm] = useState(esAlta ? camposVacios : cliente);
 
-  // Estado local del formulario
-  const [form, setForm] = useState(esAlta ? camposVacios : clienteEdit);
-
-  // Sincronizar cuando cambia clienteEdit o se abre el modal
   useEffect(() => {
-    setForm(esAlta ? camposVacios : clienteEdit);
-  }, [clienteEdit, showEditModal, esAlta]);
+    setForm(esAlta ? camposVacios : cliente);
+  }, [cliente, esAlta]);
 
-  if (!showEditModal) return null;
+  if (!onClose) return null;
   if (!form) {
     return (
       <Alert variant="warning" className="text-center my-4" role="status" aria-live="polite">
@@ -67,18 +57,15 @@ const ClientesPanelModalEditar = ({
         body: JSON.stringify(form)
       });
     }
-    fetchClientes();
-    setShowEditModal(false);
+    if (fetchClientes) fetchClientes();
+    onClose();
     if (setClienteEdit) setClienteEdit(null);
   };
 
   return (
     <Modal
-      show={showEditModal}
-      onHide={() => {
-        setShowEditModal(false);
-        if (setClienteEdit) setClienteEdit(null);
-      }}
+      show={true}
+      onHide={onClose}
       size="lg"
       centered
       aria-labelledby="cliente-modal-titulo"
@@ -241,4 +228,4 @@ const ClientesPanelModalEditar = ({
   );
 };
 
-export default ClientesPanelModalEditar;
+export default ClienteModalFormulario;

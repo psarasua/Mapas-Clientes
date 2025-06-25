@@ -77,8 +77,6 @@ const ClientesPanel = React.memo(function ClientesPanel() {
         </div>
       ),
       ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
       width: '120px',
     },
   ];
@@ -127,7 +125,8 @@ const ClientesPanel = React.memo(function ClientesPanel() {
         <ClienteModalFormulario
           cliente={clienteEdit}
           onClose={() => setShowEditModal(false)}
-          // ...otras props
+          fetchClientes={fetchClientes}
+          setClienteEdit={setClienteEdit}
         />
       )}
       {showAltaModal && (
