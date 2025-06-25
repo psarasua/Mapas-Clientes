@@ -9,6 +9,7 @@ import withReactContent from "sweetalert2-react-content";
 import {
   useReactTable,
   getCoreRowModel,
+  getPaginationRowModel,
 } from "@tanstack/react-table";
 import ClientesTabla from "./ClientesTabla";
 import ClienteModalMapa from "./ClienteModalMapa";
@@ -33,6 +34,8 @@ const ClientesPanel = React.memo(function ClientesPanel() {
   });
   const [columnVisibility, setColumnVisibility] = useState({});
   const [sorting, setSorting] = useState([]);
+  // Loading visual al cambiar de página
+  const [pageLoading, setPageLoading] = useState(false);
 
   const handleRowClick = useCallback((cliente) => {
     setClienteEdit(cliente);
@@ -40,8 +43,17 @@ const ClientesPanel = React.memo(function ClientesPanel() {
   }, []);
 
   const handleDeleteCliente = useCallback(async (id) => {
-    await apiFetch(`/clientes/${id}`, { method: "DELETE" });
-    setClientes((prev) => prev.filter((c) => c.id !== id));
+    setLoading(true);
+    try {
+      await apiFetch(`/clientes/${id}`, { method: "DELETE" });
+      // Refrescar datos desde el backend tras eliminar
+      const data = await apiFetch('/clientes');
+      setClientes(data);
+    } catch {
+      // Manejo de error opcional
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const columns = useMemo(() => [
@@ -116,21 +128,33 @@ const ClientesPanel = React.memo(function ClientesPanel() {
     },
   ], [handleRowClick, handleDeleteCliente]);
 
+  // Filtro global manual para todos los campos (ignora tildes/acentos y tipos, compatible universal)
+  const normalize = str => str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const filteredClientes = useMemo(() => {
+    const search = normalize((filter || '').toString().trim());
+    if (!search) return clientes;
+    return clientes.filter(c =>
+      Object.values(c).some(val => {
+        if (val === null || val === undefined) return false;
+        return normalize(String(val)).includes(search);
+      })
+    );
+  }, [clientes, filter]);
+
   const table = useReactTable({
-    data: clientes,
+    data: filteredClientes,
     columns,
-    pageCount: Math.ceil(clientes.length / pagination.pageSize),
     state: {
       pagination,
       columnVisibility,
       sorting,
-      globalFilter: filter,
     },
     onPaginationChange: setPagination,
     onColumnVisibilityChange: setColumnVisibility,
     onSortingChange: setSorting,
-    onGlobalFilterChange: setFilter,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: false,
   });
 
   useEffect(() => {
@@ -188,8 +212,41 @@ const ClientesPanel = React.memo(function ClientesPanel() {
     setShowAltaModal(false);
   }, []);
 
+  // Buscador global
+  const handleSearch = (e) => {
+    setFilter(e.target.value);
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  };
+
+  // Si el pageIndex está fuera de rango tras filtrar, volver a la primera página
+  React.useEffect(() => {
+    const maxPage = Math.max(0, Math.ceil(filteredClientes.length / pagination.pageSize) - 1);
+    if (pagination.pageIndex > maxPage) {
+      setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    }
+  }, [filteredClientes.length, pagination.pageIndex, pagination.pageSize]);
+
+  // Loading visual al cambiar de página
+  useEffect(() => {
+    if (pagination.pageIndex === 0) return; // No mostrar loading en la primera carga
+    setPageLoading(true);
+    const timeout = setTimeout(() => setPageLoading(false), 300);
+    return () => clearTimeout(timeout);
+  }, [pagination.pageIndex, pagination.pageSize]);
+
   return (
     <div>
+      <div className="mb-4 d-flex justify-content-center">
+        <input
+          type="search"
+          className="form-control text-center shadow-sm border-0 rounded-pill px-4 py-2"
+          style={{ maxWidth: 350, fontSize: 18, background: "#f8f9fa" }}
+          placeholder="🔍 Buscar clientes..."
+          value={filter}
+          onChange={handleSearch}
+          aria-label="Buscar clientes"
+        />
+      </div>
       {loading ? (
         <div className="d-flex justify-content-center align-items-center py-5">
           <div className="spinner-border text-primary" role="status">
@@ -197,11 +254,67 @@ const ClientesPanel = React.memo(function ClientesPanel() {
           </div>
         </div>
       ) : (
-        <ClientesTabla
-          table={table}
-          onRowClick={handleRowClick}
-          onMapClick={handleMapClick}
-        />
+        filteredClientes.length === 0 ? (
+          <div className="text-center text-muted py-5" style={{fontSize: 18}}>
+            No se encontraron clientes para el filtro actual.
+          </div>
+        ) : (
+          <>
+            {pageLoading ? (
+              <div className="d-flex justify-content-center align-items-center py-5">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Cargando página...</span>
+                </div>
+              </div>
+            ) : (
+              <ClientesTabla
+                table={table}
+                onRowClick={handleRowClick}
+                onMapClick={handleMapClick}
+              />
+            )}
+            {/* Controles de paginación */}
+            <nav className="d-flex justify-content-between align-items-center mt-3" aria-label="Paginación de la tabla de clientes">
+              <div>
+                Página <strong>{table.getState().pagination.pageIndex + 1} de {table.getPageCount()}</strong>
+              </div>
+              <div>
+                <button
+                  className="btn btn-outline-primary btn-sm me-2"
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                  aria-label="Página anterior"
+                >
+                  {"<"}
+                </button>
+                <button
+                  className="btn btn-outline-primary btn-sm"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                  aria-label="Página siguiente"
+                >
+                  {">"}
+                </button>
+              </div>
+              <label htmlFor="pageSizeSelect" className="visually-hidden">
+                Seleccionar cantidad de filas por página
+              </label>
+              <select
+                id="pageSizeSelect"
+                className="form-select form-select-sm w-auto"
+                value={table.getState().pagination.pageSize}
+                onChange={e => table.setPageSize(Number(e.target.value))}
+                aria-label="Seleccionar cantidad de filas por página"
+              >
+                {[20, 50, 100].map(pageSize => (
+                  <option key={pageSize} value={pageSize}>
+                    Mostrar {pageSize}
+                  </option>
+                ))}
+              </select>
+            </nav>
+          </>
+        )
       )}
       {showModal && (
         <ClienteModalMapa
