@@ -3,11 +3,13 @@
 import pool from '../config/db.js';
 
 // Obtiene la lista de camiones de la base de datos
-export const getCamiones = async (req, res) => {
+export const getCamiones = async (req, res, next) => {
   try {
     const result = await pool.query('SELECT * FROM camiones');
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: 'Error al obtener camiones' });
+    err.status = 500;
+    err.message = 'Error al obtener camiones';
+    next(err);
   }
 };

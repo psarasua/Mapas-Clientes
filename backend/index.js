@@ -9,6 +9,8 @@ import { applySecurity } from './middlewares/security.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import pkg from 'pg';
 const { Pool } = pkg;
+import { createServer } from 'http';
+import { Server as SocketIOServer } from 'socket.io';
 
 const app = express();
 app.use(cors(corsOptions)); // CORS seguro
@@ -26,6 +28,8 @@ import camionesRoutes from './routes/camiones.js';
 import diasEntregaRoutes from './routes/diasEntrega.js';
 import camionesDiasRoutes from './routes/camionesDias.js';
 import pingRoutes from './routes/ping.js';
+import authRoutes from './routes/auth.js';
+import { swaggerUi, swaggerSpec } from './config/swagger.js';
 
 // Usar las rutas
 app.use('/api/clientes', clientesRoutes);
@@ -33,10 +37,16 @@ app.use('/api/camiones', camionesRoutes);
 app.use('/api/dias_entrega', diasEntregaRoutes);
 app.use('/api/camiones_dias', camionesDiasRoutes);
 app.use('/api/ping', pingRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Manejo centralizado de errores
 app.use(errorHandler);
 
+const server = createServer(app);
+const io = new SocketIOServer(server, { cors: { origin: '*' } });
+app.set('io', io);
+
 // Puerto
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`API escuchando en puerto ${PORT}`));
+server.listen(PORT, () => console.log(`API escuchando en puerto ${PORT}`));
