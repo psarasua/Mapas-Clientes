@@ -6,6 +6,7 @@
 import React, { useCallback } from "react";
 import { Modal, Alert } from "react-bootstrap";
 import ClientesMapa from "../mapas/ClientesMapa";
+import './modal-animacion.css';
 
 const CamionDiaMapaModal = React.memo(function CamionDiaMapaModal({ clientes, onClose }) {
   const handleClose = useCallback(() => {
@@ -19,6 +20,9 @@ const CamionDiaMapaModal = React.memo(function CamionDiaMapaModal({ clientes, on
       size="xl"
       centered
       aria-labelledby="mapa-modal-titulo"
+      dialogClassName="modal-fade-animado"
+      backdropClassName="modal-backdrop-animado"
+      animation={true}
     >
       <Modal.Header closeButton>
         <Modal.Title id="mapa-modal-titulo">Mapa de Clientes</Modal.Title>

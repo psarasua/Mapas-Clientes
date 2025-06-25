@@ -3,6 +3,7 @@
 
 import React, { useState, useMemo } from "react";
 import DataTable from "react-data-table-component";
+import { Spinner } from "react-bootstrap";
 
 const TablaPanel = ({
   columns,
@@ -47,6 +48,14 @@ const TablaPanel = ({
         columns={columns}
         data={filteredData}
         progressPending={loading}
+        progressComponent={
+          <div className="d-flex flex-column align-items-center justify-content-center py-5 w-100">
+            <Spinner animation="border" role="status" variant="primary" style={{ width: 48, height: 48 }}>
+              <span className="visually-hidden">Cargando...</span>
+            </Spinner>
+            <div className="mt-3 text-primary" style={{ fontSize: 18 }}>Cargando datos...</div>
+          </div>
+        }
         pagination
         paginationPerPage={paginationPerPage}
         paginationRowsPerPageOptions={paginationRowsPerPageOptions}

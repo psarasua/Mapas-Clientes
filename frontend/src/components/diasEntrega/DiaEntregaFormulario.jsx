@@ -3,7 +3,7 @@
 // Permite ingresar la descripción y gestiona el submit del formulario.
 
 import React, { useCallback, useMemo } from "react";
-import { Form, Button, Row, Col } from "react-bootstrap";
+import { Form, Button, Row, Col, Modal } from "react-bootstrap";
 
 const DiaEntregaFormulario = React.memo(function DiaEntregaFormulario({
   form,

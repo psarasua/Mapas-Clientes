@@ -5,6 +5,7 @@
 import React from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { Modal, Alert } from "react-bootstrap";
+import './modal-animacion.css';
 
 const ClientesPanelModalMapa = ({ coords, onClose }) => {
   // Prevenir error si coords es undefined o null
@@ -17,6 +18,9 @@ const ClientesPanelModalMapa = ({ coords, onClose }) => {
       size="lg"
       centered
       aria-labelledby="modal-mapa-titulo"
+      dialogClassName="modal-fade-animado"
+      backdropClassName="modal-backdrop-animado"
+      animation={true}
     >
       <Modal.Header closeButton>
         <Modal.Title id="modal-mapa-titulo">Ubicación en el Mapa</Modal.Title>

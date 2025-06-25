@@ -11,7 +11,7 @@ import { FaPencilAlt, FaTrash } from "react-icons/fa";
 import { apiFetch } from '../../services/api';
 import ClienteModalMapa from "./ClienteModalMapa";
 import ClienteModalFormulario from "./ClienteModalFormulario";
-import { Button } from "react-bootstrap";
+import { Button, Spinner } from "react-bootstrap";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const MySwal = withReactContent(Swal);
@@ -138,6 +138,14 @@ const ClientesPanel = React.memo(function ClientesPanel() {
         columns={columns}
         data={filteredData}
         progressPending={loading}
+        progressComponent={
+          <div className="d-flex flex-column align-items-center justify-content-center py-5 w-100">
+            <Spinner animation="border" role="status" variant="primary" style={{ width: 48, height: 48 }}>
+              <span className="visually-hidden">Cargando...</span>
+            </Spinner>
+            <div className="mt-3 text-primary" style={{ fontSize: 18 }}>Cargando clientes...</div>
+          </div>
+        }
         pagination
         paginationPerPage={20}
         paginationRowsPerPageOptions={[20, 50, 100]}

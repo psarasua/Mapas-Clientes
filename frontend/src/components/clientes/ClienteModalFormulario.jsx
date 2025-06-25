@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react";
 import SelectorCoordenadasMapa from "./SelectorCoordenadasMapa";
 import { apiFetch } from '../../services/api';
 import { Modal, Button, Form, Row, Col, Alert } from "react-bootstrap";
+import './modal-animacion.css';
 
 const camposVacios = {
   codigo_alternativo: "",
@@ -69,6 +70,9 @@ const ClienteModalFormulario = ({ cliente, onClose, fetchClientes, setClienteEdi
       size="lg"
       centered
       aria-labelledby="cliente-modal-titulo"
+      dialogClassName="modal-fade-animado"
+      backdropClassName="modal-backdrop-animado"
+      animation={true}
     >
       <Modal.Header closeButton>
         <Modal.Title id="cliente-modal-titulo">

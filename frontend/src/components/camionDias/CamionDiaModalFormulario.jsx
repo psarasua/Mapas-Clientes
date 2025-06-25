@@ -6,6 +6,7 @@
 import React, { useCallback } from "react";
 import { Modal, Button, Alert, Form } from "react-bootstrap";
 import ClientesAsignadosLista from "./ClientesAsignadosLista";
+import './modal-animacion.css';
 
 const CamionDiaModalFormulario = React.memo(function CamionDiaModalFormulario({
   editId,
@@ -38,7 +39,18 @@ const CamionDiaModalFormulario = React.memo(function CamionDiaModalFormulario({
     [handleSubmit]
   );
   return (
-    <Modal show={true} onHide={closeModal} size="lg" centered role={role} aria-modal={ariaModal} aria-labelledby={ariaLabelledby}>
+    <Modal
+      show={true}
+      onHide={closeModal}
+      size="lg"
+      centered
+      role={role}
+      aria-modal={ariaModal}
+      aria-labelledby={ariaLabelledby}
+      dialogClassName="modal-fade-animado"
+      backdropClassName="modal-backdrop-animado"
+      animation={true}
+    >
       <Modal.Header closeButton>
         <Modal.Title id={ariaLabelledby}>{editId ? "Editar" : "Nuevo"} Camión Día</Modal.Title>
       </Modal.Header>
