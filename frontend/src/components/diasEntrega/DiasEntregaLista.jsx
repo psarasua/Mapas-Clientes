@@ -3,6 +3,7 @@
 // Permite editar o eliminar cada día y muestra mensajes si la lista está vacía.
 
 import React, { useMemo, useCallback } from "react";
+import { FaPencilAlt, FaTrash } from "react-icons/fa";
 
 const DiasEntregaLista = React.memo(function DiasEntregaLista({
   dias,
@@ -46,7 +47,7 @@ const DiasEntregaLista = React.memo(function DiasEntregaLista({
               aria-label={`Editar día de entrega ${dia.descripcion}`}
               onClick={() => handleEdit(dia)}
             >
-              <i className="bi bi-pencil" aria-hidden="true"></i>
+              <FaPencilAlt aria-hidden="true" />
               <span className="visually-hidden">Editar</span>
             </button>
             <button
@@ -55,7 +56,7 @@ const DiasEntregaLista = React.memo(function DiasEntregaLista({
               aria-label={`Eliminar día de entrega ${dia.descripcion}`}
               onClick={() => handleDelete(dia.id)}
             >
-              <i className="bi bi-trash" aria-hidden="true"></i>
+              <FaTrash aria-hidden="true" />
               <span className="visually-hidden">Eliminar</span>
             </button>
           </div>

@@ -3,7 +3,7 @@
 // Permite ver, crear, editar, eliminar y buscar clientes, así como ver su ubicación en el mapa.
 // Maneja el estado y la lógica de interacción de la vista principal.
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import {
@@ -14,11 +14,13 @@ import ClientesTabla from "./ClientesTabla";
 import ClienteModalMapa from "./ClienteModalMapa";
 import ClienteModalFormulario from "./ClienteModalFormulario";
 import { apiFetch } from '../../services/api';
+import { FaPencilAlt, FaTrash } from "react-icons/fa";
 
 const MySwal = withReactContent(Swal);
 
 const ClientesPanel = React.memo(function ClientesPanel() {
   const [clientes, setClientes] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [mapCoords, setMapCoords] = useState({ lat: null, lng: null });
@@ -32,51 +34,91 @@ const ClientesPanel = React.memo(function ClientesPanel() {
   const [columnVisibility, setColumnVisibility] = useState({});
   const [sorting, setSorting] = useState([]);
 
+  const handleRowClick = useCallback((cliente) => {
+    setClienteEdit(cliente);
+    setShowEditModal(true);
+  }, []);
+
+  const handleDeleteCliente = useCallback(async (id) => {
+    await apiFetch(`/clientes/${id}`, { method: "DELETE" });
+    setClientes((prev) => prev.filter((c) => c.id !== id));
+  }, []);
+
+  const columns = useMemo(() => [
+    {
+      accessorKey: 'id',
+      header: 'ID',
+    },
+    {
+      accessorKey: 'nombre',
+      header: 'Nombre',
+    },
+    {
+      accessorKey: 'razon',
+      header: 'Razón Social',
+    },
+    {
+      accessorKey: 'codigo_alternativo',
+      header: 'Código Alternativo',
+    },
+    {
+      accessorKey: 'direccion',
+      header: 'Dirección',
+    },
+    {
+      accessorKey: 'telefono',
+      header: 'Teléfono',
+    },
+    {
+      accessorKey: 'rut',
+      header: 'RUT',
+    },
+    {
+      accessorKey: 'activo',
+      header: 'Activo',
+      cell: info => info.getValue() ? 'Sí' : 'No',
+    },
+    {
+      accessorKey: 'x',
+      header: 'X',
+    },
+    {
+      accessorKey: 'y',
+      header: 'Y',
+    },
+    {
+      id: 'acciones',
+      header: 'Acciones',
+      cell: ({ row }) => (
+        <div className="d-flex gap-2">
+          <button
+            className="btn btn-outline-warning btn-sm"
+            title="Editar"
+            aria-label={`Editar cliente ${row.original.nombre}`}
+            onClick={() => handleRowClick(row.original)}
+          >
+            <FaPencilAlt aria-hidden="true" />
+            <span className="visually-hidden">Editar</span>
+          </button>
+          <button
+            className="btn btn-outline-danger btn-sm"
+            title="Eliminar"
+            aria-label={`Eliminar cliente ${row.original.nombre}`}
+            onClick={() => handleDeleteCliente(row.original.id)}
+          >
+            <FaTrash aria-hidden="true" />
+            <span className="visually-hidden">Eliminar</span>
+          </button>
+        </div>
+      ),
+      enableSorting: false,
+      enableColumnFilter: false,
+    },
+  ], [handleRowClick, handleDeleteCliente]);
+
   const table = useReactTable({
     data: clientes,
-    columns: [
-      {
-        accessorKey: 'id',
-        header: 'ID',
-      },
-      {
-        accessorKey: 'nombre',
-        header: 'Nombre',
-      },
-      {
-        accessorKey: 'razon',
-        header: 'Razón Social',
-      },
-      {
-        accessorKey: 'codigo_alternativo',
-        header: 'Código Alternativo',
-      },
-      {
-        accessorKey: 'direccion',
-        header: 'Dirección',
-      },
-      {
-        accessorKey: 'telefono',
-        header: 'Teléfono',
-      },
-      {
-        accessorKey: 'rut',
-        header: 'RUT',
-      },
-      {
-        accessorKey: 'activo',
-        header: 'Activo',
-        cell: info => info.getValue() ? 'Sí' : 'No',
-      },
-      {
-        accessorKey: 'x',
-        header: 'X',
-      },
-      {
-        accessorKey: 'y',
-        header: 'Y',
-      },
-    ],
+    columns,
     pageCount: Math.ceil(clientes.length / pagination.pageSize),
     state: {
       pagination,
@@ -94,10 +136,13 @@ const ClientesPanel = React.memo(function ClientesPanel() {
   useEffect(() => {
     const fetchClientes = async () => {
       try {
+        setLoading(true);
         const data = await apiFetch('/clientes');
         setClientes(data);
       } catch (err) {
         // Manejo de error
+      } finally {
+        setLoading(false);
       }
     };
     fetchClientes();
@@ -124,11 +169,6 @@ const ClientesPanel = React.memo(function ClientesPanel() {
     checkBackend();
   }, [checkBackend]);
 
-  const handleRowClick = useCallback((cliente) => {
-    setClienteEdit(cliente);
-    setShowEditModal(true);
-  }, []);
-
   const handleMapClick = useCallback((coords) => {
     setMapCoords(coords);
     setShowModal(true);
@@ -148,17 +188,21 @@ const ClientesPanel = React.memo(function ClientesPanel() {
     setShowAltaModal(false);
   }, []);
 
-  
-
-  
-
   return (
     <div>
-      <ClientesTabla
-        table={table}
-        onRowClick={handleRowClick}
-        onMapClick={handleMapClick}
-      />
+      {loading ? (
+        <div className="d-flex justify-content-center align-items-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      ) : (
+        <ClientesTabla
+          table={table}
+          onRowClick={handleRowClick}
+          onMapClick={handleMapClick}
+        />
+      )}
       {showModal && (
         <ClienteModalMapa
           coords={mapCoords}

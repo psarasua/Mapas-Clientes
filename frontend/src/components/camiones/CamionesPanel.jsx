@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { apiFetch } from "../../services/api";
+import { FaPencilAlt, FaTrash } from "react-icons/fa";
 
 // Envuelve el componente con React.memo para evitar renders innecesarios si las props no cambian
 const CamionesPanel = React.memo(function CamionesPanel() {
@@ -104,7 +105,7 @@ const CamionesPanel = React.memo(function CamionesPanel() {
                         aria-label={`Editar camión ${camion.descripcion}`}
                         onClick={() => handleEdit(camion)}
                       >
-                        <i className="bi bi-pencil" aria-hidden="true"></i>
+                        <FaPencilAlt aria-hidden="true" />
                         <span className="visually-hidden">Editar</span>
                       </button>
                       {/* Botón para eliminar */}
@@ -114,7 +115,7 @@ const CamionesPanel = React.memo(function CamionesPanel() {
                         aria-label={`Eliminar camión ${camion.descripcion}`}
                         onClick={() => handleDelete(camion.id)}
                       >
-                        <i className="bi bi-trash" aria-hidden="true"></i>
+                        <FaTrash aria-hidden="true" />
                         <span className="visually-hidden">Eliminar</span>
                       </button>
                     </div>
@@ -160,41 +161,60 @@ const CamionesPanel = React.memo(function CamionesPanel() {
         </div>
       </form>
       <div>
-        {loading ? (
-          <div className="text-center py-4">Cargando camiones...</div>
-        ) : camiones.length === 0 ? (
-          <div className="alert alert-warning text-center my-4" role="status" aria-live="polite">
-            No hay camiones registrados.
-          </div>
-        ) : (
-          <ul className="list-group">
-            {camiones.map((camion) => (
-              <li key={camion.id} className="list-group-item d-flex justify-content-between align-items-center">
-                <span>{camion.descripcion}</span>
-                <div className="d-flex gap-2">
-                  <button
-                    className="btn btn-outline-warning btn-sm"
-                    title="Editar"
-                    aria-label={`Editar camión ${camion.descripcion}`}
-                    onClick={() => handleEdit(camion)}
-                  >
-                    <i className="bi bi-pencil" aria-hidden="true"></i>
-                    <span className="visually-hidden">Editar</span>
-                  </button>
-                  <button
-                    className="btn btn-outline-danger btn-sm"
-                    title="Eliminar"
-                    aria-label={`Eliminar camión ${camion.descripcion}`}
-                    onClick={() => handleDelete(camion.id)}
-                  >
-                    <i className="bi bi-trash" aria-hidden="true"></i>
-                    <span className="visually-hidden">Eliminar</span>
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+        {/* Tabla de camiones con encabezado */}
+        <div className="table-responsive flex-grow-1">
+          <table
+            className="table table-striped table-hover align-middle w-100"
+            role="table"
+            aria-label="Tabla de camiones"
+          >
+            <thead className="table-dark">
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Descripción</th>
+                <th scope="col">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {camiones.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="text-center py-4">
+                    No hay camiones registrados.
+                  </td>
+                </tr>
+              ) : (
+                camiones.map((camion) => (
+                  <tr key={camion.id}>
+                    <td>{camion.id}</td>
+                    <td>{camion.descripcion}</td>
+                    <td>
+                      <div className="d-flex gap-2">
+                        <button
+                          className="btn btn-outline-warning btn-sm"
+                          title="Editar"
+                          aria-label={`Editar camión ${camion.descripcion}`}
+                          onClick={() => handleEdit(camion)}
+                        >
+                          <FaPencilAlt aria-hidden="true" />
+                          <span className="visually-hidden">Editar</span>
+                        </button>
+                        <button
+                          className="btn btn-outline-danger btn-sm"
+                          title="Eliminar"
+                          aria-label={`Eliminar camión ${camion.descripcion}`}
+                          onClick={() => handleDelete(camion.id)}
+                        >
+                          <FaTrash aria-hidden="true" />
+                          <span className="visually-hidden">Eliminar</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

@@ -61,8 +61,10 @@ const DiasEntregaPanel = React.memo(function DiasEntregaPanel() {
   const diasMemo = useMemo(() => dias, [dias]);
 
   return (
-    <div>
-      <h1>Días de Entrega</h1>
+    <div className="container my-4" style={{ maxWidth: 900 }}>
+      <h2 className="text-center mb-4 mt-3" id="dias-entrega-titulo" tabIndex={0}>
+        Días de Entrega
+      </h2>
       <DiaEntregaFormulario
         form={form}
         setForm={setForm}
@@ -71,12 +73,14 @@ const DiasEntregaPanel = React.memo(function DiasEntregaPanel() {
         handleCancelEdit={handleCancelEdit}
       />
       {loading ? (
-        <p>Cargando...</p>
+        <div className="text-center py-4">Cargando días de entrega...</div>
       ) : (
         <DiasEntregaLista
           dias={diasMemo}
-          handleDelete={handleDelete}
-          handleEdit={handleEdit}
+          loading={loading}
+          onDelete={handleDelete}
+          onEdit={handleEdit}
+          ariaLabelledby="dias-entrega-titulo"
         />
       )}
     </div>
