@@ -12,6 +12,7 @@ import { apiFetch } from '../../services/api';
 import ClienteModalMapa from "./ClienteModalMapa";
 import ClienteModalFormulario from "./ClienteModalFormulario";
 import { Button } from "react-bootstrap";
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const MySwal = withReactContent(Swal);
 
@@ -75,8 +76,29 @@ const ClientesPanel = React.memo(function ClientesPanel() {
     { name: 'Teléfono', selector: row => row.telefono, sortable: true },
     { name: 'RUT', selector: row => row.rut, sortable: true },
     { name: 'Activo', selector: row => row.activo ? 'Sí' : 'No', sortable: true, width: '80px' },
-    { name: 'X', selector: row => row.x, sortable: true, width: '80px' },
-    { name: 'Y', selector: row => row.y, sortable: true, width: '80px' },
+    {
+      name: 'Ubicación',
+      selector: row => row.x && row.y,
+      cell: row => (
+        <button
+          type="button"
+          className="bg-transparent border-0 p-0 m-0 d-flex align-items-center justify-content-center"
+          style={{ width: 36, height: 36, cursor: row.x && row.y ? 'pointer' : 'not-allowed' }}
+          title={row.x && row.y ? `X: ${row.x}, Y: ${row.y}` : 'Sin coordenadas'}
+          aria-label={row.x && row.y ? 'Ver ubicación en el mapa' : 'Sin ubicación'}
+          tabIndex={row.x && row.y ? 0 : -1}
+          disabled={!(row.x && row.y)}
+          onClick={row.x && row.y ? () => { setMapCoords({ lat: row.y, lng: row.x }); setShowModal(true); } : undefined}
+        >
+          <i
+            className="bi bi-flag-fill"
+            style={{ fontSize: 18, color: row.x && row.y ? '#198754' : '#dc3545' }}
+          ></i>
+        </button>
+      ),
+      sortable: false,
+      width: '56px',
+    },
     {
       name: 'Acciones',
       cell: row => (
