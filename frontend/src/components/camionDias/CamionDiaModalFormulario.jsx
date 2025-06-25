@@ -4,6 +4,7 @@
 // Incluye validaciones y mensajes informativos.
 
 import React, { useCallback } from "react";
+import { Modal, Button, Alert, Form } from "react-bootstrap";
 import ClientesAsignadosLista from "./ClientesAsignadosLista";
 
 const CamionDiaModalFormulario = React.memo(function CamionDiaModalFormulario({
@@ -37,54 +38,49 @@ const CamionDiaModalFormulario = React.memo(function CamionDiaModalFormulario({
     [handleSubmit]
   );
   return (
-    <div className="modal show d-block" tabIndex="-1" style={{ background: "rgba(0,0,0,0.3)" }} role={role} aria-modal={ariaModal} aria-labelledby={ariaLabelledby}>
-      <div className="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title" id={ariaLabelledby}>{editId ? "Editar" : "Nuevo"} Camión Día</h5>
-            <button type="button" className="btn-close" aria-label="Cerrar modal" onClick={closeModal}></button>
+    <Modal show={true} onHide={closeModal} size="lg" centered role={role} aria-modal={ariaModal} aria-labelledby={ariaLabelledby}>
+      <Modal.Header closeButton>
+        <Modal.Title id={ariaLabelledby}>{editId ? "Editar" : "Nuevo"} Camión Día</Modal.Title>
+      </Modal.Header>
+      <Form onSubmit={onFormSubmit} autoComplete="off">
+        <Modal.Body>
+          {mensaje && <Alert variant="info">{mensaje}</Alert>}
+          <div className="mb-3">
+            <Form.Label>Camión</Form.Label>
+            <Form.Select name="camion_id" value={form.camion_id || ""} onChange={onFormChange} required>
+              <option value="">Seleccione un camión</option>
+              {camiones.map((c) => (
+                <option key={c.id} value={c.id}>{c.descripcion}</option>
+              ))}
+            </Form.Select>
           </div>
-          <form onSubmit={onFormSubmit}>
-            <div className="modal-body">
-              {mensaje && <div className="alert alert-info">{mensaje}</div>}
-              <div className="mb-3">
-                <label className="form-label">Camión</label>
-                <select className="form-select" name="camion_id" value={form.camion_id || ""} onChange={onFormChange} required>
-                  <option value="">Seleccione un camión</option>
-                  {camiones.map((c) => (
-                    <option key={c.id} value={c.id}>{c.descripcion}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Día</label>
-                <select className="form-select" name="dia_id" value={form.dia_id || ""} onChange={onFormChange} required>
-                  <option value="">Seleccione un día</option>
-                  {dias.map((d) => (
-                    <option key={d.id} value={d.id}>{d.descripcion}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Clientes asignados</label>
-                <ClientesAsignadosLista
-                  clientesAsignados={clientesAsignados}
-                  eliminarCliente={eliminarCliente}
-                  busqueda={busqueda}
-                  setBusqueda={setBusqueda}
-                  clientesFiltrados={clientesFiltrados}
-                  agregarCliente={agregarCliente}
-                />
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={closeModal}>Cancelar</button>
-              <button type="submit" className="btn btn-primary">{editId ? "Guardar cambios" : "Crear"}</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+          <div className="mb-3">
+            <Form.Label>Día</Form.Label>
+            <Form.Select name="dia_id" value={form.dia_id || ""} onChange={onFormChange} required>
+              <option value="">Seleccione un día</option>
+              {dias.map((d) => (
+                <option key={d.id} value={d.id}>{d.descripcion}</option>
+              ))}
+            </Form.Select>
+          </div>
+          <div className="mb-3">
+            <Form.Label>Clientes asignados</Form.Label>
+            <ClientesAsignadosLista
+              clientesAsignados={clientesAsignados}
+              eliminarCliente={eliminarCliente}
+              busqueda={busqueda}
+              setBusqueda={setBusqueda}
+              clientesFiltrados={clientesFiltrados}
+              agregarCliente={agregarCliente}
+            />
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeModal}>Cancelar</Button>
+          <Button type="submit" variant="primary">{editId ? "Guardar cambios" : "Crear"}</Button>
+        </Modal.Footer>
+      </Form>
+    </Modal>
   );
 });
 

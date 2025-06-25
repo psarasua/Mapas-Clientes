@@ -5,6 +5,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { Alert } from "react-bootstrap";
 
 const SelectorCoordenadasMapa = React.memo(function SelectorCoordenadasMapa({ value, onChange, id = "selector-coordenadas" }) {
   const [marker, setMarker] = useState(
@@ -41,9 +42,9 @@ const SelectorCoordenadasMapa = React.memo(function SelectorCoordenadasMapa({ va
       tabIndex={0}
     >
       {marker === null && (
-        <div className="alert alert-info text-center my-2" role="status" aria-live="polite">
+        <Alert variant="info" className="text-center my-2" role="status" aria-live="polite">
           No hay coordenadas seleccionadas en el mapa.
-        </div>
+        </Alert>
       )}
       <MapContainer
         center={

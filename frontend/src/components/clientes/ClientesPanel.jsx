@@ -11,6 +11,7 @@ import { FaPencilAlt, FaTrash } from "react-icons/fa";
 import { apiFetch } from '../../services/api';
 import ClienteModalMapa from "./ClienteModalMapa";
 import ClienteModalFormulario from "./ClienteModalFormulario";
+import { Button } from "react-bootstrap";
 
 const MySwal = withReactContent(Swal);
 
@@ -67,12 +68,12 @@ const ClientesPanel = React.memo(function ClientesPanel() {
       name: 'Acciones',
       cell: row => (
         <div className="d-flex gap-2">
-          <button className="btn btn-outline-warning btn-sm" title="Editar" aria-label={`Editar cliente ${row.nombre}`} onClick={() => handleRowClick(row)}>
+          <Button variant="outline-warning" size="sm" title={`Editar cliente ${row.nombre}`} aria-label={`Editar cliente ${row.nombre}`} onClick={() => handleRowClick(row)}>
             <FaPencilAlt aria-hidden="true" />
-          </button>
-          <button className="btn btn-outline-danger btn-sm" title="Eliminar" aria-label={`Eliminar cliente ${row.nombre}`} onClick={() => handleDeleteCliente(row.id)}>
+          </Button>
+          <Button variant="outline-danger" size="sm" title={`Eliminar cliente ${row.nombre}`} aria-label={`Eliminar cliente ${row.nombre}`} onClick={() => handleDeleteCliente(row.id)}>
             <FaTrash aria-hidden="true" />
-          </button>
+          </Button>
         </div>
       ),
       ignoreRowClick: true,

@@ -8,6 +8,7 @@ import { apiFetch } from "../../services/api";
 import DiaEntregaFormulario from "./DiaEntregaFormulario";
 import TablaPanel from "../ui/TablaPanel";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
+import { Button } from "react-bootstrap";
 
 const DiasEntregaPanel = React.memo(function DiasEntregaPanel() {
   const [dias, setDias] = useState([]);
@@ -67,12 +68,12 @@ const DiasEntregaPanel = React.memo(function DiasEntregaPanel() {
       name: 'Acciones',
       cell: row => (
         <div className="d-flex gap-2">
-          <button className="btn btn-outline-warning btn-sm" title="Editar" aria-label={`Editar día de entrega ${row.descripcion}`} onClick={() => handleEdit(row)}>
+          <Button variant="outline-warning" size="sm" title={`Editar día de entrega ${row.descripcion}`} aria-label={`Editar día de entrega ${row.descripcion}`} onClick={() => handleEdit(row)}>
             <FaPencilAlt aria-hidden="true" />
-          </button>
-          <button className="btn btn-outline-danger btn-sm" title="Eliminar" aria-label={`Eliminar día de entrega ${row.descripcion}`} onClick={() => handleDelete(row.id)}>
+          </Button>
+          <Button variant="outline-danger" size="sm" title={`Eliminar día de entrega ${row.descripcion}`} aria-label={`Eliminar día de entrega ${row.descripcion}`} onClick={() => handleDelete(row.id)}>
             <FaTrash aria-hidden="true" />
-          </button>
+          </Button>
         </div>
       ),
       ignoreRowClick: true,

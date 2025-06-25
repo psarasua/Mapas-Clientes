@@ -3,6 +3,7 @@
 // Permite ingresar la descripción y gestiona el submit del formulario.
 
 import React, { useCallback, useMemo } from "react";
+import { Form, Button, Row, Col } from "react-bootstrap";
 
 const DiaEntregaFormulario = React.memo(function DiaEntregaFormulario({
   form,
@@ -26,34 +27,35 @@ const DiaEntregaFormulario = React.memo(function DiaEntregaFormulario({
   );
 
   return (
-    <form
-      className="row g-3 mb-4"
+    <Form
+      className="mb-4"
       onSubmit={onSubmit}
       aria-labelledby={ariaLabelledby}
       role="form"
     >
-      <div className="col-md-8">
-        <label htmlFor="descripcion-dia" className="form-label visually-hidden">
-          Descripción del día de entrega
-        </label>
-        <input
-          id="descripcion-dia"
-          className="form-control"
-          placeholder="Descripción"
-          value={form.descripcion}
-          onChange={handleInputChange}
-          required
-          aria-required="true"
-          aria-label="Descripción del día de entrega"
-          autoComplete="off"
-        />
-      </div>
-      <div className="col-md-4">
-        <button className="btn btn-primary w-100" type="submit">
-          {buttonText}
-        </button>
-      </div>
-    </form>
+      <Row className="g-3">
+        <Col md={8}>
+          <Form.Label htmlFor="descripcion-dia" visuallyHidden>
+            Descripción del día de entrega
+          </Form.Label>
+          <Form.Control
+            id="descripcion-dia"
+            placeholder="Descripción"
+            value={form.descripcion}
+            onChange={handleInputChange}
+            required
+            aria-required="true"
+            aria-label="Descripción del día de entrega"
+            autoComplete="off"
+          />
+        </Col>
+        <Col md={4}>
+          <Button className="w-100" type="submit" variant="primary">
+            {buttonText}
+          </Button>
+        </Col>
+      </Row>
+    </Form>
   );
 });
 

@@ -6,6 +6,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { apiFetch } from "../../services/api";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
+import { Button } from "react-bootstrap";
 import TablaPanel from "../ui/TablaPanel";
 
 // Envuelve el componente con React.memo para evitar renders innecesarios si las props no cambian
@@ -73,12 +74,12 @@ const CamionesPanel = React.memo(function CamionesPanel() {
       name: 'Acciones',
       cell: row => (
         <div className="d-flex gap-2">
-          <button className="btn btn-outline-warning btn-sm" title="Editar" aria-label={`Editar camión ${row.descripcion}`} onClick={() => handleEdit(row)}>
+          <Button variant="outline-warning" size="sm" title={`Editar camión ${row.descripcion}`} aria-label={`Editar camión ${row.descripcion}`} onClick={() => handleEdit(row)}>
             <FaPencilAlt aria-hidden="true" />
-          </button>
-          <button className="btn btn-outline-danger btn-sm" title="Eliminar" aria-label={`Eliminar camión ${row.descripcion}`} onClick={() => handleDelete(row.id)}>
+          </Button>
+          <Button variant="outline-danger" size="sm" title={`Eliminar camión ${row.descripcion}`} aria-label={`Eliminar camión ${row.descripcion}`} onClick={() => handleDelete(row.id)}>
             <FaTrash aria-hidden="true" />
-          </button>
+          </Button>
         </div>
       ),
       ignoreRowClick: true,
