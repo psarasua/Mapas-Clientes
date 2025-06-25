@@ -3,15 +3,13 @@
 // Permite ver, crear, editar y eliminar asignaciones, así como visualizar clientes en el mapa.
 // Maneja el estado y la lógica de interacción de la vista principal.
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import CamionDiasColumnasLista from "./CamionDiasColumnasLista";
 import CamionDiaModalFormulario from "./CamionDiaModalFormulario";
 import CamionDiaMapaModal from "./CamionDiaMapaModal";
-import BarraCarga from "../ui/BarraCarga";
 
 const CamionDiasPanel = () => {
   const [columnasPorDia, setColumnasPorDia] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [modalMapaAbierto, setModalMapaAbierto] = useState(false);
   const [registroEdit, setRegistroEdit] = useState(null);
@@ -19,7 +17,6 @@ const CamionDiasPanel = () => {
 
   // Simulación de fetch inicial
   useEffect(() => {
-    setLoading(true);
     // Aquí iría la llamada real a la API
     setTimeout(() => {
       setColumnasPorDia([
@@ -34,7 +31,6 @@ const CamionDiasPanel = () => {
           registros: [],
         },
       ]);
-      setLoading(false);
     }, 1000);
   }, []);
 
@@ -71,7 +67,6 @@ const CamionDiasPanel = () => {
   return (
     <div className="container-fluid py-3">
       <h2 className="mb-4" id="camion-dias-titulo">Gestión de Camiones por Día</h2>
-      {loading && <BarraCarga />}
       <CamionDiasColumnasLista
         columnasPorDia={columnasPorDia}
         onVerMapa={handleVerMapa}

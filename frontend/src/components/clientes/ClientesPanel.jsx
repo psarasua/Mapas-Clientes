@@ -3,14 +3,13 @@
 // Permite ver, crear, editar, eliminar y buscar clientes, así como ver su ubicación en el mapa.
 // Maneja el estado y la lógica de interacción de la vista principal.
 
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import {
   useReactTable,
   getCoreRowModel,
 } from "@tanstack/react-table";
-import BarraCarga from "../ui/BarraCarga";
 import ClientesTabla from "./ClientesTabla";
 import ClienteModalMapa from "./ClienteModalMapa";
 import ClienteModalFormulario from "./ClienteModalFormulario";
@@ -20,10 +19,7 @@ const MySwal = withReactContent(Swal);
 
 const ClientesPanel = React.memo(function ClientesPanel() {
   const [clientes, setClientes] = useState([]);
-  const [total, setTotal] = useState(0);
   const [filter, setFilter] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [mapCoords, setMapCoords] = useState({ lat: null, lng: null });
   const [clienteEdit, setClienteEdit] = useState(null);
@@ -35,15 +31,13 @@ const ClientesPanel = React.memo(function ClientesPanel() {
   });
   const [columnVisibility, setColumnVisibility] = useState({});
   const [sorting, setSorting] = useState([]);
-  const [backendOk, setBackendOk] = useState(false);
-  const [backendChecked, setBackendChecked] = useState(false);
 
   const table = useReactTable({
     data: clientes,
     columns: [
       // ...definición de columnas
     ],
-    pageCount: Math.ceil(total / pagination.pageSize),
+    pageCount: Math.ceil(clientes.length / pagination.pageSize),
     state: {
       pagination,
       columnVisibility,
@@ -64,8 +58,6 @@ const ClientesPanel = React.memo(function ClientesPanel() {
         setClientes(data);
       } catch (err) {
         // Manejo de error
-      } finally {
-        setLoading(false); // <- Esto es importante
       }
     };
     fetchClientes();
@@ -74,11 +66,7 @@ const ClientesPanel = React.memo(function ClientesPanel() {
   const checkBackend = useCallback(async () => {
     try {
       await apiFetch('/ping');
-      setBackendOk(true);
-      setBackendChecked(true);
     } catch (err) {
-      setBackendOk(false);
-      setBackendChecked(true);
       MySwal.fire({
         icon: "error",
         title: "Error de conexión",
@@ -93,10 +81,8 @@ const ClientesPanel = React.memo(function ClientesPanel() {
   }, []);
 
   useEffect(() => {
-    if (!backendChecked) {
-      checkBackend();
-    }
-  }, [backendChecked, checkBackend]);
+    checkBackend();
+  }, [checkBackend]);
 
   const handleRowClick = useCallback((cliente) => {
     setClienteEdit(cliente);
@@ -122,28 +108,16 @@ const ClientesPanel = React.memo(function ClientesPanel() {
     setShowAltaModal(false);
   }, []);
 
-  const handleSaveCliente = useCallback(
-    async (cliente) => {
-      // ...código para guardar cliente
-    },
-    [clientes]
-  );
+  
 
-  const handleDeleteCliente = useCallback(
-    async (id) => {
-      // ...código para eliminar cliente
-    },
-    [clientes]
-  );
+  
 
   return (
     <div>
-      <BarraCarga progress={progress} />
       <ClientesTabla
         table={table}
         onRowClick={handleRowClick}
         onMapClick={handleMapClick}
-        loading={loading}
       />
       {showModal && (
         <ClienteModalMapa

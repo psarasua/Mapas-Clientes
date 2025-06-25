@@ -1,0 +1,3 @@
+// Importa el tema de Bootswatch que prefieras, por ejemplo 'flatly'.
+import "bootswatch/dist/flatly/bootstrap.min.css";
+// ...otros estilos globales si los necesitas...
