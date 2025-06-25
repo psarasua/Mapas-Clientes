@@ -42,13 +42,26 @@ const ClientesPanel = React.memo(function ClientesPanel() {
     setShowEditModal(true);
   };
 
-  const handleDeleteCliente = async (id) => {
-    setLoading(true);
-    try {
-      await apiFetch(`/clientes/${id}`, { method: "DELETE" });
-      fetchClientes();
-    } finally {
-      setLoading(false);
+  const handleDeleteCliente = async (id, nombre) => {
+    const result = await MySwal.fire({
+      title: '¿Eliminar cliente?',
+      text: `¿Seguro que deseas eliminar a "${nombre}"? Esta acción no se puede deshacer.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+    });
+    if (result.isConfirmed) {
+      setLoading(true);
+      try {
+        await apiFetch(`/clientes/${id}`, { method: "DELETE" });
+        fetchClientes();
+        MySwal.fire('Eliminado', 'El cliente fue eliminado correctamente.', 'success');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -71,7 +84,7 @@ const ClientesPanel = React.memo(function ClientesPanel() {
           <Button variant="outline-warning" size="sm" title={`Editar cliente ${row.nombre}`} aria-label={`Editar cliente ${row.nombre}`} onClick={() => handleRowClick(row)}>
             <FaPencilAlt aria-hidden="true" />
           </Button>
-          <Button variant="outline-danger" size="sm" title={`Eliminar cliente ${row.nombre}`} aria-label={`Eliminar cliente ${row.nombre}`} onClick={() => handleDeleteCliente(row.id)}>
+          <Button variant="outline-danger" size="sm" title={`Eliminar cliente ${row.nombre}`} aria-label={`Eliminar cliente ${row.nombre}`} onClick={() => handleDeleteCliente(row.id, row.nombre)}>
             <FaTrash aria-hidden="true" />
           </Button>
         </div>

@@ -9,12 +9,16 @@ import DiaEntregaFormulario from "./DiaEntregaFormulario";
 import TablaPanel from "../ui/TablaPanel";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
 import { Button } from "react-bootstrap";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 const DiasEntregaPanel = React.memo(function DiasEntregaPanel() {
   const [dias, setDias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ descripcion: "" });
   const [editId, setEditId] = useState(null);
+
+  const MySwal = withReactContent(Swal);
 
   const fetchDias = useCallback(async () => {
     setLoading(true);
@@ -27,9 +31,22 @@ const DiasEntregaPanel = React.memo(function DiasEntregaPanel() {
     fetchDias();
   }, [fetchDias]);
 
-  const handleDelete = async (id) => {
-    await apiFetch(`/dias_entrega/${id}`, { method: "DELETE" });
-    fetchDias();
+  const handleDelete = async (id, descripcion) => {
+    const result = await MySwal.fire({
+      title: '¿Eliminar día de entrega?',
+      text: `¿Seguro que deseas eliminar "${descripcion}"? Esta acción no se puede deshacer.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+    });
+    if (result.isConfirmed) {
+      await apiFetch(`/dias_entrega/${id}`, { method: "DELETE" });
+      fetchDias();
+      MySwal.fire('Eliminado', 'El día de entrega fue eliminado correctamente.', 'success');
+    }
   };
 
   const handleEdit = (dia) => {
@@ -71,14 +88,12 @@ const DiasEntregaPanel = React.memo(function DiasEntregaPanel() {
           <Button variant="outline-warning" size="sm" title={`Editar día de entrega ${row.descripcion}`} aria-label={`Editar día de entrega ${row.descripcion}`} onClick={() => handleEdit(row)}>
             <FaPencilAlt aria-hidden="true" />
           </Button>
-          <Button variant="outline-danger" size="sm" title={`Eliminar día de entrega ${row.descripcion}`} aria-label={`Eliminar día de entrega ${row.descripcion}`} onClick={() => handleDelete(row.id)}>
+          <Button variant="outline-danger" size="sm" title={`Eliminar día de entrega ${row.descripcion}`} aria-label={`Eliminar día de entrega ${row.descripcion}`} onClick={() => handleDelete(row.id, row.descripcion)}>
             <FaTrash aria-hidden="true" />
           </Button>
         </div>
       ),
       ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
       width: '120px',
     },
   ];

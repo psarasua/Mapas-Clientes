@@ -8,6 +8,8 @@ import { apiFetch } from "../../services/api";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
 import { Button } from "react-bootstrap";
 import TablaPanel from "../ui/TablaPanel";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 // Envuelve el componente con React.memo para evitar renders innecesarios si las props no cambian
 const CamionesPanel = React.memo(function CamionesPanel() {
@@ -17,6 +19,8 @@ const CamionesPanel = React.memo(function CamionesPanel() {
   const [form, setForm] = useState({ descripcion: "" });
   // Estado para saber si se está editando y el id correspondiente
   const [editId, setEditId] = useState(null);
+
+  const MySwal = withReactContent(Swal);
 
   // useCallback para evitar recrear la función en cada render
   const fetchCamiones = useCallback(async () => {
@@ -53,9 +57,22 @@ const CamionesPanel = React.memo(function CamionesPanel() {
 
   // useCallback para manejar la eliminación de un camión
   const handleDelete = useCallback(
-    async (id) => {
-      await apiFetch(`/camiones/${id}`, { method: "DELETE" });
-      fetchCamiones();
+    async (id, descripcion) => {
+      const result = await MySwal.fire({
+        title: '¿Eliminar camión?',
+        text: `¿Seguro que deseas eliminar "${descripcion}"? Esta acción no se puede deshacer.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+      });
+      if (result.isConfirmed) {
+        await apiFetch(`/camiones/${id}`, { method: "DELETE" });
+        fetchCamiones();
+        MySwal.fire('Eliminado', 'El camión fue eliminado correctamente.', 'success');
+      }
     },
     [fetchCamiones]
   );
@@ -77,14 +94,12 @@ const CamionesPanel = React.memo(function CamionesPanel() {
           <Button variant="outline-warning" size="sm" title={`Editar camión ${row.descripcion}`} aria-label={`Editar camión ${row.descripcion}`} onClick={() => handleEdit(row)}>
             <FaPencilAlt aria-hidden="true" />
           </Button>
-          <Button variant="outline-danger" size="sm" title={`Eliminar camión ${row.descripcion}`} aria-label={`Eliminar camión ${row.descripcion}`} onClick={() => handleDelete(row.id)}>
+          <Button variant="outline-danger" size="sm" title={`Eliminar camión ${row.descripcion}`} aria-label={`Eliminar camión ${row.descripcion}`} onClick={() => handleDelete(row.id, row.descripcion)}>
             <FaTrash aria-hidden="true" />
           </Button>
         </div>
       ),
       ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
       width: '120px',
     },
   ];
