@@ -6,12 +6,10 @@ import pool from '../config/db.js';
 export const getClientes = async (req, res, next) => {
   try {
     const result = await pool.query('SELECT * FROM clientes');
-    // Emitir log informativo al frontend vía Socket.IO
-    const io = req.app.get('io');
-    if (io) {
-      io.emit('info', { message: 'Lista de clientes consultada', timestamp: new Date().toISOString() });
-    }
-    res.json(result.rows);
+    res.json({
+      data: result.rows,
+      info: 'Lista de clientes consultada'
+    });
   } catch (err) {
     err.status = 500;
     err.message = 'Error al obtener clientes';

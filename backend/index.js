@@ -9,8 +9,6 @@ import { applySecurity } from './middlewares/security.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import pkg from 'pg';
 const { Pool } = pkg;
-import { createServer } from 'http';
-import { Server as SocketIOServer } from 'socket.io';
 
 const app = express();
 app.use(cors(corsOptions)); // CORS seguro
@@ -43,10 +41,6 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Manejo centralizado de errores
 app.use(errorHandler);
 
-const server = createServer(app);
-const io = new SocketIOServer(server, { cors: { origin: '*' } });
-app.set('io', io);
-
 // Puerto
 const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => console.log(`API escuchando en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`API escuchando en puerto ${PORT}`));

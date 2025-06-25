@@ -30,8 +30,11 @@ const ClientesPanel = React.memo(function ClientesPanel() {
   const fetchClientes = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await apiFetch('/clientes');
-      setClientes(data);
+      const response = await apiFetch('/clientes');
+      setClientes(response.data || []);
+      if (response.info) {
+        toast.info(response.info);
+      }
     } finally {
       setLoading(false);
     }

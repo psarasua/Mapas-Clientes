@@ -3,6 +3,8 @@
 // Usa fetch, variables de entorno para la URL base y maneja errores globalmente.
 // Facilita la reutilización y la protección de datos sensibles.
 
+import { toast } from 'sonner';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 export async function apiFetch(endpoint, options = {}) {
@@ -17,11 +19,15 @@ export async function apiFetch(endpoint, options = {}) {
       credentials: 'include', // Para cookies/CSRF si es necesario
     });
     if (!response.ok) {
-      throw new Error(`Error ${response.status}: ${response.statusText}`);
+      const errorMsg = `Error ${response.status}: ${response.statusText}`;
+      toast.error(errorMsg);
+      throw new Error(errorMsg);
     }
-    return await response.json();
+    const data = await response.json();
+    toast.success(`Petición exitosa a ${endpoint}`);
+    return data;
   } catch (error) {
-    // Aquí puedes agregar logging o mostrar notificaciones globales
+    toast.error(error.message || 'Error en la petición');
     throw error;
   }
 }
