@@ -35,7 +35,7 @@ const ClientesPanelModalEditar = ({
   // Sincronizar cuando cambia clienteEdit o se abre el modal
   useEffect(() => {
     setForm(esAlta ? camposVacios : clienteEdit);
-  }, [clienteEdit, showEditModal]);
+  }, [clienteEdit, showEditModal, esAlta]);
 
   if (!showEditModal) return null;
   if (!form) {
@@ -55,7 +55,6 @@ const ClientesPanelModalEditar = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let error = null;
     if (esAlta) {
       await apiFetch('/clientes', {
         method: 'POST',

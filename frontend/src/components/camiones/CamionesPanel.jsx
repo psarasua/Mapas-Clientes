@@ -3,7 +3,7 @@
 // Permite ver, crear, editar y eliminar camiones, mostrando la lista y el formulario correspondiente.
 // Maneja el estado y la lógica de interacción de la vista de camiones.
 
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { apiFetch } from "../../services/api";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
 
@@ -11,8 +11,6 @@ import { FaPencilAlt, FaTrash } from "react-icons/fa";
 const CamionesPanel = React.memo(function CamionesPanel() {
   // Estado para la lista de camiones
   const [camiones, setCamiones] = useState([]);
-  // Estado para mostrar spinner de carga
-  const [loading, setLoading] = useState(true);
   // Estado para el formulario (agregar/editar)
   const [form, setForm] = useState({ descripcion: "" });
   // Estado para saber si se está editando y el id correspondiente
@@ -20,10 +18,8 @@ const CamionesPanel = React.memo(function CamionesPanel() {
 
   // useCallback para evitar recrear la función en cada render
   const fetchCamiones = useCallback(async () => {
-    setLoading(true);
     const data = await apiFetch("/camiones");
     setCamiones(data);
-    setLoading(false);
   }, []);
 
   // Carga los camiones al montar el componente
@@ -67,68 +63,6 @@ const CamionesPanel = React.memo(function CamionesPanel() {
     setForm({ descripcion: camion.descripcion });
     setEditId(camion.id);
   }, []);
-
-  // useMemo para memorizar la tabla de camiones y evitar renders innecesarios
-  const camionesTable = useMemo(
-    () => (
-      <div className="table-responsive flex-grow-1">
-        <table
-          className="table table-striped table-hover align-middle w-100"
-          role="table"
-          aria-label="Tabla de camiones"
-        >
-          <thead className="table-dark">
-            <tr>
-              <th scope="col">ID</th>
-              <th scope="col">Descripción</th>
-              <th scope="col">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {camiones.length === 0 ? (
-              <tr>
-                <td colSpan={3} className="text-center py-4">
-                  No hay camiones registrados.
-                </td>
-              </tr>
-            ) : (
-              camiones.map((camion) => (
-                <tr key={camion.id}>
-                  <td>{camion.id}</td>
-                  <td>{camion.descripcion}</td>
-                  <td>
-                    <div className="d-flex gap-2">
-                      {/* Botón para editar */}
-                      <button
-                        className="btn btn-outline-warning btn-sm"
-                        title="Editar"
-                        aria-label={`Editar camión ${camion.descripcion}`}
-                        onClick={() => handleEdit(camion)}
-                      >
-                        <FaPencilAlt aria-hidden="true" />
-                        <span className="visually-hidden">Editar</span>
-                      </button>
-                      {/* Botón para eliminar */}
-                      <button
-                        className="btn btn-outline-danger btn-sm"
-                        title="Eliminar"
-                        aria-label={`Eliminar camión ${camion.descripcion}`}
-                        onClick={() => handleDelete(camion.id)}
-                      >
-                        <FaTrash aria-hidden="true" />
-                        <span className="visually-hidden">Eliminar</span>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    ),
-    [camiones, handleEdit, handleDelete]
-  );
 
   // Renderizado principal
   return (

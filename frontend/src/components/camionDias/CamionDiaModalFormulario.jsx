@@ -3,7 +3,7 @@
 // Permite seleccionar camión, día y gestionar clientes asignados.
 // Incluye validaciones y mensajes informativos.
 
-import React, { useMemo, useCallback } from "react";
+import React, { useCallback } from "react";
 import ClientesAsignadosLista from "./ClientesAsignadosLista";
 
 const CamionDiaModalFormulario = React.memo(function CamionDiaModalFormulario({

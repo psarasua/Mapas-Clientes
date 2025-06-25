@@ -10,10 +10,6 @@ const ClientesTablaInteractiva = React.memo(function ClientesTablaInteractiva({
   loading,
   table,
   columns,
-  handleEdit,
-  handleDelete,
-  setMapCoords,
-  setShowModal,
 }) {
   // Memoiza los handlers de paginación para evitar recrearlos en cada render
   const handlePrevPage = useCallback(() => table.previousPage(), [table]);

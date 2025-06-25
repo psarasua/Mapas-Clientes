@@ -15,7 +15,7 @@ const SelectorCoordenadasMapa = React.memo(function SelectorCoordenadasMapa({ va
     if (value && value.x && value.y) {
       setMarker({ lat: Number(value.y), lng: Number(value.x) });
     }
-  }, [value.x, value.y]);
+  }, [value]);
 
   const handleMapClick = useCallback(
     (e) => {

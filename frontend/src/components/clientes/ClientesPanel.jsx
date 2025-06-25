@@ -139,7 +139,7 @@ const ClientesPanel = React.memo(function ClientesPanel() {
         setLoading(true);
         const data = await apiFetch('/clientes');
         setClientes(data);
-      } catch (err) {
+      } catch {
         // Manejo de error
       } finally {
         setLoading(false);
@@ -151,7 +151,7 @@ const ClientesPanel = React.memo(function ClientesPanel() {
   const checkBackend = useCallback(async () => {
     try {
       await apiFetch('/ping');
-    } catch (err) {
+    } catch {
       MySwal.fire({
         icon: "error",
         title: "Error de conexión",
@@ -214,14 +214,12 @@ const ClientesPanel = React.memo(function ClientesPanel() {
         <ClienteModalFormulario
           cliente={clienteEdit}
           onClose={handleCloseEditModal}
-          onSave={handleSaveCliente}
           // ...otras props
         />
       )}
       {showAltaModal && (
         <ClienteModalFormulario
           onClose={handleCloseAltaModal}
-          onSave={handleSaveCliente}
           // ...otras props
         />
       )}
