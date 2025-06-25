@@ -61,10 +61,11 @@ const ClientesPanel = React.memo(function ClientesPanel() {
     const fetchClientes = async () => {
       try {
         const data = await apiFetch('/clientes');
-        console.log('Clientes recibidos:', data);
         setClientes(data);
       } catch (err) {
-        console.error('Error al cargar clientes:', err);
+        // Manejo de error
+      } finally {
+        setLoading(false); // <- Esto es importante
       }
     };
     fetchClientes();
