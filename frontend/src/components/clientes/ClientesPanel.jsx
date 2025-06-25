@@ -59,15 +59,16 @@ const ClientesPanel = React.memo(function ClientesPanel() {
 
   useEffect(() => {
     const fetchClientes = async () => {
-      setLoading(true);
-      const response = await apiFetch(`/clientes?page=${pagination.pageIndex + 1}&limit=${pagination.pageSize}`);
-      setClientes(response.data || response);
-      setTotal(response.total || 0);
-      setLoading(false);
+      try {
+        const data = await apiFetch('/clientes');
+        console.log('Clientes recibidos:', data);
+        setClientes(data);
+      } catch (err) {
+        console.error('Error al cargar clientes:', err);
+      }
     };
-
     fetchClientes();
-  }, [pagination.pageIndex, pagination.pageSize]);
+  }, []);
 
   const checkBackend = useCallback(async () => {
     try {
