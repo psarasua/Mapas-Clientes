@@ -13,6 +13,7 @@ import ClienteModalMapa from "./ClienteModalMapa";
 import ClienteModalFormulario from "./ClienteModalFormulario";
 import { Button, Spinner } from "react-bootstrap";
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import { Toaster, toast } from 'sonner';
 
 const MySwal = withReactContent(Swal);
 
@@ -59,7 +60,9 @@ const ClientesPanel = React.memo(function ClientesPanel() {
       try {
         await apiFetch(`/clientes/${id}`, { method: "DELETE" });
         fetchClientes();
-        MySwal.fire('Eliminado', 'El cliente fue eliminado correctamente.', 'success');
+        toast.success('Cliente eliminado correctamente');
+      } catch (e) {
+        toast.error('Error al eliminar el cliente');
       } finally {
         setLoading(false);
       }
@@ -122,63 +125,69 @@ const ClientesPanel = React.memo(function ClientesPanel() {
     : clientes;
 
   return (
-    <div>
-      <div className="mb-4 d-flex justify-content-center">
-        <input
-          type="search"
-          className="form-control text-center shadow-sm border-0 rounded-pill px-4 py-2"
-          style={{ maxWidth: 350, fontSize: 18, background: "#f8f9fa" }}
-          placeholder="🔍 Buscar clientes..."
-          value={filter}
-          onChange={e => setFilter(e.target.value)}
-          aria-label="Buscar clientes"
+    <>
+      <Toaster richColors position="top-right" />
+      <div>
+        <div className="mb-4 d-flex justify-content-center align-items-center gap-3">
+          <input
+            type="search"
+            className="form-control text-center shadow-sm border-0 rounded-pill px-4 py-2"
+            style={{ maxWidth: 350, fontSize: 18, background: "#f8f9fa" }}
+            placeholder="🔍 Buscar clientes..."
+            value={filter}
+            onChange={e => setFilter(e.target.value)}
+            aria-label="Buscar clientes"
+          />
+          <Button
+            variant="success"
+            className="rounded-pill px-4 py-2 shadow-sm"
+            style={{ fontSize: 18 }}
+            onClick={() => {
+              setShowAltaModal(true);
+              toast.info('Formulario de alta de cliente abierto');
+            }}
+          >
+            + Nuevo Cliente
+          </Button>
+        </div>
+        <DataTable
+          columns={columns}
+          data={filteredData}
+          progressPending={loading}
+          pagination
+          paginationPerPage={20}
+          paginationRowsPerPageOptions={[20, 50, 100]}
+          highlightOnHover
+          pointerOnHover
+          noDataComponent={<div className="text-center text-muted py-5" style={{fontSize: 18}}>No se encontraron clientes para el filtro actual.</div>}
+          responsive
+          striped
+          dense
         />
+        {/* Modales */}
+        {showModal && (
+          <ClienteModalMapa
+            coords={mapCoords}
+            onClose={() => setShowModal(false)}
+            // ...otras props
+          />
+        )}
+        {showEditModal && (
+          <ClienteModalFormulario
+            cliente={clienteEdit}
+            onClose={() => setShowEditModal(false)}
+            fetchClientes={fetchClientes}
+            setClienteEdit={setClienteEdit}
+          />
+        )}
+        {showAltaModal && (
+          <ClienteModalFormulario
+            onClose={() => setShowAltaModal(false)}
+            // ...otras props
+          />
+        )}
       </div>
-      <DataTable
-        columns={columns}
-        data={filteredData}
-        progressPending={loading}
-        progressComponent={
-          <div className="d-flex flex-column align-items-center justify-content-center py-5 w-100">
-            <Spinner animation="border" role="status" variant="primary" style={{ width: 48, height: 48 }}>
-              <span className="visually-hidden">Cargando...</span>
-            </Spinner>
-            <div className="mt-3 text-primary" style={{ fontSize: 18 }}>Cargando clientes...</div>
-          </div>
-        }
-        pagination
-        paginationPerPage={20}
-        paginationRowsPerPageOptions={[20, 50, 100]}
-        highlightOnHover
-        pointerOnHover
-        noDataComponent={<div className="text-center text-muted py-5" style={{fontSize: 18}}>No se encontraron clientes para el filtro actual.</div>}
-        responsive
-        striped
-        dense
-      />
-      {/* Modales */}
-      {showModal && (
-        <ClienteModalMapa
-          coords={mapCoords}
-          onClose={() => setShowModal(false)}
-          // ...otras props
-        />
-      )}
-      {showEditModal && (
-        <ClienteModalFormulario
-          cliente={clienteEdit}
-          onClose={() => setShowEditModal(false)}
-          fetchClientes={fetchClientes}
-          setClienteEdit={setClienteEdit}
-        />
-      )}
-      {showAltaModal && (
-        <ClienteModalFormulario
-          onClose={() => setShowAltaModal(false)}
-          // ...otras props
-        />
-      )}
-    </div>
+    </>
   );
 });
 
