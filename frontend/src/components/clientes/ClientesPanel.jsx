@@ -35,7 +35,47 @@ const ClientesPanel = React.memo(function ClientesPanel() {
   const table = useReactTable({
     data: clientes,
     columns: [
-      // ...definición de columnas
+      {
+        accessorKey: 'id',
+        header: 'ID',
+      },
+      {
+        accessorKey: 'nombre',
+        header: 'Nombre',
+      },
+      {
+        accessorKey: 'razon',
+        header: 'Razón Social',
+      },
+      {
+        accessorKey: 'codigo_alternativo',
+        header: 'Código Alternativo',
+      },
+      {
+        accessorKey: 'direccion',
+        header: 'Dirección',
+      },
+      {
+        accessorKey: 'telefono',
+        header: 'Teléfono',
+      },
+      {
+        accessorKey: 'rut',
+        header: 'RUT',
+      },
+      {
+        accessorKey: 'activo',
+        header: 'Activo',
+        cell: info => info.getValue() ? 'Sí' : 'No',
+      },
+      {
+        accessorKey: 'x',
+        header: 'X',
+      },
+      {
+        accessorKey: 'y',
+        header: 'Y',
+      },
     ],
     pageCount: Math.ceil(clientes.length / pagination.pageSize),
     state: {
