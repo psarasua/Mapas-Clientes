@@ -19,13 +19,17 @@ const CamionesPanel = React.memo(function CamionesPanel() {
   const [form, setForm] = useState({ descripcion: "" });
   // Estado para saber si se está editando y el id correspondiente
   const [editId, setEditId] = useState(null);
+  // Estado para manejar la carga de datos
+  const [loading, setLoading] = useState(false);
 
   const MySwal = withReactContent(Swal);
 
   // useCallback para evitar recrear la función en cada render
   const fetchCamiones = useCallback(async () => {
+    setLoading(true);
     const data = await apiFetch("/camiones");
     setCamiones(data);
+    setLoading(false);
   }, []);
 
   // Carga los camiones al montar el componente
@@ -37,6 +41,7 @@ const CamionesPanel = React.memo(function CamionesPanel() {
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
+      setLoading(true);
       if (editId) {
         await apiFetch(`/camiones/${editId}`, {
           method: "PUT",
@@ -69,12 +74,13 @@ const CamionesPanel = React.memo(function CamionesPanel() {
         cancelButtonColor: '#6c757d',
       });
       if (result.isConfirmed) {
+        setLoading(true);
         await apiFetch(`/camiones/${id}`, { method: "DELETE" });
         fetchCamiones();
         MySwal.fire('Eliminado', 'El camión fue eliminado correctamente.', 'success');
       }
     },
-    [fetchCamiones]
+    [fetchCamiones, MySwal]
   );
 
   // useCallback para manejar la edición de un camión
@@ -137,7 +143,7 @@ const CamionesPanel = React.memo(function CamionesPanel() {
       <TablaPanel
         columns={columns}
         data={camiones}
-        loading={false}
+        loading={loading}
         title=""
         searchPlaceholder="Buscar camiones..."
         noDataText="No hay camiones registrados."
