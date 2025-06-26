@@ -189,6 +189,9 @@ const ClientesPanel = React.memo(function ClientesPanel() {
           striped
           dense
         />
+        <div className="text-center text-secondary mt-2 mb-4" style={{fontSize: 16}}>
+          Mostrando {filteredData.length} de {clientes.length} clientes
+        </div>
         {/* Modales */}
         {showModal && (
           <ClienteModalMapa
