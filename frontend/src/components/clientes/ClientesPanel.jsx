@@ -11,7 +11,7 @@ import { FaPencilAlt, FaTrash } from "react-icons/fa";
 import { apiFetch } from '../../services/api';
 import ClienteModalMapa from "./ClienteModalMapa";
 import ClienteModalFormulario from "./ClienteModalFormulario";
-import { Button, Spinner } from "react-bootstrap";
+import { Button, Spinner, Form } from "react-bootstrap";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Toaster, toast } from 'sonner';
 
@@ -31,7 +31,9 @@ const ClientesPanel = React.memo(function ClientesPanel() {
     setLoading(true);
     try {
       const response = await apiFetch('/clientes');
-      setClientes(response.data || []);
+      // Soporta tanto {data: [...]} como array plano
+      const clientesData = Array.isArray(response) ? response : (response.data || []);
+      setClientes(clientesData);
       if (response.info) {
         toast.info(response.info, { closeButton: true });
       }
@@ -122,25 +124,45 @@ const ClientesPanel = React.memo(function ClientesPanel() {
     },
   ];
 
-  // Filtro global
-  const filteredData = filter.trim()
-    ? clientes.filter(c => Object.values(c).some(val => val && String(val).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(filter.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''))))
-    : clientes;
+  // Filtro avanzado: búsqueda por nombre y estado activo/inactivo
+  const [estado, setEstado] = useState("");
+
+  const filteredData = clientes.filter(c => {
+    const matchNombre = filter.trim()
+      ? c.nombre && c.nombre.toLowerCase().includes(filter.toLowerCase())
+      : true;
+    const matchEstado = estado === ""
+      ? true
+      : estado === "activo"
+        ? c.activo
+        : !c.activo;
+    return matchNombre && matchEstado;
+  });
 
   return (
     <>
       <Toaster richColors position="top-right" />
       <div>
         <div className="mb-4 d-flex justify-content-center align-items-center gap-3">
-          <input
+          <Form.Control
             type="search"
-            className="form-control text-center shadow-sm border-0 rounded-pill px-4 py-2"
+            className="text-center shadow-sm border-0 rounded-pill px-4 py-2"
             style={{ maxWidth: 350, fontSize: 18, background: "#f8f9fa" }}
-            placeholder="🔍 Buscar clientes..."
+            placeholder="🔍 Buscar por nombre..."
             value={filter}
             onChange={e => setFilter(e.target.value)}
             aria-label="Buscar clientes"
           />
+          <Form.Select
+            value={estado}
+            onChange={e => setEstado(e.target.value)}
+            style={{ maxWidth: 180, fontSize: 16 }}
+            aria-label="Filtrar por estado"
+          >
+            <option value="">Todos</option>
+            <option value="activo">Solo activos</option>
+            <option value="inactivo">Solo inactivos</option>
+          </Form.Select>
           <Button
             variant="success"
             className="rounded-pill px-4 py-2 shadow-sm"
