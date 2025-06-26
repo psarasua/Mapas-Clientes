@@ -18,6 +18,7 @@ const MenuPrincipal = React.memo(function MenuPrincipal() {
       { to: "/camiones", label: "Camiones" },
       { to: "/dias-entrega", label: "Días de Entrega" },
       { to: "/camion-dias", label: "Repartos" },
+      { to: "/configuracion", label: "Configuración" },
     ],
     []
   );

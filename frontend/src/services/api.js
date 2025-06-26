@@ -20,14 +20,14 @@ export async function apiFetch(endpoint, options = {}) {
     });
     if (!response.ok) {
       const errorMsg = `Error ${response.status}: ${response.statusText}`;
-      toast.error(errorMsg);
+      toast.error(errorMsg, { closeButton: true });
       throw new Error(errorMsg);
     }
     const data = await response.json();
-    toast.success(`Petición exitosa a ${endpoint}`);
+    toast.success(`Petición exitosa a ${endpoint}`, { closeButton: true });
     return data;
   } catch (error) {
-    toast.error(error.message || 'Error en la petición');
+    toast.error(error.message || 'Error en la petición', { closeButton: true });
     throw error;
   }
 }

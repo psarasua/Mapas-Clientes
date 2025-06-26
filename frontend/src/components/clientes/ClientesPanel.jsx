@@ -33,7 +33,7 @@ const ClientesPanel = React.memo(function ClientesPanel() {
       const response = await apiFetch('/clientes');
       setClientes(response.data || []);
       if (response.info) {
-        toast.info(response.info);
+        toast.info(response.info, { closeButton: true });
       }
     } finally {
       setLoading(false);
@@ -63,9 +63,9 @@ const ClientesPanel = React.memo(function ClientesPanel() {
       try {
         await apiFetch(`/clientes/${id}`, { method: "DELETE" });
         fetchClientes();
-        toast.success('Cliente eliminado correctamente');
+        toast.success('Cliente eliminado correctamente', { closeButton: true });
       } catch (e) {
-        toast.error('Error al eliminar el cliente');
+        toast.error('Error al eliminar el cliente', { closeButton: true });
       } finally {
         setLoading(false);
       }
@@ -147,7 +147,7 @@ const ClientesPanel = React.memo(function ClientesPanel() {
             style={{ fontSize: 18 }}
             onClick={() => {
               setShowAltaModal(true);
-              toast.info('Formulario de alta de cliente abierto');
+              toast.info('Formulario de alta de cliente abierto', { closeButton: true });
             }}
           >
             + Nuevo Cliente

@@ -19,6 +19,7 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
+app.set('pool', pool);
 
 // Importar routers
 import clientesRoutes from './routes/clientes.js';

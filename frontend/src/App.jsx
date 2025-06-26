@@ -5,6 +5,7 @@ import CamionesPanel from "./components/camiones/CamionesPanel";
 import DiasEntregaPanel from "./components/diasEntrega/DiasEntregaPanel";
 import Menu from "./components/menu/MenuPrincipal";
 import { Toaster } from "sonner";
+import ConfiguracionPanel from "./components/configuracion/ConfiguracionPanel";
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
         <Route path="/clientes" element={<ClientesPanel />} />
         <Route path="/camiones" element={<CamionesPanel />} />
         <Route path="/dias-entrega" element={<DiasEntregaPanel />} />
+        <Route path="/configuracion" element={<ConfiguracionPanel />} />
         <Route path="*" element={<ClientesPanel />} />
       </Routes>
     </BrowserRouter>
