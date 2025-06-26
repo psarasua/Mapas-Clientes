@@ -58,6 +58,41 @@ const authController = require('../controllers/authController');
  *                       nullable: true
  */
 
+/**
+ * @swagger
+ * /auth/signup:
+ *   post:
+ *     summary: Registro de usuario
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - usuario
+ *               - contrasenia
+ *               - email
+ *             properties:
+ *               usuario:
+ *                 type: string
+ *                 example: usuario1
+ *               contrasenia:
+ *                 type: string
+ *                 example: password123
+ *               email:
+ *                 type: string
+ *                 example: usuario1@email.com
+ *     responses:
+ *       201:
+ *         description: Usuario registrado correctamente
+ *       400:
+ *         description: Faltan campos requeridos
+ *       409:
+ *         description: Usuario o email ya registrado
+ */
+
 // Validación de datos para login
 router.post(
   '/login',
@@ -73,6 +108,24 @@ router.post(
     next();
   },
   authController.login
+);
+
+// Validación de datos para signup
+router.post(
+  '/signup',
+  [
+    body('usuario').notEmpty().withMessage('El usuario es requerido'),
+    body('contrasenia').notEmpty().withMessage('La contraseña es requerida'),
+    body('email').isEmail().withMessage('Email inválido')
+  ],
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  },
+  authController.signup
 );
 
 module.exports = router;

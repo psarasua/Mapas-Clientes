@@ -3,12 +3,14 @@
 // Permite navegar entre las diferentes vistas del sistema de mapas y clientes.
 
 import React, { useMemo } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Container } from "react-bootstrap";
+import { isAuthenticated, logout } from "../../services/auth";
 
 // Componente de menú de navegación principal
-const MenuPrincipal = React.memo(function MenuPrincipal() {
+const MenuPrincipal = React.memo(function MenuPrincipal({ onLogout }) {
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Memoiza la lista de links del menú para evitar renders innecesarios
   const menuLinks = useMemo(
@@ -57,7 +59,21 @@ const MenuPrincipal = React.memo(function MenuPrincipal() {
               </Nav.Item>
             ))}
           </Nav>
-          {/* Aquí puedes agregar más elementos a la derecha si lo necesitas */}
+          <Nav>
+            <Nav.Item>
+              <Nav.Link
+                onClick={() => {
+                  logout();
+                  onLogout && onLogout();
+                  navigate("/login");
+                }}
+                style={{ cursor: "pointer" }}
+                aria-label="Cerrar sesión"
+              >
+                <i className="bi bi-box-arrow-right me-2"></i>Salir
+              </Nav.Link>
+            </Nav.Item>
+          </Nav>
         </Navbar.Collapse>
       </Container>
     </Navbar>

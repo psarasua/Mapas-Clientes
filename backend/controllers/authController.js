@@ -1,32 +1,51 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const pool = require('../config/db');
 
-// Usuario de ejemplo (en producción usar base de datos)
-const user = {
-  id: 1,
-  username: 'admin',
-  password: bcrypt.hashSync('admin123', 8), // Contraseña encriptada
-  role: 'admin'
-};
-
-exports.login = (req, res, next) => {
+exports.login = async (req, res, next) => {
   try {
-    const { username, password } = req.body;
-    if (username !== user.username) {
+    const { usuario, contrasenia } = req.body;
+    if (!usuario || !contrasenia) {
+      return res.status(400).json({ error: 'Faltan campos requeridos' });
+    }
+    // Buscar usuario en la base de datos
+    const result = await pool.query('SELECT * FROM usuarios WHERE usuario = $1', [usuario]);
+    if (result.rows.length === 0) {
       const err = new Error('Usuario o contraseña incorrectos');
       err.status = 401;
       return next(err);
     }
-    const passwordIsValid = bcrypt.compareSync(password, user.password);
+    const user = result.rows[0];
+    const passwordIsValid = bcrypt.compareSync(contrasenia, user.contrasenia);
     if (!passwordIsValid) {
       const err = new Error('Usuario o contraseña incorrectos');
       err.status = 401;
       return next(err);
     }
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET || 'secreto', {
+    const token = jwt.sign({ id: user.id, usuario: user.usuario }, process.env.JWT_SECRET || 'secreto', {
       expiresIn: 86400 // 24 horas
     });
     res.json({ token });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.signup = async (req, res, next) => {
+  try {
+    const { usuario, contrasenia, email } = req.body;
+    if (!usuario || !contrasenia || !email) {
+      return res.status(400).json({ error: 'Faltan campos requeridos' });
+    }
+    // Verificar si el usuario o email ya existen
+    const existe = await pool.query('SELECT 1 FROM usuarios WHERE usuario = $1 OR email = $2', [usuario, email]);
+    if (existe.rows.length > 0) {
+      return res.status(409).json({ error: 'Usuario o email ya registrado' });
+    }
+    // Hashear la contraseña
+    const hash = bcrypt.hashSync(contrasenia, 8);
+    await pool.query('INSERT INTO usuarios (usuario, contrasenia, email) VALUES ($1, $2, $3)', [usuario, hash, email]);
+    res.status(201).json({ message: 'Usuario registrado correctamente' });
   } catch (error) {
     next(error);
   }
