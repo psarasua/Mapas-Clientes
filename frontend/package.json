@@ -9,8 +9,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "vite preview --port $PORT",
-
+    "start": "react-scripts start",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
